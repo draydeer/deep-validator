@@ -227,8 +227,8 @@ export class Validator
             this._nextError = () => {
                 if (i ++ < k.length) {
                     return {
-                        k: k[i - 1],
-                        m: this.errors[k[i - 1]]
+                        field: k[i - 1],
+                        message: this.errors[k[i - 1]]
                     }
                 }
 
