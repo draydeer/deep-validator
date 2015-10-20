@@ -25,7 +25,7 @@ export class Validator
         _schema = { '##': { s: void 0, v: [] } };
 
     protected
-        _notArr: boolean = true;
+        _arrayAllow: boolean = true;
 
     protected
         _strict: boolean = false;
@@ -250,17 +250,17 @@ export class Validator
     }
 
     /**
-     * Set [notArr] mode. Validating data will be examined as object.
+     * Set [arrayAllow] mode. Allows applying schema to each element of data if data is array.
      *
      * @param value
      *      Value.
      * @returns {Validator}
      */
-    notArr(
+    arrayAllow(
         value: boolean = true
     ): Validator
     {
-        this._notArr = value;
+        this._arrayAllow = value;
 
         return this;
     }
@@ -302,17 +302,20 @@ export class Validator
      *
      * @param data
      *      Data to be validated.
+     * @param arrayAllow
+     *      Allow apply schema to each element of data if data is array.
      * @returns {boolean}
      */
     validate(
-        data: {}|any[]
+        data: {}|any[],
+        arrayAllow: boolean = false
     ): boolean
     {
         this._nextError = null;
         this.errors = {};
 
         if (_.isArray(data)) {
-            if (this._notArr) {
+            if (this._arrayAllow === false && arrayAllow === false) {
                 return false;
             }
 

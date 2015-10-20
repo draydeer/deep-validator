@@ -49,7 +49,7 @@ var d = {
     },
 };
 
-console.log(validator.notArr(false).tryAll().validate([ d, d, d, d, d, d ]));
+console.log(validator.arrayAllow().tryAll().validate([ d, d, d, d, d, d ]));
 
 let message;
 
