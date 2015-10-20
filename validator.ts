@@ -10,9 +10,9 @@ export class Validator
 
     protected static
         _isValidators = {
-            contains:       true,
-            equals:         true,
-            matches:        true,
+            'contains':     true,
+            'equals':       true,
+            'matches':      true,
         };
 
     protected
@@ -74,8 +74,6 @@ export class Validator
                 if (_[_e.v]) {
                     _isValidator = _e.v.substr(0, 2) === 'is' || Validator._isValidators[_e.v];
                     _result = _[_e.v](data, _e.a[0], _e.a[1], _e.a[2], _e.a[3]);
-                } else {
-                    throw new Error('Validator is not defined: ' + _e.v);
                 }
             }
 
@@ -186,13 +184,16 @@ export class Validator
                             } else
                             if (t[0] === 'default') {
                                 _last[k]['##'].d = v[1];
+                            } else
+                            if (validator[t[0]] || _[t[0]]) {
+                                _last[k]['##'].v.push({
+                                    a: v.slice(1),
+                                    m: t[1],
+                                    v: t[0]
+                                });
+                            } else {
+                                throw new Error('Validator is not defined: ' + t[0]);
                             }
-
-                            _last[k]['##'].v.push({
-                                a: v.slice(1),
-                                m: t[1],
-                                v: t[0]
-                            });
                         } else {
                             _last[k]['##'].v.push({
                                 a: v.slice(1),
