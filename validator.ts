@@ -1,8 +1,8 @@
 /// <reference path="../typings/tsd.d.ts" />
 
 
-import _ = require('underscore');
-import validator = require('validator');
+import * as _ from 'underscore';
+import * as validator from 'validator';
 
 
 export class Validator
@@ -141,19 +141,19 @@ export class Validator
      *      Data validation schema.
      */
     constructor(
-        schema: {}
+        schema: _.Dictionary<any>
     )
     {
         _.each(
             schema,
-            (v, k) => {
+            (v, k: string) => {
                 let _last = this._schema,
                     _elem = this._schema;
 
                 k.split('.').forEach(
                     (v) => {
                         _last = _elem;
-                        _elem = _elem[k = v] || (_elem[k = v] = { '##': { s: void 0, v: [] } });
+                        _elem = _elem[k = v] || (_elem[v] = { '##': { s: void 0, v: [] } });
 
                         if (k === '[]') {
                             _last['##'].v.push({
