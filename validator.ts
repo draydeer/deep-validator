@@ -25,7 +25,7 @@ export class Validator
         _schema = { '##': { s: void 0, v: [] } };
 
     protected
-        _arrayAllow: boolean = true;
+        _arrayAllow: boolean = false;
 
     protected
         _strict: boolean = false;
