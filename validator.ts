@@ -8,6 +8,13 @@ import * as validator from 'validator';
 export class Validator
 {
 
+    public static
+        _isValidators = {
+            contains:       true,
+            equals:         true,
+            matches:        true,
+        };
+
     protected
         _nextError = null;
 
@@ -59,13 +66,13 @@ export class Validator
 
                 // try [validator]
                 if (validator[_e.v]) {
-                    _isValidator = _e.v.substr(0, 2) === 'is';
+                    _isValidator = _e.v.substr(0, 2) === 'is' || Validator._isValidators[_e.v];
                     _result = validator[_e.v](data, _e.a[0], _e.a[1], _e.a[2], _e.a[3]);
                 } else
 
                 // try [underscore]
                 if (_[_e.v]) {
-                    _isValidator = _e.v.substr(0, 2) === 'is';
+                    _isValidator = _e.v.substr(0, 2) === 'is' || Validator._isValidators[_e.v];
                     _result = _[_e.v](data, _e.a[0], _e.a[1], _e.a[2], _e.a[3]);
                 }
             }
