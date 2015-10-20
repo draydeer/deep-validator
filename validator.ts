@@ -8,7 +8,7 @@ import * as validator from 'validator';
 export class Validator
 {
 
-    public static
+    protected static
         _isValidators = {
             contains:       true,
             equals:         true,
@@ -74,6 +74,8 @@ export class Validator
                 if (_[_e.v]) {
                     _isValidator = _e.v.substr(0, 2) === 'is' || Validator._isValidators[_e.v];
                     _result = _[_e.v](data, _e.a[0], _e.a[1], _e.a[2], _e.a[3]);
+                } else {
+                    throw new Error('Validator is not defined: ' + _e.v);
                 }
             }
 
