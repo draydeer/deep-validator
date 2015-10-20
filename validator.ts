@@ -1,8 +1,8 @@
-/// <reference path="../typings/tsd.d.ts" />
+/// <reference path="../../typings/tsd.d.ts" />
 
 
-import _ = require('underscore');
-import validator = require('validator');
+import * as _ from 'underscore';
+import * as validator from 'validator';
 
 
 export class Validator
@@ -83,30 +83,33 @@ export class Validator
 
         // go through all nested in schema
         for (let k in schema) {
-            let _message = messagePrefix ? messagePrefix + '.' + k : k;
+            if (schema.hasOwnProperty(k)) {
 
-            if (k !== '##' && k !== '[]') {
-                if (_isObject) {
-                    if (data[k]) {
-                        if (this._validate(data[k], schema[k], tryAll, errors, strict, _message, k, data) || tryAll) {
+                let _message = messagePrefix ? messagePrefix + '.' + k : k;
+
+                if (k !== '##' && k !== '[]') {
+                    if (_isObject) {
+                        if (data[k]) {
+                            if (this._validate(data[k], schema[k], tryAll, errors, strict, _message, k, data) || tryAll) {
+                                continue;
+                            } else {
+                                return false;
+                            }
+                        }
+
+                        if (schema[k]['##'].d !== void 0) {
+                            data[k] = schema[k]['##'].d;
+
                             continue;
-                        } else {
-                            return false;
                         }
                     }
 
-                    if (schema[k]['##'].d !== void 0) {
-                        data[k] = schema[k]['##'].d;
+                    if (strict || schema[k]['##'].s !== void 0) {
+                        errors[_message] = schema[k]['##'].s || false;
 
-                        continue;
-                    }
-                }
-
-                if (strict || schema[k]['##'].s !== void 0) {
-                    errors[_message] = schema[k]['##'].s || false;
-
-                    if (tryAll === false) {
-                        return false;
+                        if (tryAll === false) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -141,12 +144,12 @@ export class Validator
      *      Data validation schema.
      */
     constructor(
-        schema: {}
+        schema: any
     )
     {
         _.each(
             schema,
-            (v, k) => {
+            (v, k: string) => {
                 let _last = this._schema,
                     _elem = this._schema;
 
