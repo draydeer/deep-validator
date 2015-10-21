@@ -28,6 +28,12 @@ export class Validator
         _arrayAllow: boolean = false;
 
     protected
+        _messageInvalid: any = false;
+
+    protected
+        _messageMissingKey: any = false;
+
+    protected
         _strict: boolean = false;
 
     protected
@@ -45,7 +51,7 @@ export class Validator
         tryAll: boolean = false,
         errors: {} = {},
         strict: boolean = false,
-        messagePrefix: string = '',
+        message: string = '',
         key?: string,
         ref?: any
     ): boolean
@@ -79,7 +85,7 @@ export class Validator
 
             if (_isValidator) {
                 if (_result !== true) {
-                    errors[messagePrefix] = _e.m || false;
+                    errors[message] = _e.m || false;
 
                     return false;
                 }
@@ -88,52 +94,57 @@ export class Validator
             }
         }
 
-        // go through all nested in schema
-        for (let k in schema) {
-            let _message = messagePrefix ? messagePrefix + '.' + k : k;
+        // array/object process
+        if (_.isArray(data)) {
 
-            if (k !== '##' && k !== '[]') {
-                if (_isObject) {
-                    if (data[k]) {
-                        if (this._validate(data[k], schema[k], tryAll, errors, strict, _message, k, data) || tryAll) {
-                            continue;
-                        } else {
-                            return false;
-                        }
-                    }
-
-                    if (schema[k]['##'].d !== void 0) {
-                        data[k] = schema[k]['##'].d;
-
-                        continue;
-                    }
-                }
-
-                if (strict || schema[k]['##'].s !== void 0) {
-                    errors[_message] = schema[k]['##'].s || false;
-
-                    if (tryAll === false) {
+            // go through each element if data is array
+            if (schema['[]']) {
+                for (let i = 0, c = data.length; i < c; i ++) {
+                    if (this._validate(
+                            data[i],
+                            schema['[]'],
+                            tryAll,
+                            errors,
+                            strict,
+                            message ? message + '.' + i : i.toString(),
+                            i.toString(),
+                            data
+                        ) === false
+                    ) {
                         return false;
                     }
                 }
             }
-        }
+        } else {
 
-        // go through each element if data is array
-        if (_.isArray(data) && schema['[]']) {
-            for (let i = 0, c = data.length; i < c; i ++) {
-                if (this._validate(
-                        data[i],
-                        schema['[]'],
-                        tryAll,
-                        errors,
-                        strict,
-                        messagePrefix ? messagePrefix + '.' + i : i.toString(),
-                        i.toString(),
-                        data
-                    ) === false
-                ) {
-                    return false;
+            // go through all nested in schema
+            for (let k in schema) {
+                let _message = message ? message + '.' + k : k;
+
+                if (k !== '##' && k !== '[]') {
+                    if (_isObject) {
+                        if (data[k]) {
+                            if (this._validate(data[k], schema[k], tryAll, errors, strict, _message, k, data) || tryAll) {
+                                continue;
+                            } else {
+                                return false;
+                            }
+                        }
+
+                        if (schema[k]['##'].d !== void 0) {
+                            data[k] = schema[k]['##'].d;
+
+                            continue;
+                        }
+                    }
+
+                    if (strict || schema[k]['##'].s !== void 0) {
+                        errors[_message] = schema[k]['##'].s || this._messageMissingKey;
+
+                        if (tryAll === false) {
+                            return false;
+                        }
+                    }
                 }
             }
         }
@@ -250,6 +261,34 @@ export class Validator
     }
 
     /**
+     * Set default [data invalid] message.
+     *
+     * @param value
+     */
+    setMessageInvalid(
+        value: number|string
+    ): Validator
+    {
+        this._messageInvalid = value;
+
+        return this;
+    }
+
+    /**
+     * Set default [missing key] message.
+     *
+     * @param value
+     */
+    setMessageMissingKey(
+        value: number|string
+    ): Validator
+    {
+        this._messageMissingKey = value;
+
+        return this;
+    }
+
+    /**
      * Set [arrayAllow] mode. Allows applying schema to each element of data if data is array.
      *
      * @param value
@@ -298,7 +337,7 @@ export class Validator
     }
 
     /**
-     * Validate. If returns [false] errors list can be retrieved by [getErrors] or [getNextError] iterator.
+     * Validate data. If returns [false] errors list can be retrieved by [getErrors] or [getNextError] iterator.
      *
      * @param data
      *      Data to be validated.
@@ -316,13 +355,21 @@ export class Validator
 
         if (_.isArray(data)) {
             if (this._arrayAllow === false && arrayAllow === false) {
-                return false;
+                this.errors = {
+                    '??': this._messageInvalid,
+                };
+
+                return this.passed = false;
             }
 
             this._validate(data, this._sarray, this._tryAll, this.errors, this._strict, '');
         } else {
             if (_.isObject(data) === false) {
-                return false;
+                this.errors = {
+                    '??': this._messageInvalid,
+                };
+
+                return this.passed = false;
             }
 
             this._validate(data, this._schema, this._tryAll, this.errors, this._strict, '');
