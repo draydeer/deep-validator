@@ -90,7 +90,7 @@ export class Validator
                     return false;
                 }
             } else {
-                key !== void 0 ? ref[key] = _result : null;
+                key !== void 0 && (ref[key] = _result);
             }
         }
 
@@ -261,7 +261,7 @@ export class Validator
     }
 
     /**
-     * Set default [data invalid] message.
+     * Set default [data invalid] message. Message will be preset if provided data is invalid.
      *
      * @param value
      *      Value.
@@ -277,7 +277,7 @@ export class Validator
     }
 
     /**
-     * Set default [missing key] message.
+     * Set default [missing key] message. Message will be preset if [isExists] validator is fail and has no self message.
      *
      * @param value
      *      Value.
