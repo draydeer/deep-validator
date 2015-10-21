@@ -264,6 +264,8 @@ export class Validator
      * Set default [data invalid] message.
      *
      * @param value
+     *      Value.
+     * @returns {Validator}
      */
     setMessageInvalid(
         value: number|string
@@ -278,6 +280,8 @@ export class Validator
      * Set default [missing key] message.
      *
      * @param value
+     *      Value.
+     * @returns {Validator}
      */
     setMessageMissingKey(
         value: number|string
