@@ -79,7 +79,14 @@ var DeepValidator = (function () {
             });
         });
         this._sarray['[]'] = this._schema;
+        this._translator = DeepValidator._translate;
     }
+    /**
+     * Dummy translator.
+     */
+    DeepValidator._translate = function (message) {
+        return message;
+    };
     /*
      *
      */
@@ -91,7 +98,7 @@ var DeepValidator = (function () {
         if (message === void 0) { message = ''; }
         var isObject = _.isObject(data);
         // apply validators/sanitizers
-        for (var i = 0, c = schema['##'].v.length; i < c; i++) {
+        for (var i = 0, l = schema['##'].v.length; i < l; i++) {
             var entry = schema['##'].v[i];
             var isValidator = true;
             var result = true;
@@ -127,7 +134,7 @@ var DeepValidator = (function () {
         if (_.isArray(data)) {
             // go through each element if data is array
             if (schema['[]']) {
-                for (var i = 0, c = data.length; i < c; i++) {
+                for (var i = 0, l = data.length; i < l; i++) {
                     if (this._validate(data[i], schema['[]'], tryAll, errors, strict, message ? message + '.' + i : i.toString(), i.toString(), data) === false) {
                         return false;
                     }
@@ -171,7 +178,7 @@ var DeepValidator = (function () {
     DeepValidator.isContains = function (value, compare) {
         var matches = 0;
         if (_.isObject(value)) {
-            for (var i = 0, c = compare.length; i < c; i++) {
+            for (var i = 0, l = compare.length; i < l; i++) {
                 if (compare[i] in value === false) {
                     return false;
                 }
@@ -179,7 +186,7 @@ var DeepValidator = (function () {
             return true;
         }
         if (_.isArray(value)) {
-            for (var i = 0, c = compare.length; i < c; i++) {
+            for (var i = 0, l = compare.length; i < l; i++) {
                 if (value.indexOf(compare[i]) === -1) {
                     return false;
                 }
@@ -194,7 +201,7 @@ var DeepValidator = (function () {
     DeepValidator.isNotContains = function (value, compare) {
         var matches = 0;
         if (_.isObject(value)) {
-            for (var i = 0, c = compare.length; i < c; i++) {
+            for (var i = 0, l = compare.length; i < l; i++) {
                 if (compare[i] in value) {
                     return false;
                 }
@@ -202,7 +209,7 @@ var DeepValidator = (function () {
             return true;
         }
         if (_.isArray(value)) {
-            for (var i = 0, c = compare.length; i < c; i++) {
+            for (var i = 0, l = compare.length; i < l; i++) {
                 if (value.indexOf(compare[i]) !== -1) {
                     return false;
                 }
@@ -218,7 +225,7 @@ var DeepValidator = (function () {
         if (strict === void 0) { strict = true; }
         var matches = 0;
         if (_.isObject(value)) {
-            for (var i = 0, c = compare.length; i < c; i++) {
+            for (var i = 0, l = compare.length; i < l; i++) {
                 if (compare[i] in value) {
                     matches++;
                 }
@@ -226,7 +233,7 @@ var DeepValidator = (function () {
             return Object.keys(value).length === matches;
         }
         if (_.isArray(value)) {
-            for (var i = 0, c = compare.length; i < c; i++) {
+            for (var i = 0, l = compare.length; i < l; i++) {
                 if (value.indexOf(compare[i]) !== -1) {
                     matches++;
                 }
@@ -249,7 +256,7 @@ var DeepValidator = (function () {
             return true;
         }
         if (_.isArray(value)) {
-            for (var i = 0, c = compare.length; i < c; i++) {
+            for (var i = 0, l = compare.length; i < l; i++) {
                 if (compare.indexOf(value[i]) === -1) {
                     return false;
                 }
@@ -259,37 +266,37 @@ var DeepValidator = (function () {
         return false;
     };
     /**
-     * Sanitizer
+     * Sanitizer.
      */
     DeepValidator.toNumber = function (value) {
         return _.isString(value) ? parseInt(value) : (_.isNumber(value) ? value : NaN);
     };
     /**
-     * Sanitizer
+     * Sanitizer.
      */
     DeepValidator.toNullIfEmpty = function (value) {
         return this.isEmpty(value) ? null : value;
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isGreater = function (value, compare) {
         return _.isNumber(value) && (value | 0) > compare;
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isGreaterOrEqual = function (value, compare) {
         return _.isNumber(value) && (value | 0) >= compare;
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isGreaterOrEqualToZero = function (value) {
         return value === 0 || Validator.isGreater(value, 0);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isLength = function (value, min, max) {
         var length;
@@ -311,109 +318,109 @@ var DeepValidator = (function () {
         return true;
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isLengthOrNull = function (value, min, max) {
         return value === null ? true : Validator.isLength(value, min, max);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isLess = function (value, compare) {
         return _.isNumber(value) && (value | 0) < compare;
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isLessOrEqual = function (value, compare) {
         return _.isNumber(value) && (value | 0) <= compare;
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isLessOrEqualToZero = function (value) {
         return value === 0 || Validator.isLess(value, 0);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isNotEmpty = function (value) {
         return Validator.isEmpty(value) === false;
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isNotEmptyArray = function (value) {
         return Validator.isArray(value) && Validator.isEmpty(value) === false;
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isNotEmptyObject = function (value) {
         return Validator.isObject(value) && Validator.isEmpty(value) === false;
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isArrayOrNull = function (value) {
         return value === null || _.isArray(value);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isBooleanOrNull = function (value) {
         return value === null || _.isBoolean(value);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isEmailOrNull = function (value) {
         return value === null || validator.isEmail(value);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isNumberNegative = function (value) {
         return Validator.isLess(value, 0);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isNumberPositive = function (value) {
         return Validator.isGreater(value, 0);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isNumberOrNull = function (value) {
         return value === null || _.isNumber(value);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isNumberOrNumeric = function (value) {
         return _.isNumber(value) || validator.isNumeric(value);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isObjectOrNull = function (value) {
         return value === null || _.isObject(value);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isStringOrNull = function (value) {
         return value === null || _.isString(value);
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isVoid = function (value) {
         return value === void 0;
     };
     /**
-     * Filter
+     * Filter.
      */
     DeepValidator.isNotVoid = function (value) {
         return value !== void 0;
@@ -431,26 +438,23 @@ var DeepValidator = (function () {
      * Get next error of last validation.
      *
      * @returns {any}
-    any getNextError(): void|{} {
+     */
+    DeepValidator.prototype.getNextError = function () {
+        var _this = this;
         if (this._nextError === null) {
-            let k = Object.keys(this.errors),
-                i = 0;
-
-            this._nextError = () => {
-                if (i ++ < k.length) {
+            var k = Object.keys(this.errors), i = 0;
+            this._nextError = function () {
+                if (i++ < k.length) {
                     return {
                         field: k[i - 1],
-                        message: this.errors[k[i - 1]]
-                    }
+                        message: _this.errors[k[i - 1]]
+                    };
                 }
-
                 return void 0;
-            }
+            };
         }
-
         return this._nextError();
-    }
-
+    };
     /**
      * Set default [data invalid] message. Message will be preset if provided data is invalid.
      *
@@ -553,129 +557,139 @@ var DeepValidator = (function () {
         return this.passed = _.isEmpty(this.errors);
     };
     DeepValidator._isValidators = {
-        contains: true,
-        equals: true,
-        matches: true
+        contain: true,
+        equal: true,
+        match: true
     };
     DeepValidator._ = _;
     // external filters import
-    // validator
+    // from validator
+    DeepValidator.alpha = validator.alpha;
+    // from validator
+    DeepValidator.blacklist = validator.blacklist;
+    // from validator
+    DeepValidator.contain = validator.contains;
+    // from validator
+    DeepValidator.equal = validator.equals;
+    // from validator
+    DeepValidator.escape = validator.escape;
+    // from validator
     DeepValidator.isAfter = validator.isAfter;
-    // validator
+    // from validator
     DeepValidator.isAlpha = validator.isAlpha;
-    // validator
+    // from validator
     DeepValidator.isAlphanumeric = validator.isAlphanumeric;
-    // lodash [isArray]
+    // from lodash [isArray]
     DeepValidator.isArray = _.isArray;
-    // validator
+    // from validator
     DeepValidator.isBase64 = validator.isBase64;
-    // validator
+    // from validator
     DeepValidator.isBefore = validator.isBefore;
-    // validator
+    // from validator
     DeepValidator.isBoolean = validator.isBoolean;
-    // validator
+    // from validator
     DeepValidator.isByteLength = validator.isByteLength;
-    // validator
+    // from validator
     DeepValidator.isCreditCard = validator.isCreditCard;
-    // validator
+    // from validator
     DeepValidator.isCurrency = validator.isCurrency;
-    // validator
+    // from validator
     DeepValidator.isDataURI = validator.isDataURI;
-    // validator
+    // from validator
     DeepValidator.isDate = validator.isDate;
-    // validator
+    // from validator
     DeepValidator.isDateAfter = validator.isAfter;
-    // validator
+    // from validator
     DeepValidator.isDateBefore = validator.isBefore;
-    // validator
+    // from validator
     DeepValidator.isDecimal = validator.isDecimal;
-    // validator
+    // from validator
     DeepValidator.isDivisibleBy = validator.isDivisibleBy;
-    // validator
+    // from validator
     DeepValidator.isEmail = validator.isEmail;
-    // lodash [isEmpty], checks if value is an empty object, collection, map, or set (see docs).
+    // from lodash [isEmpty], checks if value is an empty object, collection, map, or set (see docs).
     DeepValidator.isEmpty = _.isEmpty;
-    // lodash [isEqual], performs a deep comparison between two values to determine if they are equivalent (see docs).
+    // from lodash [isEqual], performs a deep comparison between two values to determine if they are equivalent (see docs).
     DeepValidator.isEqual = _.isEqual;
-    // validator
+    // from validator
     DeepValidator.isFQDN = validator.isFQDN;
-    // validator
+    // from validator
     DeepValidator.isFloat = validator.isFloat;
-    // validator
+    // from validator
     DeepValidator.isFullWidth = validator.isFullWidth;
-    // validator
+    // from validator
     DeepValidator.isHalfWidth = validator.isHalfWidth;
-    // validator
+    // from validator
     DeepValidator.isHexColor = validator.isHexColor;
-    // validator
+    // from validator
     DeepValidator.isHexadecimal = validator.isHexadecimal;
-    // validator
+    // from validator
     DeepValidator.isIP = validator.isIP;
-    // validator
+    // from validator
     DeepValidator.isISBN = validator.isISBN;
-    // validator
+    // from validator
     DeepValidator.isISIN = validator.isISIN;
-    // validator
+    // from validator
     DeepValidator.isISO8601 = validator.isISO8601;
-    // validator
+    // from validator
     DeepValidator.isIn = validator.isIn;
-    // validator
+    // from validator
     DeepValidator.isInt = validator.isInt;
-    // validator
+    // from validator
     DeepValidator.isLowercase = validator.isLowercase;
-    // validator
+    // from validator
     DeepValidator.isMACAddress = validator.isMACAddress;
-    // validator
+    // from validator
     DeepValidator.isMatch = validator.matches;
-    // validator
+    // from validator
     DeepValidator.isMD5 = validator.isMD5;
-    // validator
+    // from validator
     DeepValidator.isMobilePhone = validator.isMobilePhone;
-    // validator
+    // from validator
     DeepValidator.isMongoId = validator.isMongoId;
-    // validator
+    // from validator
     DeepValidator.isMultibyte = validator.isMultibyte;
-    // validator
+    // from validator
     DeepValidator.isNull = validator.isNull;
-    // validator
+    // from validator
     DeepValidator.isNumeric = validator.isNumeric;
-    // lodash [isObject]
+    // from lodash [isObject]
     DeepValidator.isObject = _.isObject;
-    // lodash [isMatch], Performs a partial deep comparison between object and source (see docs).
+    // from lodash [isMatch], Performs a partial deep comparison between object and source (see docs).
     DeepValidator.isPartialEqual = _.isMatch;
-    // validator
+    // from validator
     DeepValidator.isSurrogatePair = validator.isSurrogatePair;
-    // validator
+    // from validator
     DeepValidator.isURL = validator.isURL;
-    // validator
+    // from validator
     DeepValidator.isUUID = validator.isUUID;
-    // validator
+    // from validator
     DeepValidator.isUppercase = validator.isUppercase;
-    // validator
+    // from validator
     DeepValidator.isVariableWidth = validator.isVariableWidth;
-    // validator
+    // from validator
     DeepValidator.isWhitelisted = validator.isWhitelisted;
-    // validator
+    // from validator
     DeepValidator.ltrim = validator.ltrim;
-    // validator
+    // from validator
     DeepValidator.normalizeEmail = validator.normalizeEmail;
-    // validator
+    // from validator
     DeepValidator.rtrim = validator.rtrim;
-    // validator
+    // from validator
     DeepValidator.stripLow = validator.stripLow;
-    // validator
+    // from validator
     DeepValidator.toBoolean = validator.toBoolean;
-    // validator
+    // from validator
     DeepValidator.toDate = validator.toDate;
-    // validator
+    // from validator
     DeepValidator.toFloat = validator.toFloat;
-    // validator
+    // from validator
     DeepValidator.toInt = validator.toInt;
-    // validator
+    // from validator
     DeepValidator.trim = validator.trim;
-    // validator
+    // from validator
     DeepValidator.unescape = validator.unescape;
-    // validator
+    // from validator
     DeepValidator.whitelist = validator.whitelist;
     return DeepValidator;
 })();

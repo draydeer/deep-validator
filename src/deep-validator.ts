@@ -5,7 +5,7 @@ import * as validator from 'validator';
 import Dictionary = _.Dictionary;
 
 
-type ValidationEntry = {
+type ValidatorEntry = {
 
     args: string;
 
@@ -21,9 +21,9 @@ type ValidationEntry = {
 export class DeepValidator {
 
     protected static _isValidators = {
-        contains: true,
-        equals: true,
-        matches: true,
+        contain: true,
+        equal: true,
+        match: true,
     };
 
     protected _arrayAllow: boolean = false;
@@ -52,6 +52,13 @@ export class DeepValidator {
 
     schema = null;
 
+    /**
+     * Dummy translator.
+     */
+    protected static _translate(message: string): any {
+        return message;
+    }
+
     /*
      *
      */
@@ -68,8 +75,8 @@ export class DeepValidator {
         let isObject = _.isObject(data);
 
         // apply validators/sanitizers
-        for (let i = 0, c = schema['##'].v.length; i < c; i ++) {
-            let entry: ValidationEntry = schema['##'].v[i];
+        for (let i = 0, l = schema['##'].v.length; i < l; i ++) {
+            let entry: ValidatorEntry = schema['##'].v[i];
 
             let isValidator = true;
 
@@ -121,7 +128,7 @@ export class DeepValidator {
 
             // go through each element if data is array
             if (schema['[]']) {
-                for (let i = 0, c = data.length; i < c; i ++) {
+                for (let i = 0, l = data.length; i < l; i ++) {
                     if (this._validate(
                             data[i],
                             schema['[]'],
@@ -178,181 +185,196 @@ export class DeepValidator {
 
     // external filters import
 
-    // validator
+    // from validator
+    static alpha = validator.alpha;
+
+    // from validator
+    static blacklist = validator.blacklist;
+
+    // from validator
+    static contain = validator.contains;
+
+    // from validator
+    static equal = validator.equals;
+
+    // from validator
+    static escape = validator.escape;
+
+    // from validator
     static isAfter = validator.isAfter;
 
-    // validator
+    // from validator
     static isAlpha = validator.isAlpha;
 
-    // validator
+    // from validator
     static isAlphanumeric = validator.isAlphanumeric;
 
-    // lodash [isArray]
+    // from lodash [isArray]
     static isArray = _.isArray;
 
-    // validator
+    // from validator
     static isBase64 = validator.isBase64;
 
-    // validator
+    // from validator
     static isBefore = validator.isBefore;
 
-    // validator
+    // from validator
     static isBoolean = validator.isBoolean;
 
-    // validator
+    // from validator
     static isByteLength = validator.isByteLength;
 
-    // validator
+    // from validator
     static isCreditCard = validator.isCreditCard;
 
-    // validator
+    // from validator
     static isCurrency = validator.isCurrency;
 
-    // validator
+    // from validator
     static isDataURI = validator.isDataURI;
 
-    // validator
+    // from validator
     static isDate = validator.isDate;
 
-    // validator
+    // from validator
     static isDateAfter = validator.isAfter;
 
-    // validator
+    // from validator
     static isDateBefore = validator.isBefore;
 
-    // validator
+    // from validator
     static isDecimal = validator.isDecimal;
 
-    // validator
+    // from validator
     static isDivisibleBy = validator.isDivisibleBy;
 
-    // validator
+    // from validator
     static isEmail = validator.isEmail;
 
-    // lodash [isEmpty], checks if value is an empty object, collection, map, or set (see docs).
+    // from lodash [isEmpty], checks if value is an empty object, collection, map, or set (see docs).
     static isEmpty = _.isEmpty;
 
-    // lodash [isEqual], performs a deep comparison between two values to determine if they are equivalent (see docs).
+    // from lodash [isEqual], performs a deep comparison between two values to determine if they are equivalent (see docs).
     static isEqual = _.isEqual;
 
-    // validator
+    // from validator
     static isFQDN = validator.isFQDN;
 
-    // validator
+    // from validator
     static isFloat = validator.isFloat;
 
-    // validator
+    // from validator
     static isFullWidth = validator.isFullWidth;
 
-    // validator
+    // from validator
     static isHalfWidth = validator.isHalfWidth;
 
-    // validator
+    // from validator
     static isHexColor = validator.isHexColor;
 
-    // validator
+    // from validator
     static isHexadecimal = validator.isHexadecimal;
 
-    // validator
+    // from validator
     static isIP = validator.isIP;
 
-    // validator
+    // from validator
     static isISBN = validator.isISBN;
 
-    // validator
+    // from validator
     static isISIN = validator.isISIN;
 
-    // validator
+    // from validator
     static isISO8601 = validator.isISO8601;
 
-    // validator
+    // from validator
     static isIn = validator.isIn;
 
-    // validator
+    // from validator
     static isInt = validator.isInt;
 
-    // validator
+    // from validator
     static isLowercase = validator.isLowercase;
 
-    // validator
+    // from validator
     static isMACAddress = validator.isMACAddress;
 
-    // validator
+    // from validator
     static isMatch = validator.matches;
 
-    // validator
+    // from validator
     static isMD5 = validator.isMD5;
 
-    // validator
+    // from validator
     static isMobilePhone = validator.isMobilePhone;
 
-    // validator
+    // from validator
     static isMongoId = validator.isMongoId;
 
-    // validator
+    // from validator
     static isMultibyte = validator.isMultibyte;
 
-    // validator
+    // from validator
     static isNull = validator.isNull;
 
-    // validator
+    // from validator
     static isNumeric = validator.isNumeric;
 
-    // lodash [isObject]
+    // from lodash [isObject]
     static isObject = _.isObject;
 
-    // lodash [isMatch], Performs a partial deep comparison between object and source (see docs).
+    // from lodash [isMatch], Performs a partial deep comparison between object and source (see docs).
     static isPartialEqual = _.isMatch;
 
-    // validator
+    // from validator
     static isSurrogatePair = validator.isSurrogatePair;
 
-    // validator
+    // from validator
     static isURL = validator.isURL;
 
-    // validator
+    // from validator
     static isUUID = validator.isUUID;
 
-    // validator
+    // from validator
     static isUppercase = validator.isUppercase;
 
-    // validator
+    // from validator
     static isVariableWidth = validator.isVariableWidth;
 
-    // validator
+    // from validator
     static isWhitelisted = validator.isWhitelisted;
 
-    // validator
+    // from validator
     static ltrim = validator.ltrim;
 
-    // validator
+    // from validator
     static normalizeEmail = validator.normalizeEmail;
 
-    // validator
+    // from validator
     static rtrim = validator.rtrim;
 
-    // validator
+    // from validator
     static stripLow = validator.stripLow;
 
-    // validator
+    // from validator
     static toBoolean = validator.toBoolean;
 
-    // validator
+    // from validator
     static toDate = validator.toDate;
 
-    // validator
+    // from validator
     static toFloat = validator.toFloat;
 
-    // validator
+    // from validator
     static toInt = validator.toInt;
 
-    // validator
+    // from validator
     static trim = validator.trim;
 
-    // validator
+    // from validator
     static unescape = validator.unescape;
 
-    // validator
+    // from validator
     static whitelist = validator.whitelist;
 
     /**
@@ -362,7 +384,7 @@ export class DeepValidator {
         let matches = 0;
 
         if (_.isObject(value)) {
-            for (let i = 0, c = compare.length; i < c; i ++) {
+            for (let i = 0, l = compare.length; i < l; i ++) {
                 if (compare[i] in value === false) {
                     return false;
                 }
@@ -372,7 +394,7 @@ export class DeepValidator {
         }
 
         if (_.isArray(value)) {
-            for (let i = 0, c = compare.length; i < c; i ++) {
+            for (let i = 0, l = compare.length; i < l; i ++) {
                 if (value.indexOf(compare[i]) === - 1) {
                     return false;
                 }
@@ -391,7 +413,7 @@ export class DeepValidator {
         let matches = 0;
 
         if (_.isObject(value)) {
-            for (let i = 0, c = compare.length; i < c; i ++) {
+            for (let i = 0, l = compare.length; i < l; i ++) {
                 if (compare[i] in value) {
                     return false;
                 }
@@ -401,7 +423,7 @@ export class DeepValidator {
         }
 
         if (_.isArray(value)) {
-            for (let i = 0, c = compare.length; i < c; i ++) {
+            for (let i = 0, l = compare.length; i < l; i ++) {
                 if (value.indexOf(compare[i]) !== - 1) {
                     return false;
                 }
@@ -420,7 +442,7 @@ export class DeepValidator {
         let matches = 0;
 
         if (_.isObject(value)) {
-            for (let i = 0, c = compare.length; i < c; i ++) {
+            for (let i = 0, l = compare.length; i < l; i ++) {
                 if (compare[i] in value) {
                     matches ++;
                 }
@@ -430,7 +452,7 @@ export class DeepValidator {
         }
 
         if (_.isArray(value)) {
-            for (let i = 0, c = compare.length; i < c; i ++) {
+            for (let i = 0, l = compare.length; i < l; i ++) {
                 if (value.indexOf(compare[i]) !== - 1) {
                     matches ++;
                 }
@@ -459,7 +481,7 @@ export class DeepValidator {
         }
 
         if (_.isArray(value)) {
-            for (let i = 0, c = compare.length; i < c; i ++) {
+            for (let i = 0, l = compare.length; i < l; i ++) {
                 if (compare.indexOf(value[i]) === - 1) {
                     return false;
                 }
@@ -472,42 +494,42 @@ export class DeepValidator {
     }
 
     /**
-     * Sanitizer
+     * Sanitizer.
      */
     static toNumber(value: any): number|void {
         return _.isString(value) ? parseInt(value) : (_.isNumber(value) ? value : NaN);
     }
 
     /**
-     * Sanitizer
+     * Sanitizer.
      */
     static toNullIfEmpty(value: any) {
         return this.isEmpty(value) ? null : value;
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isGreater(value: any, compare: number): boolean {
         return _.isNumber(value) && (value | 0) > compare;
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isGreaterOrEqual(value: any, compare: number): boolean {
         return _.isNumber(value) && (value | 0) >= compare;
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isGreaterOrEqualToZero(value: any): boolean {
         return value === 0 || Validator.isGreater(value, 0);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isLength(value: any, min: number, max: number): boolean {
         let length: number;
@@ -532,126 +554,126 @@ export class DeepValidator {
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isLengthOrNull(value: any, min: number, max: number) {
         return value === null ? true : Validator.isLength(value, min, max);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isLess(value: any, compare: number): boolean {
         return _.isNumber(value) && (value | 0) < compare;
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isLessOrEqual(value: any, compare: number): boolean {
         return _.isNumber(value) && (value | 0) <= compare;
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isLessOrEqualToZero(value: any): boolean {
         return value === 0 || Validator.isLess(value, 0);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isNotEmpty(value: any): boolean {
         return Validator.isEmpty(value) === false;
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isNotEmptyArray(value: any): boolean {
         return Validator.isArray(value) && Validator.isEmpty(value) === false;
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isNotEmptyObject(value: any): boolean {
         return Validator.isObject(value) && Validator.isEmpty(value) === false;
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isArrayOrNull(value: any): boolean {
         return value === null || _.isArray(value);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isBooleanOrNull(value: any): boolean {
         return value === null || _.isBoolean(value);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isEmailOrNull(value: any): boolean {
         return value === null || validator.isEmail(value);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isNumberNegative(value: any): boolean {
         return Validator.isLess(value, 0);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isNumberPositive(value: any): boolean {
         return Validator.isGreater(value, 0);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isNumberOrNull(value: any): boolean {
         return value === null || _.isNumber(value);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isNumberOrNumeric(value: any): boolean {
         return _.isNumber(value) || validator.isNumeric(value);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isObjectOrNull(value: any): boolean {
         return value === null || _.isObject(value);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isStringOrNull(value: any): boolean {
         return value === null || _.isString(value);
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isVoid(value: any): boolean {
         return value === void 0;
     }
 
     /**
-     * Filter
+     * Filter.
      */
     static isNotVoid(value: any): boolean {
         return value !== void 0;
@@ -687,9 +709,9 @@ export class DeepValidator {
                     }
                 );
 
-                (_.isArray(v) ? v : [ v ]).forEach(
+                (_.isArray(v) ? v : [v]).forEach(
                     (v) => {
-                        _.isArray(v) || (v = [ v ]);
+                        _.isArray(v) || (v = [v]);
 
                         if (_.isString(v[0])) {
                             let t = v[0].split(':');
@@ -730,6 +752,8 @@ export class DeepValidator {
         );
 
         this._sarray['[]'] = this._schema;
+
+        this._translator = DeepValidator._translate;
     }
 
     /**
@@ -745,7 +769,8 @@ export class DeepValidator {
      * Get next error of last validation.
      *
      * @returns {any}
-    any getNextError(): void|{} {
+     */
+    getNextError(): void|Dictionary<any> {
         if (this._nextError === null) {
             let k = Object.keys(this.errors),
                 i = 0;
