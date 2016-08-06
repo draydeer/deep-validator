@@ -21,9 +21,9 @@ type ValidatorEntry = {
 export class DeepValidator {
 
     protected static _isValidators = {
-        contain: true,
-        equal: true,
-        match: true,
+        contains: true,
+        equals: true,
+        matches: true,
     };
 
     protected _arrayAllow: boolean = false;
@@ -163,7 +163,9 @@ export class DeepValidator {
                         }
 
                         if (schema[k]['##'].d !== void 0) {
-                            data[k] = typeof schema[k]['##'].d === 'function' ? schema[k]['##'].d(k, data, k in data) : schema[k]['##'].d;
+                            data[k] = typeof schema[k]['##'].d === 'function' ?
+                                schema[k]['##'].d(k, data, k in data) :
+                                schema[k]['##'].d;
 
                             continue;
                         }
@@ -190,12 +192,6 @@ export class DeepValidator {
 
     // from validator
     static blacklist = validator.blacklist;
-
-    // from validator
-    static contain = validator.contains;
-
-    // from validator
-    static equal = validator.equals;
 
     // from validator
     static escape = validator.escape;
@@ -255,7 +251,7 @@ export class DeepValidator {
     static isEmpty = _.isEmpty;
 
     // from lodash [isEqual], performs a deep comparison between two values to determine if they are equivalent (see docs).
-    static isEqual = _.isEqual;
+    static isEquals = _.isEqual;
 
     // from validator
     static isFQDN = validator.isFQDN;
@@ -300,7 +296,7 @@ export class DeepValidator {
     static isMACAddress = validator.isMACAddress;
 
     // from validator
-    static isMatch = validator.matches;
+    static isMatches = validator.matches;
 
     // from validator
     static isMD5 = validator.isMD5;
@@ -323,8 +319,11 @@ export class DeepValidator {
     // from lodash [isObject]
     static isObject = _.isObject;
 
-    // from lodash [isMatch], Performs a partial deep comparison between object and source (see docs).
+    // from lodash [isMatch], performs a partial deep comparison between object and source (see docs).
     static isPartialEqual = _.isMatch;
+
+    // from validator
+    static isSubstring = validator.contains;
 
     // from validator
     static isSurrogatePair = validator.isSurrogatePair;
@@ -494,31 +493,17 @@ export class DeepValidator {
     }
 
     /**
-     * Sanitizer.
-     */
-    static toNumber(value: any): number|void {
-        return _.isString(value) ? parseInt(value) : (_.isNumber(value) ? value : NaN);
-    }
-
-    /**
-     * Sanitizer.
-     */
-    static toNullIfEmpty(value: any) {
-        return this.isEmpty(value) ? null : value;
-    }
-
-    /**
      * Filter.
      */
     static isGreater(value: any, compare: number): boolean {
-        return _.isNumber(value) && (value | 0) > compare;
+        return _.isNumber(value) && value > compare;
     }
 
     /**
      * Filter.
      */
     static isGreaterOrEqual(value: any, compare: number): boolean {
-        return _.isNumber(value) && (value | 0) >= compare;
+        return _.isNumber(value) && value >= compare;
     }
 
     /**
@@ -556,22 +541,15 @@ export class DeepValidator {
     /**
      * Filter.
      */
-    static isLengthOrNull(value: any, min: number, max: number) {
-        return value === null ? true : Validator.isLength(value, min, max);
-    }
-
-    /**
-     * Filter.
-     */
     static isLess(value: any, compare: number): boolean {
-        return _.isNumber(value) && (value | 0) < compare;
+        return _.isNumber(value) && value < compare;
     }
 
     /**
      * Filter.
      */
     static isLessOrEqual(value: any, compare: number): boolean {
-        return _.isNumber(value) && (value | 0) <= compare;
+        return _.isNumber(value) && value <= compare;
     }
 
     /**
@@ -605,27 +583,6 @@ export class DeepValidator {
     /**
      * Filter.
      */
-    static isArrayOrNull(value: any): boolean {
-        return value === null || _.isArray(value);
-    }
-
-    /**
-     * Filter.
-     */
-    static isBooleanOrNull(value: any): boolean {
-        return value === null || _.isBoolean(value);
-    }
-
-    /**
-     * Filter.
-     */
-    static isEmailOrNull(value: any): boolean {
-        return value === null || validator.isEmail(value);
-    }
-
-    /**
-     * Filter.
-     */
     static isNumberNegative(value: any): boolean {
         return Validator.isLess(value, 0);
     }
@@ -640,29 +597,8 @@ export class DeepValidator {
     /**
      * Filter.
      */
-    static isNumberOrNull(value: any): boolean {
-        return value === null || _.isNumber(value);
-    }
-
-    /**
-     * Filter.
-     */
     static isNumberOrNumeric(value: any): boolean {
         return _.isNumber(value) || validator.isNumeric(value);
-    }
-
-    /**
-     * Filter.
-     */
-    static isObjectOrNull(value: any): boolean {
-        return value === null || _.isObject(value);
-    }
-
-    /**
-     * Filter.
-     */
-    static isStringOrNull(value: any): boolean {
-        return value === null || _.isString(value);
     }
 
     /**
@@ -677,6 +613,20 @@ export class DeepValidator {
      */
     static isNotVoid(value: any): boolean {
         return value !== void 0;
+    }
+
+    /**
+     * Sanitizer.
+     */
+    static toNumber(value: any): number|void {
+        return _.isString(value) ? Number(value) : (_.isNumber(value) ? value : NaN);
+    }
+
+    /**
+     * Sanitizer.
+     */
+    static toNullIfEmpty(value: any) {
+        return this.isEmpty(value) ? null : value;
     }
 
     /**
@@ -718,20 +668,16 @@ export class DeepValidator {
 
                             if (t[0] === 'custom') {
                                 last[k]['##'].custom = v[1];
-                            } else
-                            if (t[0] === 'default') {
+                            } else if (t[0] === 'default') {
                                 last[k]['##'].d = v[1];
-                            } else
-                            if (t[0] === 'isExists') {
+                            } else if (t[0] === 'isExists') {
                                 last[k]['##'].s = t[1] || false;
-                            } else
-                            if (t[0] === 'showAs') {
+                            } else if (t[0] === 'showAs') {
                                 last[k]['##'].showAs = t[1] || false;
-                            } else
-                            if (Validator[t[0]] || validator[t[0]] || _[t[0]]) {
+                            } else if (Validator[t[0]] || validator[t[0]] || _[t[0]]) {
                                 last[k]['##'].v.push({
                                     args: v.slice(1),
-                                    isValidator: t[0].substr(0, 2) === 'is',
+                                    isValidator: t[0].substr(0, 2) === 'is' || v[0] in DeepValidator._isValidators,
                                     message: t[1],
                                     validator: t[0]
                                 });
@@ -905,6 +851,16 @@ export class DeepValidator {
         return this.passed = _.isEmpty(this.errors);
     }
 }
+
+
+// [OrNull] patch
+_.each(DeepValidator, (v: any, k: string) => {
+    if (_.isFunction(v) && k.substr(0, 2) === 'is') {
+        DeepValidator[k + 'OrNull'] = function (value) {
+            return value === null || DeepValidator[k].apply(DeepValidator, arguments);
+        };
+    }
+});
 
 
 export class Validator extends DeepValidator {}
