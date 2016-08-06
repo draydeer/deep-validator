@@ -314,10 +314,10 @@ export class DeepValidator {
     static isNull = validator.isNull;
 
     // from validator
-    static isNumeric = validator.isNumeric;
+    static isNumber = _.isNumber;
 
-    // from lodash [isObject]
-    static isObject = _.isObject;
+    // from validator
+    static isNumeric = validator.isNumeric;
 
     // from lodash [isMatch], performs a partial deep comparison between object and source (see docs).
     static isPartialEqual = _.isMatch;
@@ -382,7 +382,7 @@ export class DeepValidator {
     static isContains(value: any, compare: [string]): boolean {
         let matches = 0;
 
-        if (_.isObject(value)) {
+        if (DeepValidator.isObject(value)) {
             for (let i = 0, l = compare.length; i < l; i ++) {
                 if (compare[i] in value === false) {
                     return false;
@@ -411,7 +411,7 @@ export class DeepValidator {
     static isNotContains(value: any, compare: [string]): boolean {
         let matches = 0;
 
-        if (_.isObject(value)) {
+        if (DeepValidator.isObject(value)) {
             for (let i = 0, l = compare.length; i < l; i ++) {
                 if (compare[i] in value) {
                     return false;
@@ -440,14 +440,14 @@ export class DeepValidator {
     static isContainsOnly(value: any, compare: [string], strict: boolean = true): boolean {
         let matches = 0;
 
-        if (_.isObject(value)) {
+        if (DeepValidator.isObject(value)) {
             for (let i = 0, l = compare.length; i < l; i ++) {
                 if (compare[i] in value) {
                     matches ++;
                 }
             }
 
-            return Object.keys(value).length === matches;
+            return compare.length === matches && (strict ? Object.keys(value).length === matches: true);
         }
 
         if (_.isArray(value)) {
@@ -457,36 +457,7 @@ export class DeepValidator {
                 }
             }
 
-            return value.length === matches;
-        }
-
-        return false;
-    }
-
-    /**
-     * Filter.
-     */
-    static isContainsOnlyIn(value: any, compare: [string]): boolean {
-        let matches = 0;
-
-        if (_.isObject(value)) {
-            for (let k in value) {
-                if (compare.indexOf(k) === - 1) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        if (_.isArray(value)) {
-            for (let i = 0, l = compare.length; i < l; i ++) {
-                if (compare.indexOf(value[i]) === - 1) {
-                    return false;
-                }
-            }
-
-            return true;
+            return compare.length === matches && (strict ? value.length === matches: true);
         }
 
         return false;
@@ -516,7 +487,7 @@ export class DeepValidator {
     /**
      * Filter.
      */
-    static isLength(value: any, min: number, max: number): boolean {
+    static isLength(value: any, min?: number, max?: number): boolean {
         let length: number;
 
         if (_.isArray(value) || _.isString(value)) {
@@ -583,6 +554,13 @@ export class DeepValidator {
     /**
      * Filter.
      */
+    static isNotVoid(value: any): boolean {
+        return value !== void 0;
+    }
+
+    /**
+     * Filter.
+     */
     static isNumberNegative(value: any): boolean {
         return Validator.isLess(value, 0);
     }
@@ -598,7 +576,14 @@ export class DeepValidator {
      * Filter.
      */
     static isNumberOrNumeric(value: any): boolean {
-        return _.isNumber(value) || validator.isNumeric(value);
+        return _.isNumber(value) || (_.isString(value) && validator.isNumeric(value));
+    }
+
+    /**
+     * Filter.
+     */
+    static isObject(value: any): boolean {
+        return (value && typeof value === 'object' && (value instanceof Array) === false) ? true : false;
     }
 
     /**
@@ -606,13 +591,6 @@ export class DeepValidator {
      */
     static isVoid(value: any): boolean {
         return value === void 0;
-    }
-
-    /**
-     * Filter.
-     */
-    static isNotVoid(value: any): boolean {
-        return value !== void 0;
     }
 
     /**
@@ -627,6 +605,13 @@ export class DeepValidator {
      */
     static toNullIfEmpty(value: any) {
         return this.isEmpty(value) ? null : value;
+    }
+
+    /**
+     * Sanitizer.
+     */
+    static toString(value: any) {
+        return value === void 0 ? '' : String(value);
     }
 
     /**
