@@ -167,6 +167,10 @@ describe("Custom validators.", () => {
         runValidator(DeepValidator.isObject, [{}], [null, 0, true, false, "a", [[]], void 0]);
     });
 
+    it("isRange", () => {
+        runValidator(DeepValidator.isRange, [[1, 0, 2]], [null, 0, true, false, "a", [[]], {}, [0, 1, 2], [3, 0, 2]]);
+    });
+
     it("isVoid", () => {
         runValidator(DeepValidator.isVoid, [void 0], [null, 0, true, false, "a", [[]], {}]);
     });
@@ -181,5 +185,39 @@ describe("Custom validators.", () => {
 
     it("toNullIfEmpty", () => {
         runValidator(DeepValidator.toNullIfEmpty, ["", [[]], {}], [{a: 1}, ["a"], "a"], null, true);
+    });
+
+    it("filterKeys", () => {
+        let v = new DeepValidator({
+            'a': [
+                'isObject', ['filterKeys', /x/]
+            ],
+            'a.b': [
+                'isObject', ['filterKeys', /y/]
+            ]
+        });
+
+        let t;
+
+        expect(v.validate(t = {a: {b: {$x: 1, y: 2}, $x: 1, $y: 2, z: 3}})).toBe(true);
+
+        expect(t).toEqual({a: {b: {$x: 1}, $y: 2, z: 3}});
+    });
+
+    it("filterMongoDocKeys", () => {
+        let v = new DeepValidator({
+            'a': [
+                'isObject', 'filterMongoDocKeys'
+            ],
+            'a.b': [
+                'isObject', 'filterMongoDocKeys'
+            ]
+        });
+
+        let t;
+
+        expect(v.validate(t = {a: {b: {$x: 1, y: 2}, $x: 1, $y: 2, z: 3}})).toBe(true);
+
+        expect(t).toEqual({a: {b: {y: 2}, z: 3}});
     });
 });

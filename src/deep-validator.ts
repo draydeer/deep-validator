@@ -13,7 +13,7 @@ type ValidatorEntry = {
 
     message: string;
 
-    validator: string|((...a: any[]) => any);
+    validator: string|((...a: any[]) => any)|Validator;
 
 }
 
@@ -82,43 +82,60 @@ export class DeepValidator {
 
             let result = true;
 
-            // custom validator/sanitizer; sanitizer can modify data by reference (v, k <= key, d <= reference) and then must return [true]
-            if (_.isFunction(entry.validator)) {
-                let validator = <(...a: any[]) => any>entry.validator;
+            // if nested validator
+            if (entry.validator instanceof DeepValidator) {
+                result = (<Validator>entry.validator).validate(data, true);
 
-                isValidator = true;
-                result = entry.message = validator(data, key, ref);
-
-                data = ref[key];
-            } else {
-                let validator = <string>entry.validator;
-
-                // try [self]
-                if (Validator[validator]) {
-                    isValidator = entry.isValidator;
-                    result = Validator[validator](
-                        data,
-                        entry.args[0],
-                        entry.args[1],
-                        entry.args[2],
-                        entry.args[3],
-                        key,
-                        ref
-                    );
-                }
-            }
-
-            if (isValidator) {
                 if (result !== true) {
-                    errors[message] = entry.message || false;
+
+                    // extend errors object with list of validator messages
+                    _.each((<Validator>entry.validator).getErrors(), (v, k: string) => {
+                        errors[message ? message + '.' + k : k] = v;
+                    });
 
                     return false;
                 }
             } else {
-                if (key !== void 0) {
-                    data = result;
 
-                    ref[key] = result;
+                // custom validator/sanitizer; sanitizer can modify data by reference (v, k <= key, d <= reference) and then must return [true]
+                if (_.isFunction(entry.validator)) {
+                    let validator = <(...a:any[]) => any>entry.validator;
+
+                    isValidator = true;
+                    result = entry.message = validator(data, key, ref);
+
+                    data = ref[key];
+                } else {
+                    let validator = <string>entry.validator;
+
+                    // try [self]
+                    if (Validator[validator]) {
+                        isValidator = entry.isValidator;
+                        result = Validator[validator](
+                            data,
+                            entry.args[0],
+                            entry.args[1],
+                            entry.args[2],
+                            entry.args[3],
+                            key,
+                            ref,
+                            schema
+                        );
+                    }
+                }
+
+                if (isValidator) {
+                    if (result !== true) {
+                        errors[message] = entry.message || false;
+
+                        return false;
+                    }
+                } else {
+                    if (key !== void 0) {
+                        data = result;
+
+                        ref[key] = result;
+                    }
                 }
             }
         }
@@ -322,6 +339,9 @@ export class DeepValidator {
     // from lodash [isMatch], performs a partial deep comparison between object and source (see docs).
     static isPartialEqual = _.isMatch;
 
+    // from lodash [isString]
+    static isString = _.isString;
+
     // from validator
     static isSubstring = validator.contains;
 
@@ -375,6 +395,13 @@ export class DeepValidator {
 
     // from validator
     static whitelist = validator.whitelist;
+
+    /**
+     * Clean value. Similar to [filter] but filters given value using active (internal) schema.
+     */
+    static clean(value: any, a, b, c, d, key: string, ref: any, schema: any): any {
+        return _.pick(value, Object.keys(schema));
+    }
 
     /**
      * Filter. Does not consider for duplicates.
@@ -583,7 +610,14 @@ export class DeepValidator {
      * Filter.
      */
     static isObject(value: any): boolean {
-        return (value && typeof value === 'object' && (value instanceof Array) === false) ? true : false;
+        return _.isObjectLike(value) && (value instanceof Array) === false;
+    }
+
+    /**
+     * Filter.
+     */
+    static isRange(value: number, min: number, max: number): boolean {
+        return _.isNumber(value) && value >= min && value <= max;
     }
 
     /**
@@ -591,6 +625,27 @@ export class DeepValidator {
      */
     static isVoid(value: any): boolean {
         return value === void 0;
+    }
+
+    /**
+     * Sanitizer.
+     */
+    static filter(value: any, fields: string[]): any {
+        return _.pick(value, fields)
+    }
+
+    /**
+     * Sanitizer. Cleans keys by matching to given pattern.
+     */
+    static filterKeys(value: any, pattern: string|RegExp): any {
+        return _.each(value, (v, k) => validator.matches(k, pattern) ? (delete value[k]) : null);
+    }
+
+    /**
+     * Sanitizer. Remove all key starting from [$].
+     */
+    static filterMongoDocKeys(value: any): any {
+        return this.filterKeys(value, /^\$+.$/);
     }
 
     /**
@@ -648,7 +703,14 @@ export class DeepValidator {
                     (v) => {
                         _.isArray(v) || (v = [v]);
 
-                        if (_.isString(v[0])) {
+                        if (v[0] instanceof DeepValidator) {
+                            last[k]['##'].v.push({
+                                args: v.slice(1),
+                                isValidator: true,
+                                message: null,
+                                validator: v[0]
+                            });
+                        } else if (_.isString(v[0])) {
                             let t = v[0].split(':');
 
                             if (t[0] === 'custom') {
@@ -722,7 +784,7 @@ export class DeepValidator {
     }
 
     /**
-     * Set default [data invalid] message. Message will be preset if provided data is invalid.
+     * Set default [data invalid] message. Message will be set if provided data is invalid.
      *
      * @param value Value.
      * 
@@ -735,7 +797,7 @@ export class DeepValidator {
     }
 
     /**
-     * Set default [missing key] message. Message will be preset if [isExists] validator fails and has no self message.
+     * Set default [missing key] message. Message will be set if [isExists] validator fails and has no self message.
      *
      * @param value Value.
      * 
@@ -774,7 +836,7 @@ export class DeepValidator {
     }
 
     /**
-     * Set [strict] mode. All scope keys will be checked for presence.
+     * Set [strict] mode. All schema keys will be checked for presence.
      *
      * @param value Value.
      * 
@@ -804,10 +866,12 @@ export class DeepValidator {
      *
      * @param data Data to be validated.
      * @param arrayAllow Allow apply schema to each element of data if data is array.
+     * @param errors Internal usage.
+     * @param prefix Internal usage.
      * 
      * @returns {boolean}
      */
-    validate(data: any[]|Dictionary<any>, arrayAllow: boolean = false): boolean {
+    validate(data: any[]|Dictionary<any>, arrayAllow: boolean = false, errors?, prefix?): boolean {
         this._nextError = null;
         this.errors = {};
 
@@ -820,7 +884,7 @@ export class DeepValidator {
                 return this.passed = false;
             }
 
-            this._validate(data, this._sarray, this._tryAll, this.errors, this._strict, '');
+            this._validate(data, this._sarray, this._tryAll, errors || this.errors, this._strict, prefix || '');
         } else {
             if (_.isObject(data) === false) {
                 this.errors = {
@@ -830,7 +894,7 @@ export class DeepValidator {
                 return this.passed = false;
             }
 
-            this._validate(data, this._schema, this._tryAll, this.errors, this._strict, '');
+            this._validate(data, this._schema, this._tryAll, errors || this.errors, this._strict, prefix || '');
         }
 
         return this.passed = _.isEmpty(this.errors);
@@ -849,3 +913,6 @@ _.each(DeepValidator, (v: any, k: string) => {
 
 
 export class Validator extends DeepValidator {}
+
+
+export let deepValidator = (schema: Dictionary<any>): Validator => new Validator(schema);
