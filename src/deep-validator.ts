@@ -519,7 +519,7 @@ export class DeepValidator {
 
         if (_.isArray(value) || _.isString(value)) {
             length = value.length;
-        } else if (_.isObject(value)) {
+        } else if (this.isObject(value)) {
             length = Object.keys(value).length;
         } else {
             return false;
@@ -628,17 +628,17 @@ export class DeepValidator {
     }
 
     /**
-     * Sanitizer.
+     * Sanitizer. Picks values (by RegExp checks strings only) by matching to given pattern.
      */
-    static filter(value: any, fields: string[]): any {
-        return _.pick(value, fields)
+    static filter(value: any, filter: RegExp|((v: string) => boolean)): any {
+        return _.pickBy(value, filter instanceof RegExp ? (v) => _.isString(v) ? !validator.matches(v, filter) : true : filter);
     }
 
     /**
-     * Sanitizer. Cleans keys by matching to given pattern.
+     * Sanitizer. Picks keys by matching to given pattern.
      */
-    static filterKeys(value: any, pattern: string|RegExp): any {
-        return _.each(value, (v, k) => validator.matches(k, pattern) ? (delete value[k]) : null);
+    static filterKeys(value: any, filter: string[]|RegExp|((v: string) => boolean)): any {
+        return _.pickBy(value, filter instanceof RegExp ? (v, k) => !validator.matches(k, filter) : filter);
     }
 
     /**

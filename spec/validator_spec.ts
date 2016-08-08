@@ -187,6 +187,23 @@ describe("Custom validators.", () => {
         runValidator(DeepValidator.toNullIfEmpty, ["", [[]], {}], [{a: 1}, ["a"], "a"], null, true);
     });
 
+    it("filter", () => {
+        let v = new DeepValidator({
+            'a': [
+                'isObject', ['filter', /x/]
+            ],
+            'a.b': [
+                'isObject', ['filter', /y/]
+            ]
+        });
+
+        let t;
+
+        expect(v.validate(t = {a: {b: {$x: 'y', y: 2}, $x: 1, $y: 'x', z: 3}})).toBe(true);
+
+        expect(t).toEqual({a: {b: {y: 2}, $x: 1, z: 3}});
+    });
+
     it("filterKeys", () => {
         let v = new DeepValidator({
             'a': [
