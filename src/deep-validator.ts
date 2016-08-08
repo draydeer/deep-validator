@@ -630,8 +630,8 @@ export class DeepValidator {
     /**
      * Sanitizer. Picks values (by RegExp checks strings only) by matching to given pattern.
      */
-    static filter(value: any, filter: RegExp|((v: string) => boolean)): any {
-        return _.pickBy(value, filter instanceof RegExp ? (v) => _.isString(v) ? !validator.matches(v, filter) : true : filter);
+    static filter(value: any, filter: RegExp|((v: string) => boolean), anyAllow?: boolean): any {
+        return _.pickBy(value, filter instanceof RegExp ? (v) => _.isString(v) ? !validator.matches(v, filter) : anyAllow !== false : filter);
     }
 
     /**
