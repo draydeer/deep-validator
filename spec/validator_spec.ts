@@ -201,13 +201,13 @@ describe("Custom validators.", () => {
 
         expect(v.validate(t = {a: {b: {$x: 'y', y: 2}, $x: 1, $y: 'x', z: 3}})).toBe(true);
 
-        expect(t).toEqual({a: {b: {y: 2}, $x: 1, z: 3}});
+        expect(t).toEqual({a: {b: {$x: 'y'}, $y: 'x'}});
     });
 
     it("filterKeys", () => {
         let v = new DeepValidator({
             'a': [
-                'isObject', ['filterKeys', /x/]
+                'isObject', ['filterKeys', /x|b/]
             ],
             'a.b': [
                 'isObject', ['filterKeys', /y/]
@@ -218,7 +218,7 @@ describe("Custom validators.", () => {
 
         expect(v.validate(t = {a: {b: {$x: 1, y: 2}, $x: 1, $y: 2, z: 3}})).toBe(true);
 
-        expect(t).toEqual({a: {b: {$x: 1}, $y: 2, z: 3}});
+        expect(t).toEqual({a: {b: {y: 2}, $x: 1}});
     });
 
     it("filterMongoDocKeys", () => {

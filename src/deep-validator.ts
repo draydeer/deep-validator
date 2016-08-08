@@ -631,21 +631,21 @@ export class DeepValidator {
      * Sanitizer. Picks values (by RegExp checks strings only) by matching to given pattern.
      */
     static filter(value: any, filter: RegExp|((v: string) => boolean), anyAllow?: boolean): any {
-        return _.pickBy(value, filter instanceof RegExp ? (v) => _.isString(v) ? !validator.matches(v, filter) : anyAllow !== false : filter);
+        return _.pickBy(value, filter instanceof RegExp ? (v) => _.isString(v) ? validator.matches(v, filter) : anyAllow !== false : filter);
     }
 
     /**
      * Sanitizer. Picks keys by matching to given pattern.
      */
     static filterKeys(value: any, filter: string[]|RegExp|((v: string) => boolean)): any {
-        return _.pickBy(value, filter instanceof RegExp ? (v, k) => !validator.matches(k, filter) : filter);
+        return _.pickBy(value, filter instanceof RegExp ? (v, k) => validator.matches(k, filter) : filter);
     }
 
     /**
      * Sanitizer. Remove all key starting from [$].
      */
     static filterMongoDocKeys(value: any): any {
-        return this.filterKeys(value, /^\$+.$/);
+        return this.filterKeys(value, /^([^\$].*){1,}$/);
     }
 
     /**
