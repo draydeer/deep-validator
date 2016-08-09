@@ -13,7 +13,7 @@ type ValidatorEntry = {
 
     message: string;
 
-    validator: string|((...a: any[]) => any)|Validator;
+    validator: string|((...a: any[]) => any)|DeepValidator;
 
 }
 
@@ -34,9 +34,9 @@ export class DeepValidator {
 
     protected _messageMissingKey: any = false;
 
-    protected _sarray = {'##': {s: void 0, v: []}};
+    protected _sarray = {'##': {strict: void 0, v: []}};
 
-    protected _schema = {'##': {s: void 0, v: []}};
+    protected _schema = {'##': {strict: void 0, v: []}};
 
     protected _strict: boolean = false;
 
@@ -84,12 +84,12 @@ export class DeepValidator {
 
             // if nested validator
             if (entry.validator instanceof DeepValidator) {
-                result = (<Validator>entry.validator).validate(data, true);
+                result = (<DeepValidator>entry.validator).validate(data, true);
 
                 if (result !== true) {
 
                     // extend errors object with list of validator messages
-                    _.each((<Validator>entry.validator).getErrors(), (v, k: string) => {
+                    _.each((<DeepValidator>entry.validator).getErrors(), (v, k: string) => {
                         errors[message ? message + '.' + k : k] = v;
                     });
 
@@ -109,9 +109,9 @@ export class DeepValidator {
                     let validator = <string>entry.validator;
 
                     // try [self]
-                    if (Validator[validator]) {
+                    if (DeepValidator[validator]) {
                         isValidator = entry.isValidator;
-                        result = Validator[validator](
+                        result = DeepValidator[validator](
                             data,
                             entry.args[0],
                             entry.args[1],
@@ -179,17 +179,17 @@ export class DeepValidator {
                             }
                         }
 
-                        if (schema[k]['##'].d !== void 0) {
-                            data[k] = typeof schema[k]['##'].d === 'function' ?
-                                schema[k]['##'].d(k, data, k in data) :
-                                schema[k]['##'].d;
+                        if (schema[k]['##'].def !== void 0) {
+                            data[k] = typeof schema[k]['##'].def === 'function' ?
+                                schema[k]['##'].def(k, data, k in data) :
+                                schema[k]['##'].def;
 
                             continue;
                         }
                     }
 
-                    if (strict || schema[k]['##'].s !== void 0) {
-                        errors[mes] = schema[k]['##'].s || this._messageMissingKey;
+                    if (strict || schema[k]['##'].strict !== void 0) {
+                        errors[mes] = schema[k]['##'].strict || this._messageMissingKey;
 
                         if (tryAll === false) {
                             return false;
@@ -464,7 +464,7 @@ export class DeepValidator {
     /**
      * Filter. Does not consider for duplicates.
      */
-    static isContainsOnly(value: any, compare: [string], strict: boolean = true): boolean {
+    static isContainsOnly(value: any, compare: [string]): boolean {
         let matches = 0;
 
         if (DeepValidator.isObject(value)) {
@@ -474,7 +474,7 @@ export class DeepValidator {
                 }
             }
 
-            return compare.length === matches && (strict ? Object.keys(value).length === matches: true);
+            return compare.length === matches && Object.keys(value).length === matches;
         }
 
         if (_.isArray(value)) {
@@ -484,7 +484,7 @@ export class DeepValidator {
                 }
             }
 
-            return compare.length === matches && (strict ? value.length === matches: true);
+            return compare.length === matches && value.length === matches;
         }
 
         return false;
@@ -508,7 +508,7 @@ export class DeepValidator {
      * Filter.
      */
     static isGreaterOrEqualToZero(value: any): boolean {
-        return value === 0 || Validator.isGreater(value, 0);
+        return value === 0 || this.isGreater(value, 0);
     }
 
     /**
@@ -554,28 +554,28 @@ export class DeepValidator {
      * Filter.
      */
     static isLessOrEqualToZero(value: any): boolean {
-        return value === 0 || Validator.isLess(value, 0);
+        return value === 0 || this.isLess(value, 0);
     }
 
     /**
      * Filter.
      */
     static isNotEmpty(value: any): boolean {
-        return Validator.isEmpty(value) === false;
+        return this.isEmpty(value) === false;
     }
 
     /**
      * Filter.
      */
     static isNotEmptyArray(value: any): boolean {
-        return Validator.isArray(value) && Validator.isEmpty(value) === false;
+        return _.isArray(value) && this.isEmpty(value) === false;
     }
 
     /**
      * Filter.
      */
     static isNotEmptyObject(value: any): boolean {
-        return Validator.isObject(value) && Validator.isEmpty(value) === false;
+        return this.isObject(value) && this.isEmpty(value) === false;
     }
 
     /**
@@ -589,14 +589,14 @@ export class DeepValidator {
      * Filter.
      */
     static isNumberNegative(value: any): boolean {
-        return Validator.isLess(value, 0);
+        return this.isLess(value, 0);
     }
 
     /**
      * Filter.
      */
     static isNumberPositive(value: any): boolean {
-        return Validator.isGreater(value, 0);
+        return this.isGreater(value, 0);
     }
 
     /**
@@ -629,9 +629,24 @@ export class DeepValidator {
 
     /**
      * Sanitizer. Picks values (by RegExp checks strings only) by matching to given pattern.
+     *
+     * @param value Value.
+     * @param filter Filter RegExp or function.
+     * @param objectAllow Ignore object-like values (arrays or sets).
+     *
+     * @returns {TResult}
      */
-    static filter(value: any, filter: RegExp|((v: string) => boolean), anyAllow?: boolean): any {
-        return _.pickBy(value, filter instanceof RegExp ? (v) => _.isString(v) ? validator.matches(v, filter) : anyAllow !== false : filter);
+    static filter(value: any, filter: RegExp|((v: string) => boolean), objectAllow?: boolean): any {
+        return _.pickBy(
+            value,
+            filter instanceof RegExp ?
+                (v: any) => {
+                    return _.isString(v) ?
+                        validator.matches(v, filter) :
+                        objectAllow !== false && _.isObjectLike(v)
+                } :
+                filter
+        );
     }
 
     /**
@@ -652,7 +667,7 @@ export class DeepValidator {
      * Sanitizer.
      */
     static toNumber(value: any): number|void {
-        return _.isString(value) ? Number(value) : (_.isNumber(value) ? value : NaN);
+        return this.isNumberOrNumeric(value) ? Number(value) : (_.isNumber(value) ? value : NaN);
     }
 
     /**
@@ -711,25 +726,25 @@ export class DeepValidator {
                                 validator: v[0]
                             });
                         } else if (_.isString(v[0])) {
-                            let t = v[0].split(':');
+                            let pair = v[0].split(':');
 
-                            if (t[0] === 'custom') {
+                            if (pair[0] === 'custom') {
                                 last[k]['##'].custom = v[1];
-                            } else if (t[0] === 'default') {
-                                last[k]['##'].d = v[1];
-                            } else if (t[0] === 'isExists') {
-                                last[k]['##'].s = t[1] || false;
-                            } else if (t[0] === 'showAs') {
-                                last[k]['##'].showAs = t[1] || false;
-                            } else if (Validator[t[0]] || validator[t[0]] || _[t[0]]) {
+                            } else if (pair[0] === 'default') {
+                                last[k]['##'].def = v[1];
+                            } else if (pair[0] === 'isExists') {
+                                last[k]['##'].strict = pair[1] || false;
+                            } else if (pair[0] === 'showAs') {
+                                last[k]['##'].showAs = pair[1] || false;
+                            } else if (DeepValidator[pair[0]] || validator[pair[0]] || _[pair[0]]) {
                                 last[k]['##'].v.push({
                                     args: v.slice(1),
-                                    isValidator: t[0].substr(0, 2) === 'is' || v[0] in DeepValidator._isValidators,
-                                    message: t[1],
-                                    validator: t[0]
+                                    isValidator: pair[0].substr(0, 2) === 'is' || v[0] in DeepValidator._isValidators,
+                                    message: pair[1],
+                                    validator: pair[0]
                                 });
                             } else {
-                                throw new Error('Validator is not defined: ' + t[0]);
+                                throw new Error('Validator is not defined: ' + pair[0]);
                             }
                         } else {
                             last[k]['##'].v.push({
@@ -761,7 +776,7 @@ export class DeepValidator {
     /**
      * Get next error of last validation.
      *
-     * @returns {any}
+     * @returns {void|{}}
      */
     getNextError(): void|Dictionary<any> {
         if (this._nextError === null) {
@@ -788,9 +803,9 @@ export class DeepValidator {
      *
      * @param value Value.
      * 
-     * @returns {Validator}
+     * @returns {DeepValidator}
      */
-    setMessageInvalid(value: number|string): Validator {
+    setMessageInvalid(value: number|string): DeepValidator {
         this._messageInvalid = value;
 
         return this;
@@ -801,9 +816,9 @@ export class DeepValidator {
      *
      * @param value Value.
      * 
-     * @returns {Validator}
+     * @returns {DeepValidator}
      */
-    setMessageMissingKey(value: number|string): Validator {
+    setMessageMissingKey(value: number|string): DeepValidator {
         this._messageMissingKey = value;
 
         return this;
@@ -814,9 +829,9 @@ export class DeepValidator {
      *
      * @param value Value.
      *
-     * @returns {Validator}
+     * @returns {DeepValidator}
      */
-    setTranslator(value: (message: string) => any): Validator {
+    setTranslator(value: (message: string) => any): DeepValidator {
         this._translator = value;
 
         return this;
@@ -827,9 +842,9 @@ export class DeepValidator {
      *
      * @param value Value.
      * 
-     * @returns {Validator}
+     * @returns {DeepValidator}
      */
-    arrayAllow(value: boolean = true): Validator {
+    arrayAllow(value: boolean = true): DeepValidator {
         this._arrayAllow = value;
 
         return this;
@@ -840,9 +855,9 @@ export class DeepValidator {
      *
      * @param value Value.
      * 
-     * @returns {Validator}
+     * @returns {DeepValidator}
      */
-    strict(value: boolean = true): Validator {
+    strict(value: boolean = true): DeepValidator {
         this._strict = value;
 
         return this;
@@ -852,10 +867,10 @@ export class DeepValidator {
      * Set [tryAll] mode. All scope validators will be applied in despite of earlier failures.
      *
      * @param value Value.
-     * 
-     * @returns {Validator}
+     *
+     * @returns {DeepValidator}
      */
-    tryAll(value: boolean = true): Validator {
+    tryAll(value: boolean = true): DeepValidator {
         this._tryAll = value;
 
         return this;
@@ -915,4 +930,4 @@ _.each(DeepValidator, (v: any, k: string) => {
 export class Validator extends DeepValidator {}
 
 
-export let deepValidator = (schema: Dictionary<any>): Validator => new Validator(schema);
+export let deepValidator = (schema: Dictionary<any>): DeepValidator => new DeepValidator(schema);

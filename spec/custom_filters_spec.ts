@@ -27,7 +27,7 @@ let runValidator = (validator, ok: any[], error: any[], trueValue: any = true, f
 };
 
 
-describe("Custom validators.", () => {
+describe("Custom filters", () => {
     it("isNumberOrNull", () => {
         runValidator(DeepValidator.isNumberOrNull, [1, null], [true, false, "", [[]], {}]);
     });
@@ -75,21 +75,6 @@ describe("Custom validators.", () => {
                 [{a: 1, b: 2, c: 3, d: 4}, ["a", "b", "c", "d", "e"]],
                 [["a", "b", "c", "d"], ["a", "b", "c", "d", "e"]],
                 [true, [true]]
-            ]
-        );
-
-        runValidator(
-            DeepValidator.isContainsOnly,
-            [
-                [{a: 1, b: 2, c: 3, d: 4}, ["a", "b", "c", "d"], false],
-                [["a", "b", "c", "d"], ["a", "b", "c", "d"], false],
-                [{a: 1, b: 2, c: 3, d: 4}, ["a", "b", "c"], false],
-                [["a", "b", "c"], ["a", "b", "c"], false]
-            ],
-            [
-                [{a: 1, b: 2, c: 3, d: 4}, ["a", "b", "c", "d", "e"], false],
-                [["a", "b", "c", "d"], ["a", "b", "c", "d", "e"], false],
-                [true, [true], false]
             ]
         );
     });
@@ -140,23 +125,23 @@ describe("Custom validators.", () => {
     });
 
     it("isNotEmpty", () => {
-        runValidator(DeepValidator.isNotEmpty, [{a: 1}, [[1, 2, 3]], "a"], [null, 0, true, false, "", [[]], {}, void 0]);
+        runValidator(DeepValidator.isNotEmpty, [{a: 1}, [[1, 2, 3]], "a"], [null, 0, true, false, "", [[]], {}, void 0, Infinity, NaN]);
     });
 
     it("isNotEmptyArray", () => {
-        runValidator(DeepValidator.isNotEmptyArray, [[[1, 2, 3]]], [null, 0, true, false, "a", [[]], {}, void 0]);
+        runValidator(DeepValidator.isNotEmptyArray, [[[1, 2, 3]]], [null, 0, true, false, "a", [[]], {}, void 0, Infinity, NaN]);
     });
 
     it("isNotEmptyObject", () => {
-        runValidator(DeepValidator.isNotEmptyObject, [{a: 1}], [null, 0, true, false, "a", [[]], {}, void 0]);
+        runValidator(DeepValidator.isNotEmptyObject, [{a: 1}], [null, 0, true, false, "a", [[]], {}, void 0, Infinity, NaN]);
     });
 
     it("isNumberNegative", () => {
-        runValidator(DeepValidator.isNumberNegative, [- 1, - 2, - 3], [null, 0, true, false, "a", [[]], {}, void 0]);
+        runValidator(DeepValidator.isNumberNegative, [- 1, - 2, - 3, - Infinity], [null, 0, true, false, "a", [[]], {}, void 0, Infinity, NaN]);
     });
 
     it("isNumberPositive", () => {
-        runValidator(DeepValidator.isNumberPositive, [1, 2, 3], [null, 0, true, false, "a", [[]], {}, void 0]);
+        runValidator(DeepValidator.isNumberPositive, [1, 2, 3, Infinity], [null, 0, true, false, "a", [[]], {}, void 0, - Infinity, NaN]);
     });
 
     it("isNumberOrNumeric", () => {
@@ -199,7 +184,20 @@ describe("Custom validators.", () => {
 
         let t;
 
-        expect(v.validate(t = {a: {b: {$x: 'y', y: 2}, $x: 1, $y: 'x', z: 3}})).toBe(true);
+        expect(v.validate(t = {a: {b: {$x: 'y', y: 2, c: []}, $x: 1, $y: 'x', z: 3}})).toBe(true);
+
+        expect(t).toEqual({a: {b: {$x: 'y', c: []}, $y: 'x'}});
+
+        v = new DeepValidator({
+            'a': [
+                'isObject', ['filter', /x/]
+            ],
+            'a.b': [
+                'isObject', ['filter', /y/, false]
+            ]
+        });
+
+        expect(v.validate(t = {a: {b: {$x: 'y', y: 2, c: []}, $x: 1, $y: 'x', z: 3}})).toBe(true);
 
         expect(t).toEqual({a: {b: {$x: 'y'}, $y: 'x'}});
     });
