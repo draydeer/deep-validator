@@ -1,6 +1,6 @@
 # DeepValidator
 
-A library for validation of complex structures.
+A library for validation of complex structures. Uses [LoDash](https://lodash.com) and [validator.js](https://github.com/chriso/validator.js) libraries.
 
 ### Server-side
 
