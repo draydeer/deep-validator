@@ -1,6 +1,6 @@
 .idea
 *.js
 *.map
-!src/deep-validator.min.js
+!deep-validator.min.js
 node_modules
 typings
