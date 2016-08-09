@@ -85,4 +85,23 @@ describe("Flow", () => {
 
         expect(v.getErrors()).toEqual({});
     });
+
+    it("Nested [DeepValidator] error messages combination", () => {
+        let v = new DeepValidator({
+            a: [
+                new DeepValidator({
+                    b: [
+                        "isString:not string"
+                    ]
+                })
+            ],
+            b: [
+                "isNumber:not number"
+            ]
+        });
+
+        expect(v.tryAll().validate({a: {b: 5}, b: 5})).toBe(false);
+
+        expect(v.getErrors()).toEqual({"a.b": "not string"});
+    });
 });
