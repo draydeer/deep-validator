@@ -4,9 +4,12 @@ import * as _ from "lodash";
 import {DeepValidator} from "../src/deep-validator";
 
 
+let v, t;
+
+
 describe("Flow", () => {
     it("Array allow", () => {
-        let v = new DeepValidator({
+        v = new DeepValidator({
             a: [
                 "isString:not string"
             ],
@@ -33,7 +36,7 @@ describe("Flow", () => {
     });
 
     it("Single, tryAll", () => {
-        let v = new DeepValidator({
+        v = new DeepValidator({
             a: [
                 "isString:not string"
             ],
@@ -60,7 +63,7 @@ describe("Flow", () => {
     });
 
     it("Strict", () => {
-        let v = new DeepValidator({
+        v = new DeepValidator({
             a: [
                 "isString:not string"
             ],
@@ -87,7 +90,7 @@ describe("Flow", () => {
     });
 
     it("Nested [DeepValidator] error messages combination", () => {
-        let v = new DeepValidator({
+        v = new DeepValidator({
             a: [
                 new DeepValidator({
                     b: [
@@ -103,5 +106,57 @@ describe("Flow", () => {
         expect(v.tryAll().validate({a: {b: 5}, b: 5})).toBe(false);
 
         expect(v.getErrors()).toEqual({"a.b": "not string"});
+    });
+
+    it("Custom validator/sanitizer", () => {
+        v = new DeepValidator({
+            a: [
+                (v, k, d) => {
+                    d[k] = 321;
+
+                    return "error";
+                }
+            ],
+        });
+
+        expect(v.validate({a: 123})).toBe(false);
+
+        expect(v.getErrors()).toEqual({"a": "error"});
+
+        v = new DeepValidator({
+            a: [
+                (v, k, d) => {
+                    d[k] = 321;
+
+                    return true;
+                }
+            ],
+        });
+
+        expect(v.validate(t = {a: 123})).toBe(true);
+
+        expect(t).toEqual({a: 321});
+    });
+
+    it("If", () => {
+        v = new DeepValidator({
+            a: [
+                ['if', 'isString', new DeepValidator({a: ['isNumber:not number']}), new DeepValidator({a: ['isString:not string']})]
+            ],
+        });
+
+        expect(v.validate({a: {a: 1}})).toBe(false);
+
+        expect(v.getErrors()).toEqual({"a.a": "not string"});
+
+        v = new DeepValidator({
+            a: [
+                ['if', 'isObject', new DeepValidator({a: ['isNumber:not number']}), new DeepValidator({a: ['isString:not string']})]
+            ],
+        });
+
+        expect(v.validate({a: {a: 1}})).toBe(true);
+
+        expect(v.getErrors()).toEqual({});
     });
 });

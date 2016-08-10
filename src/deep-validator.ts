@@ -23,6 +23,7 @@ export class DeepValidator {
     protected static _isValidators = {
         contains: true,
         equals: true,
+        if: true,
         matches: true,
     };
 
@@ -87,13 +88,7 @@ export class DeepValidator {
                 result = (<DeepValidator>entry.validator).validate(data, true);
 
                 if (result !== true) {
-
-                    // extend errors object with list of validator messages
-                    _.each((<DeepValidator>entry.validator).getErrors(), (v, k: string) => {
-                        errors[message ? message + '.' + k : k] = v;
-                    });
-
-                    return false;
+                    result = (<DeepValidator>entry.validator).getErrors();
                 }
             } else {
 
@@ -101,7 +96,6 @@ export class DeepValidator {
                 if (_.isFunction(entry.validator)) {
                     let validator = <(...a:any[]) => any>entry.validator;
 
-                    isValidator = true;
                     result = entry.message = validator(data, key, ref);
 
                     data = ref[key];
@@ -123,19 +117,29 @@ export class DeepValidator {
                         );
                     }
                 }
+            }
 
-                if (isValidator) {
-                    if (result !== true) {
+            if (isValidator) {
+                if (result !== true) {
+                    if (DeepValidator.isObject(result)) {
+
+                        // extend errors object with set of messages
+                        _.each(result, (v, k: string) => {
+                            errors[message ? message + '.' + k : k] = v;
+                        });
+                    } else {
                         errors[message] = entry.message || false;
-
-                        return false;
                     }
-                } else {
-                    if (key !== void 0) {
+
+                    return false;
+                }
+            } else {
+                if (key !== void 0) {
+                    if (result !== void 0) {
                         data = result;
-
-                        ref[key] = result;
                     }
+
+                    ref[key] = result;
                 }
             }
         }
@@ -397,10 +401,42 @@ export class DeepValidator {
     static whitelist = validator.whitelist;
 
     /**
-     * Clean value. Similar to [filter] but filters given value using active (internal) schema.
+     * Clean value. Similar to [filter] but filters a given value using an active (internal) schema.
      */
     static clean(value: any, a, b, c, d, key: string, ref: any, schema: any): any {
         return _.pick(value, Object.keys(schema));
+    }
+
+    /**
+     *
+     */
+    static if(
+        value: any,
+        filter: [string]|string,
+        branchTrue: DeepValidator,
+        branchFalse: DeepValidator
+    ): boolean {
+        if (_.isArray(filter) === false) {
+            filter = [<string>filter];
+        }
+
+        let result: boolean;
+
+        if (DeepValidator[filter[0]](value, filter[1], filter[2], filter[3], filter[4])) {
+            result = branchTrue.validate(value);
+
+            if (result === false) {
+                return branchTrue.getErrors();
+            }
+        } else {
+            result = branchFalse.validate(value);
+
+            if (result === false) {
+                return branchFalse.getErrors();
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -718,7 +754,7 @@ export class DeepValidator {
                     (v) => {
                         _.isArray(v) || (v = [v]);
 
-                        if (v[0] instanceof DeepValidator) {
+                        if (v[0] instanceof DeepValidator || _.isFunction(v[0])) {
                             last[k]['##'].v.push({
                                 args: v.slice(1),
                                 isValidator: true,
@@ -736,7 +772,31 @@ export class DeepValidator {
                                 last[k]['##'].strict = pair[1] || false;
                             } else if (pair[0] === 'showAs') {
                                 last[k]['##'].showAs = pair[1] || false;
-                            } else if (DeepValidator[pair[0]] || validator[pair[0]] || _[pair[0]]) {
+                            } else if (DeepValidator[pair[0]]) {
+                                if (pair[0] === 'if') {
+                                    if (v.length !== 4) {
+                                        throw new Error('Validator of [if] must contain condition checker and branches.');
+                                    }
+
+                                    let temp = _.isArray(v[1]) ? v[1][0] : v[1];
+
+                                    if (_.isString(temp) === false) {
+                                        throw new Error('Validator of [if] must define valid checker.');
+                                    }
+
+                                    if (v[2] instanceof DeepValidator && v[3] instanceof DeepValidator) {
+
+                                    } else {
+                                        throw new Error('Validator of [if] must define valid branches (instances of [DeepValidator]).');
+                                    }
+
+                                    if (temp in DeepValidator) {
+
+                                    } else {
+                                        throw new Error('Validator is not defined: ' + temp + ' on [if].');
+                                    }
+                                }
+
                                 last[k]['##'].v.push({
                                     args: v.slice(1),
                                     isValidator: pair[0].substr(0, 2) === 'is' || v[0] in DeepValidator._isValidators,
