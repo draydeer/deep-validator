@@ -54,12 +54,11 @@ A validation list can contain an any number of entries. Each entry consists of v
 ```javascript```
 var validator = new DeepValidator({
     "a": [
-        "isExists:not exists", // first entry
-        ["isInRange:invalid", 1, 2] // second entry
+        "isExists:not exists", // 1st entry
+        "isNumber:not number", // 2nd entry
+        ["isInRange:invalid", 1, 2] // 3rd entry
     ]
 });
-
-validator.validate({a: {b: 3}}); // false
 ```
 
 #### Flow control
