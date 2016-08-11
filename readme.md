@@ -54,17 +54,20 @@ validator.getErrors(); // {"a.b": "invalid"}
 [arrayAllow] method allows applying schema on each element of provided data array.
 
 ```javascript```
-validator.arrayAllow().validate([{a: {b: "b"}}, {a: {b: "c"}}]); // true
+validator.arrayAllow()
+    .validate([{a: {b: "b"}}, {a: {b: "c"}}]); // true
 ```
 
 [tryAll] method forces validation of all data in despite of earlier errors.
 
 ```javascript```
-validator.arrayAllow().tryAll().validate([{a: {b: 1}}, {a: {b: 2}}]); // {"0.a.b": "invalid", "1.a.b": "invalid"}
+validator.arrayAllow().tryAll()
+    .validate([{a: {b: 1}}, {a: {b: 2}}]); // {"0.a.b": "invalid", "1.a.b": "invalid"}
 ```
 
 [strict] method forces checking of presence of all keys defined in schema.
 
 ```javascript```
-validator.setMessageMissingKey("missing").strict().validate({a: {c: 1}}); // {"a.b": "missing"}
+validator.setMessageMissingKey("missing").strict()
+    .validate({a: {c: 1}}); // {"a.b": "missing"}
 ```
