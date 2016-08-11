@@ -565,6 +565,13 @@ export class DeepValidator {
     /**
      * Filter.
      */
+    static isInRange(value: number, min: number, max: number): boolean {
+        return _.isNumber(value) && value >= min && value <= max;
+    }
+
+    /**
+     * Filter.
+     */
     static isLength(value: any, min?: number, max?: number): boolean {
         let length: number;
 
@@ -662,13 +669,6 @@ export class DeepValidator {
      */
     static isObject(value: any): boolean {
         return _.isObjectLike(value) && (value instanceof Array) === false;
-    }
-
-    /**
-     * Filter.
-     */
-    static isRange(value: number, min: number, max: number): boolean {
-        return _.isNumber(value) && value >= min && value <= max;
     }
 
     /**

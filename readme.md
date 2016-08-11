@@ -28,7 +28,7 @@ The library can be loaded as a standalone script.
 
 ### Usage
 
-Create validator instance with validation schema where schema is a plain object with keys as keys of validating data and values as lists of validators/sanitizers to be applied on corresponding values of data. Note that all nested structures paths are presented as keys.
+Create validator instance with a validation schema where the schema is a plain object with keys as keys of validating data and values as lists of validators/sanitizers to be applied on corresponding values of data. Note that all nested structures paths are presented as keys.
 
 ```javascript```
 var validator = new DeepValidator({
@@ -47,6 +47,19 @@ The result of validation will be [false], validation cycle will be stopped on fi
 
 ```
 validator.getErrors(); // {"a.b": "invalid"}
+```
+
+A validation list can contain an any number of entries. Each entry consists of validator/sanitizer alias optionally provided with an error message or translator key and up to 4 custom parameters.
+
+```javascript```
+var validator = new DeepValidator({
+    "a": [
+        "isExists:not exists", // first entry
+        ["isInRange:invalid", 1, 2] // second entry
+    ]
+});
+
+validator.validate({a: {b: 3}}); // false
 ```
 
 #### Flow control
