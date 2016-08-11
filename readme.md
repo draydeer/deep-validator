@@ -25,3 +25,34 @@ The library can be loaded as a standalone script.
 ```html
 <script type="text/javascript" src="deep-validator.min.js"></script>
 ```
+
+### Usage
+
+Create validator instance with validation schema where schema is a plain object with keys as keys of validating data and values as lists of validators/sanitizers to be applied on corresponding values of data. Note that all nested structures paths are presented as keys.
+
+```javascript```
+var validator = new DeepValidator({
+    "a": [
+        "isObject:invalid"
+    ],
+    "a.b": [
+        "isString:invalid"
+    ]
+});
+
+validator.validate({a: {b: 3}}); // false
+```
+
+The result of validation will be [false], validation cycle will be stopped on first error, and the final list of errors can be retrieved by [getErrors()] method.
+
+```
+validator.getErrors(); // {"a.b": "invalid"}
+```
+
+#### Flow control
+
+[arrayAllow] method allows applying schema on each element of provided data array.
+
+[tryAll] method forces validation of all data in despite of earlier errors.
+
+[strict] method forces checking of presence of all keys defined in schema.

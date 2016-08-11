@@ -4,10 +4,28 @@ import * as _ from "lodash";
 import {DeepValidator} from "../src/deep-validator";
 
 
-let v, t;
+let v, t, f;
 
 
 describe("Flow", () => {
+    it("Errors", () => {
+        f = () => new DeepValidator({a: ["dummy"]});
+
+        expect(f).toThrow(new Error("Validator is not defined: dummy"));
+
+        f = () => new DeepValidator({a: [["if"]]});
+
+        expect(f).toThrow(new Error("Validator of [if] must contain condition checker and branches."));
+
+        f = () => new DeepValidator({a: [["if", "dummy", new DeepValidator({}), new DeepValidator({})]]});
+
+        expect(f).toThrow(new Error("Condition checker is not defined or invalid: dummy"));
+
+        f = () => new DeepValidator({a: [["if", "dummy", 1, 2]]});
+
+        expect(f).toThrow(new Error("Validator of [if] must define valid branch instances of [DeepValidator]."));
+    });
+
     it("Array allow", () => {
         v = new DeepValidator({
             a: [
@@ -156,6 +174,25 @@ describe("Flow", () => {
         });
 
         expect(v.validate({a: {a: 1}})).toBe(true);
+
+        expect(v.getErrors()).toEqual({});
+    });
+
+    it("List", () => {
+        v = new DeepValidator({
+            a: [
+                ['isArray:not array']
+            ],
+            'a.[]': [
+                'isString:not string'
+            ]
+        });
+
+        expect(v.validate({a: ["a", "b", 1]})).toBe(false);
+
+        expect(v.getErrors()).toEqual({"a.2": "not string"});
+
+        expect(v.validate({a: ["a", "b", "c"]})).toBe(true);
 
         expect(v.getErrors()).toEqual({});
     });

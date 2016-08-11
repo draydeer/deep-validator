@@ -135,11 +135,11 @@ export class DeepValidator {
                 }
             } else {
                 if (key !== void 0) {
-                    if (result !== void 0) {
-                        data = result;
-                    }
+                    data = result;
 
-                    ref[key] = result;
+                    if (result !== void 0) {
+                        ref[key] = result;
+                    }
                 }
             }
         }
@@ -277,6 +277,9 @@ export class DeepValidator {
     // from validator
     static isFQDN = validator.isFQDN;
 
+    // from lodash [isFinite]
+    static isFinite = _.isFinite;
+
     // from validator
     static isFloat = validator.isFloat;
 
@@ -331,6 +334,12 @@ export class DeepValidator {
     // from validator
     static isMultibyte = validator.isMultibyte;
 
+    // from lodash [isNaN]
+    static isNaN = _.isNaN;
+
+    // from lodash [isNil]
+    static isNil = _.isNil;
+
     // from validator
     static isNull = validator.isNull;
 
@@ -379,11 +388,17 @@ export class DeepValidator {
     // from validator
     static stripLow = validator.stripLow;
 
+    // from lodash [toArray]
+    static toArray = _.toArray;
+
     // from validator
     static toBoolean = validator.toBoolean;
 
     // from validator
     static toDate = validator.toDate;
+
+    // from lodash [toFinite]
+    static toFinite = _.toFinite;
 
     // from validator
     static toFloat = validator.toFloat;
@@ -773,27 +788,29 @@ export class DeepValidator {
                             } else if (pair[0] === 'showAs') {
                                 last[k]['##'].showAs = pair[1] || false;
                             } else if (DeepValidator[pair[0]]) {
+
+                                // special for [if]
                                 if (pair[0] === 'if') {
                                     if (v.length !== 4) {
                                         throw new Error('Validator of [if] must contain condition checker and branches.');
                                     }
 
-                                    let temp = _.isArray(v[1]) ? v[1][0] : v[1];
+                                    let cond = _.isArray(v[1]) ? v[1][0] : v[1];
 
-                                    if (_.isString(temp) === false) {
-                                        throw new Error('Validator of [if] must define valid checker.');
+                                    if (_.isString(cond) === false) {
+                                        throw new Error('Validator of [if] must define valid condition checker.');
                                     }
 
                                     if (v[2] instanceof DeepValidator && v[3] instanceof DeepValidator) {
 
                                     } else {
-                                        throw new Error('Validator of [if] must define valid branches (instances of [DeepValidator]).');
+                                        throw new Error('Validator of [if] must define valid branch instances of [DeepValidator].');
                                     }
 
-                                    if (temp in DeepValidator) {
+                                    if (cond in DeepValidator && cond.substr(0, 2) === 'is') {
 
                                     } else {
-                                        throw new Error('Validator is not defined: ' + temp + ' on [if].');
+                                        throw new Error('Condition checker is not defined or invalid: ' + cond);
                                     }
                                 }
 
@@ -862,7 +879,7 @@ export class DeepValidator {
      * Set default [data invalid] message. Message will be set if provided data is invalid.
      *
      * @param value Value.
-     * 
+     *
      * @returns {DeepValidator}
      */
     setMessageInvalid(value: number|string): DeepValidator {
@@ -875,7 +892,7 @@ export class DeepValidator {
      * Set default [missing key] message. Message will be set if [isExists] validator fails and has no self message.
      *
      * @param value Value.
-     * 
+     *
      * @returns {DeepValidator}
      */
     setMessageMissingKey(value: number|string): DeepValidator {
@@ -901,7 +918,7 @@ export class DeepValidator {
      * Set [arrayAllow] mode. Allows applying schema to each element of data if data is array.
      *
      * @param value Value.
-     * 
+     *
      * @returns {DeepValidator}
      */
     arrayAllow(value: boolean = true): DeepValidator {
@@ -914,7 +931,7 @@ export class DeepValidator {
      * Set [strict] mode. All schema keys will be checked for presence.
      *
      * @param value Value.
-     * 
+     *
      * @returns {DeepValidator}
      */
     strict(value: boolean = true): DeepValidator {
@@ -943,7 +960,7 @@ export class DeepValidator {
      * @param arrayAllow Allow apply schema to each element of data if data is array.
      * @param errors Internal usage.
      * @param prefix Internal usage.
-     * 
+     *
      * @returns {boolean}
      */
     validate(data: any[]|Dictionary<any>, arrayAllow: boolean = false, errors?, prefix?): boolean {
