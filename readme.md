@@ -49,7 +49,7 @@ The result of validation will be [false], validation cycle will be stopped on fi
 validator.getErrors(); // {"a.b": "invalid"}
 ```
 
-A validation list can contain an any number of entries. Each entry consists of validator/sanitizer alias optionally provided with an error message or translator key and up to 4 custom parameters.
+The validation list of each key can contain any number of entries. Each entry consists of the validator/sanitizer alias optionally provided with an error message or a translator key and up to 4 custom parameters.
 
 ```javascript```
 var validator = new DeepValidator({
