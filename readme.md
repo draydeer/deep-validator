@@ -49,7 +49,7 @@ The result of validation will be *false*, validation flow will be stopped on fir
 validator.getErrors(); // {"a.b": "invalid"}
 ```
 
-The validation flow list of each key can contain any number of entries. Each entry consists of the validator/sanitizer alias optionally provided with an error message or a translator key and up to 4 custom parameters.
+The validation flow list of each key can contain any number of entries. Each entry consists of the validator/sanitizer alias optionally provided with an error message or a translator key and up to 3 custom parameters.
 
 ```javascript```
 var validator = new DeepValidator({
@@ -165,7 +165,7 @@ validator.getErrors(); // {"a.b": "not number"}
 
 #### Branches
 
-The special flow operation *if* allows to select a one of sub-flows - "true" and "false" - checking the current value with the provided condition checker.
+The special flow operation *if* allows to select a one of sub-flows - "true" and "false" - by checking the current value with a provided condition checker. The selected validator will be run on the current data context.
 
 ```javascript```
 var validator = new DeepValidator({
@@ -174,12 +174,16 @@ var validator = new DeepValidator({
             "if",
             "isString",
             new DeepValidator({
-
+                "b": "isNumber:not number"
             }),
             new DeepValidator({
-
+                "b": "isString:not string"
             })
         ]
     ]
 });
+
+validator.validate({a: 1, b: "1"}); // true
+
+validator.validate({a: "1", b: 1}); // true
 ```

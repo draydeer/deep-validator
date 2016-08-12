@@ -3,6 +3,7 @@
 import * as _ from 'lodash';
 import * as validator from 'validator';
 import Dictionary = _.Dictionary;
+import keyBy = require("lodash/keyBy");
 
 
 type ValidatorEntry = {
@@ -12,6 +13,8 @@ type ValidatorEntry = {
     isValidator: boolean;
 
     message: string;
+
+    notExtendErrors: boolean;
 
     validator: string|((...a: any[]) => any)|DeepValidator;
 
@@ -131,7 +134,8 @@ export class DeepValidator {
         tryAll: boolean = false,
         errors: Dictionary<any> = {},
         strict: boolean = false,
-        message: string = '',
+        path: string = '',
+        root: string = '',
         key?: string,
         ref?: any
     ): boolean {
@@ -172,7 +176,7 @@ export class DeepValidator {
                             entry.args[0],
                             entry.args[1],
                             entry.args[2],
-                            entry.args[3],
+                            errors,
                             key,
                             ref,
                             schema
@@ -186,11 +190,17 @@ export class DeepValidator {
                     if (DeepValidator.isObject(result)) {
 
                         // extend errors object with set of messages
-                        _.each(result, (v, k: string) => {
-                            errors[message ? message + '.' + k : k] = v;
-                        });
+                        if (entry.notExtendErrors) {
+                            _.each(result, (v, k: string) => {
+                                errors[root ? root + '.' + k : k] = v;
+                            });
+                        } else {
+                            _.each(result, (v, k: string) => {
+                                errors[path ? path + '.' + k : k] = v;
+                            });
+                        }
                     } else {
-                        errors[message] = entry.message || false;
+                        errors[path] = entry.message || false;
                     }
 
                     return false;
@@ -218,7 +228,8 @@ export class DeepValidator {
                             tryAll,
                             errors,
                             strict,
-                            message ? message + '.' + i : i.toString(),
+                            path ? path + '.' + i : i.toString(),
+                            path,
                             i.toString(),
                             data
                         ) === false
@@ -233,12 +244,23 @@ export class DeepValidator {
             for (let k in schema) {
                 let field = (schema[k]['##'] && schema[k]['##'].showAs) || k;
 
-                let mes: string = message ? message + '.' + field : field;
-
                 if (k !== '##' && k !== '[]') {
+                    let pathField: string = path ? path + '.' + field : field;
+
                     if (isObject) {
                         if (k in data || (schema[k]['##'].custom && schema[k]['##'].custom(k, data, k in data))) {
-                            if (this._validate(data[k], schema[k], tryAll, errors, strict, mes, k, data) || tryAll) {
+                            if (this._validate(
+                                    data[k],
+                                    schema[k],
+                                    tryAll,
+                                    errors,
+                                    strict,
+                                    pathField,
+                                    path,
+                                    k,
+                                    data
+                                ) || tryAll
+                            ) {
                                 continue;
                             } else {
                                 return false;
@@ -246,7 +268,7 @@ export class DeepValidator {
                         }
 
                         if (schema[k]['##'].def !== void 0) {
-                            data[k] = typeof schema[k]['##'].def === 'function' ?
+                            data[k] = _.isFunction(schema[k]['##'].def) ?
                                 schema[k]['##'].def(k, data, k in data) :
                                 schema[k]['##'].def;
 
@@ -255,7 +277,7 @@ export class DeepValidator {
                     }
 
                     if (strict || schema[k]['##'].strict !== void 0) {
-                        errors[mes] = schema[k]['##'].strict || this._messageMissingKey;
+                        errors[pathField] = schema[k]['##'].strict || this._messageMissingKey;
 
                         if (tryAll === false) {
                             return false;
@@ -491,7 +513,11 @@ export class DeepValidator {
         value: any,
         filter: [string]|string,
         branchTrue: DeepValidator,
-        branchFalse: DeepValidator
+        branchFalse: DeepValidator,
+        errors: any,
+        key?,
+        ref?,
+        schema?
     ): any {
         if (_.isArray(filter) === false) {
             filter = [<string>filter];
@@ -500,13 +526,13 @@ export class DeepValidator {
         let result: boolean;
 
         if (DeepValidator[filter[0]](value, filter[1], filter[2], filter[3], filter[4])) {
-            result = branchTrue.validate(value);
+            result = branchTrue.validate(ref);
 
             if (result === false) {
                 return branchTrue.getErrors();
             }
         } else {
-            result = branchFalse.validate(value);
+            result = branchFalse.validate(ref);
 
             if (result === false) {
                 return branchFalse.getErrors();
@@ -841,6 +867,7 @@ export class DeepValidator {
                                 args: v.slice(1),
                                 isValidator: true,
                                 message: null,
+                                notExtendErrors: false,
                                 validator: v[0]
                             });
                         } else if (_.isString(v[0])) {
@@ -855,6 +882,7 @@ export class DeepValidator {
                             } else if (pair[0] === 'showAs') {
                                 last[k]['##'].showAs = pair[1] || false;
                             } else if (DeepValidator[pair[0]]) {
+                                let notExtendErrors: boolean = false;
 
                                 // special for [if]
                                 if (pair[0] === 'if') {
@@ -879,12 +907,15 @@ export class DeepValidator {
                                     } else {
                                         throw new Error('Condition checker is not defined or invalid: ' + cond);
                                     }
+
+                                    notExtendErrors = true;
                                 }
 
                                 last[k]['##'].v.push({
                                     args: v.slice(1),
                                     isValidator: pair[0].substr(0, 2) === 'is' || v[0] in DeepValidator._isValidators,
                                     message: pair[1],
+                                    notExtendErrors: notExtendErrors,
                                     validator: pair[0]
                                 });
                             } else {
@@ -895,6 +926,7 @@ export class DeepValidator {
                                 args: v.slice(1),
                                 isValidator: v[0].substr(0, 2) === 'is' || v[0] in DeepValidator._isValidators,
                                 message: null,
+                                notExtendErrors: false,
                                 validator: v[0]
                             });
                         }
