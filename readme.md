@@ -49,7 +49,7 @@ The result of validation will be *false*, validation flow will be stopped on fir
 validator.getErrors(); // {"a.b": "invalid"}
 ```
 
-The validation list of each key can contain any number of entries. Each entry consists of the validator/sanitizer alias optionally provided with an error message or a translator key and up to 4 custom parameters.
+The validation flow list of each key can contain any number of entries. Each entry consists of the validator/sanitizer alias optionally provided with an error message or a translator key and up to 4 custom parameters.
 
 ```javascript```
 var validator = new DeepValidator({
@@ -61,7 +61,7 @@ var validator = new DeepValidator({
 });
 ```
 
-The validation flow can also be built with the flow builder which provides classic fluent interface definition syntax.
+The validation flow list can also be built with the flow builder which provides a classic fluent interface definition syntax.
 
 ```javascript```
 var validator = new DeepValidator({
