@@ -43,7 +43,7 @@ var validator = new DeepValidator({
 validator.validate({a: {b: 3}}); // false
 ```
 
-The result of validation will be **false**, validation cycle will be stopped on first error, then the final list of errors can be retrieved by **getErrors** method.
+The result of validation will be *false*, validation cycle will be stopped on first error, then the final list of errors can be retrieved by *getErrors* method.
 
 ```
 validator.getErrors(); // {"a.b": "invalid"}
@@ -63,23 +63,47 @@ var validator = new DeepValidator({
 
 #### Flow control
 
-**arrayAllow** method allows applying schema on each element of provided data array.
+*arrayAllow* method allows applying schema on each element of provided data array.
 
 ```javascript```
 validator.arrayAllow()
     .validate([{a: {b: "b"}}, {a: {b: "c"}}]); // true
 ```
 
-**tryAll** method forces validation of all data in despite of earlier errors.
+*tryAll* method forces validation of all data in despite of earlier errors.
 
 ```javascript```
 validator.arrayAllow().tryAll()
     .validate([{a: {b: 1}}, {a: {b: 2}}]); // {"0.a.b": "invalid", "1.a.b": "invalid"}
 ```
 
-**strict** method forces checking of presence of all keys defined in schema.
+*strict* method forces checking of presence of all keys defined in schema.
 
 ```javascript```
 validator.setMessageMissingKey("missing").strict()
     .validate({a: {c: 1}}); // {"a.b": "missing"}
+```
+
+#### Custom validator
+
+Self defined functions can be used as custom validators in any step of validation flow. Such handler combines role of a validator and a sanitizer in one face. The handler takes as parameters the current value, the current key and the reference to the current data context (mutable) and must return *true* on success validation or an any value (string commonly) as a error message.
+
+```javascript```
+var validator = new DeepValidator({
+    "a.b": [
+        (val, key, ref) => {
+            if (val === null) {
+                ref[key] = 0; // change value by reference
+
+                return true;
+            }
+
+            return 'not null';
+        }
+    ]
+});
+
+let data = {a: {b: null}};
+
+validator.validate(data); // true, data = {a: {b: 0}}
 ```
