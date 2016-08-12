@@ -137,9 +137,9 @@ var data = {a: {b: null}};
 validator.getErrors(); // {"a.b": "not number"}
 ```
 
-#### Special flow entries
+#### Special flow operations
 
-*isExists* forces the key to exist
+*isExists* forces the key to exist.
 
 ```javascript```
 var validator = new DeepValidator({a: "isExists:not exists"});
@@ -147,7 +147,7 @@ var validator = new DeepValidator({a: "isExists:not exists"});
 validator.getErrors(); // {"a": "not exists"}
 ```
 
-*default* sets default value if the key is not defined
+*default* sets a default value if the key is not defined.
 
 ```javascript```
 var validator = new DeepValidator({a: ["default", 5]});
@@ -155,10 +155,12 @@ var validator = new DeepValidator({a: ["default", 5]});
 // data = {a: 5}
 ```
 
-*showAs* redefines key name in the set of errors
+*showAs* redefines a key name in the set of errors.
 
 ```javascript```
 var validator = new DeepValidator({a: ["isExists:not exists", ["showAs", "aaa"]]});
 ...
 validator.getErrors(); // {"aaa": "not exists"}
 ```
+
+#### Branches

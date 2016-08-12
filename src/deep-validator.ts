@@ -22,6 +22,12 @@ export class FlowBuilder {
 
     flow: any[] = [];
 
+    default(value: any) {
+        this.flow.push(['default', value]);
+
+        return this;
+    }
+
     isExists(message: string = void 0) {
         this.flow.push(message ? 'isExists:' + message : 'isExists');
 
@@ -40,10 +46,20 @@ export class FlowBuilder {
         return this;
     }
 
+    showAs(name: string) {
+        this.flow.push(['showAs', name]);
+
+        return this;
+    }
+
 }
 
 
 export class Flow {
+
+    static default(value: any) {
+        return new FlowBuilder().default(value);
+    }
 
     static isExists(message: string = void 0) {
         return new FlowBuilder().isExists(message);
@@ -55,6 +71,10 @@ export class Flow {
 
     static isString(message: string = void 0) {
         return new FlowBuilder().isString(message);
+    }
+
+    static showAs(name: string) {
+        return new FlowBuilder().showAs(name);
     }
 
 }
