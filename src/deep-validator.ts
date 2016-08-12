@@ -22,7 +22,19 @@ export class FlowBuilder {
 
     flow: any[] = [];
 
-    isString(message?: string) {
+    isExists(message: string = void 0) {
+        this.flow.push(message ? 'isExists:' + message : 'isExists');
+
+        return this;
+    }
+
+    isInRange(message: string = void 0, min: number, max: number) {
+        this.flow.push(message ? 'isExists:' + message : 'isExists');
+
+        return this;
+    }
+
+    isString(message: string = void 0) {
         this.flow.push(message ? 'isString:' + message : 'isString');
 
         return this;
@@ -33,7 +45,15 @@ export class FlowBuilder {
 
 export class Flow {
 
-    static isString(message?: string) {
+    static isExists(message: string = void 0) {
+        return new FlowBuilder().isExists(message);
+    }
+
+    static isInRange(message: string = void 0, min: number, max: number) {
+        return new FlowBuilder().isInRange(message, min, max);
+    }
+
+    static isString(message: string = void 0) {
         return new FlowBuilder().isString(message);
     }
 

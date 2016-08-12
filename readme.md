@@ -61,6 +61,14 @@ var validator = new DeepValidator({
 });
 ```
 
+The validation flow can also be built with the flow builder which provides classic fluent interface definition syntax.
+
+```javascript```
+var validator = new DeepValidator({
+    "a": Flow.isExists("not exists").isNumber("not number").isInRange("invalid", 1, 2)
+});
+```
+
 #### Flow control
 
 *arrayAllow* method allows applying schema on each element of provided data array.
