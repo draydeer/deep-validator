@@ -150,7 +150,7 @@ validator.getErrors(); // {"a": "not exists"}
 *default* sets a default value if the key is not defined.
 
 ```javascript```
-var validator = new DeepValidator({a: ["default", 5]});
+var validator = new DeepValidator({a: [["default", 5]]});
 ...
 // data = {a: 5}
 ```
@@ -164,3 +164,22 @@ validator.getErrors(); // {"aaa": "not exists"}
 ```
 
 #### Branches
+
+The special flow operation *if* allows to select a one of sub-flows - "true" and "false" - checking the current value with the provided condition checker.
+
+```javascript```
+var validator = new DeepValidator({
+    "a": [
+        [
+            "if",
+            "isString",
+            new DeepValidator({
+
+            }),
+            new DeepValidator({
+
+            })
+        ]
+    ]
+});
+```
