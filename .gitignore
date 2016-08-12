@@ -2,5 +2,6 @@
 *.js
 *.map
 !deep-validator.min.js
+coverage
 node_modules
 typings

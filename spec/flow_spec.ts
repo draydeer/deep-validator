@@ -201,7 +201,7 @@ describe("Flow", () => {
 
         v = new DeepValidator({
             "a.b": [
-                ['if', 'isString', new DeepValidator({b: ['isString:not string']}), new DeepValidator({b: ['isNumber:not number']})]
+                ['if', 'isString', {b: ['isString:not string']}, {b: ['isNumber:not number']}]
             ],
         });
 

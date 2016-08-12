@@ -130,7 +130,7 @@ var validator = new DeepValidator({
     "a.b": [
         function (val, key, ref) {
             if (val === null) {
-                ref[key] = 0; // change value by reference
+                ref[key] = 0; // modify value by reference
 
                 return true;
             }
@@ -173,12 +173,12 @@ var validator = new DeepValidator({
         [
             "if",
             "isString",
-            new DeepValidator({
+            {
                 "b": "isNumber:not number"
-            }),
-            new DeepValidator({
+            },
+            {
                 "b": "isString:not string"
-            })
+            }
         ]
     ]
 });

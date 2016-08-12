@@ -896,10 +896,24 @@ export class DeepValidator {
                                         throw new Error('Validator of [if] must define valid condition checker.');
                                     }
 
-                                    if (v[2] instanceof DeepValidator && v[3] instanceof DeepValidator) {
+                                    if (v[2] instanceof DeepValidator) {
 
                                     } else {
-                                        throw new Error('Validator of [if] must define valid branch instances of [DeepValidator].');
+                                        if (DeepValidator.isObject(v[2])) {
+                                            v[2] = new DeepValidator(v[2]);
+                                        } else {
+                                            throw new Error('Validator of [if] must define valid branch instances of [DeepValidator].');
+                                        }
+                                    }
+
+                                    if (v[3] instanceof DeepValidator) {
+
+                                    } else {
+                                        if (DeepValidator.isObject(v[3])) {
+                                            v[3] = new DeepValidator(v[3]);
+                                        } else {
+                                            throw new Error('Validator of [if] must define valid branch instances of [DeepValidator].');
+                                        }
                                     }
 
                                     if (cond in DeepValidator && cond.substr(0, 2) === 'is') {

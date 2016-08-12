@@ -13,6 +13,7 @@
     "node": ">= 0.9"
   },
   "devDependencies": {
+    "istanbul": "^0.4.4",
     "jasmine-node": "^1.14.5"
   },
   "license": "MIT",
@@ -21,6 +22,7 @@
     "validator": "^5.5.0"
   },
   "scripts": {
+    "coverall": "istanbul cover --root src jasmine-node spec",
     "test": "jasmine-node spec"
   }
 }
