@@ -18,6 +18,28 @@ type ValidatorEntry = {
 }
 
 
+export class FlowBuilder {
+
+    flow: any[] = [];
+
+    isString(message?: string) {
+        this.flow.push(message ? 'isString:' + message : 'isString');
+
+        return this;
+    }
+
+}
+
+
+export class Flow {
+
+    static isString(message?: string) {
+        return new FlowBuilder().isString(message);
+    }
+
+}
+
+
 export class DeepValidator {
 
     protected static _isValidators = {
@@ -79,9 +101,9 @@ export class DeepValidator {
         for (let i = 0, l = schema['##'].v.length; i < l; i ++) {
             let entry: ValidatorEntry = schema['##'].v[i];
 
-            let isValidator = true;
+            let isValidator: boolean = true;
 
-            let result = true;
+            let result: any = true;
 
             // if nested validator
             if (entry.validator instanceof DeepValidator) {
@@ -430,7 +452,7 @@ export class DeepValidator {
         filter: [string]|string,
         branchTrue: DeepValidator,
         branchFalse: DeepValidator
-    ): boolean {
+    ): any {
         if (_.isArray(filter) === false) {
             filter = [<string>filter];
         }
@@ -691,12 +713,8 @@ export class DeepValidator {
         return _.pickBy(
             value,
             filter instanceof RegExp ?
-                (v: any) => {
-                    return _.isString(v) ?
-                        validator.matches(v, filter) :
-                        objectAllow !== false && _.isObjectLike(v)
-                } :
-                filter
+                (v: any) => _.isString(v) ? validator.matches(v, filter) : objectAllow !== false && _.isObjectLike(v) :
+                <((v: string) => boolean)>filter
         );
     }
 
@@ -704,7 +722,12 @@ export class DeepValidator {
      * Sanitizer. Picks keys by matching to given pattern.
      */
     static filterKeys(value: any, filter: string[]|RegExp|((v: string) => boolean)): any {
-        return _.pickBy(value, filter instanceof RegExp ? (v, k) => validator.matches(k, filter) : filter);
+        return _.pickBy(
+            value,
+            filter instanceof RegExp ?
+                (v, k) => validator.matches(k, filter) :
+                <((v: string) => boolean)>filter
+        );
     }
 
     /**
@@ -764,6 +787,10 @@ export class DeepValidator {
                         }
                     }
                 );
+
+                if (v instanceof FlowBuilder) {
+                    v = v.flow;
+                }
 
                 (_.isArray(v) ? v : [v]).forEach(
                     (v) => {
@@ -996,7 +1023,7 @@ export class DeepValidator {
 
 // [OrNull] patch
 _.each(DeepValidator, (v: any, k: string) => {
-    if (_.isFunction(v) && k.substr(0, 2) === 'is') {
+    if (DeepValidator.hasOwnProperty(k) && _.isFunction(v) && k.substr(0, 2) === 'is') {
         DeepValidator[k + 'OrNull'] = function (value) {
             return value === null || DeepValidator[k].apply(DeepValidator, arguments);
         };

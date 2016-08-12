@@ -8,6 +8,38 @@ let v, t, f;
 
 
 describe("Flow", () => {
+    it("isExists, default, showAs", () => {
+        v = new DeepValidator({
+            a: [
+                "isExists:not exists", "showAs:aaa"
+            ]
+        });
+
+        expect(v.validate({})).toBe(false);
+
+        expect(v.getErrors()).toEqual({"aaa": "not exists"});
+
+        v = new DeepValidator({
+            a: [
+                ["default", 1]
+            ]
+        });
+
+        expect(v.validate(t = {})).toBe(true);
+
+        expect(t).toEqual({a: 1});
+
+        v = new DeepValidator({
+            a: [
+                "isNumber", ["default", 1]
+            ]
+        });
+
+        expect(v.validate(t = {a: 5})).toBe(true);
+
+        expect(t).toEqual({a: 5});
+    });
+
     it("Errors", () => {
         f = () => new DeepValidator({a: ["dummy"]});
 
