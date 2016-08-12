@@ -74,21 +74,24 @@ var validator = new DeepValidator({
 *arrayAllow* method allows applying schema on each element of provided data array.
 
 ```javascript```
-validator.arrayAllow()
+validator
+    .arrayAllow()
     .validate([{a: {b: "b"}}, {a: {b: "c"}}]); // true
 ```
 
 *tryAll* method forces validation of all data in despite of earlier errors.
 
 ```javascript```
-validator.arrayAllow().tryAll()
+validator.arrayAllow()
+    .tryAll()
     .validate([{a: {b: 1}}, {a: {b: 2}}]); // {"0.a.b": "invalid", "1.a.b": "invalid"}
 ```
 
 *strict* method forces checking of presence of all keys defined in schema.
 
 ```javascript```
-validator.setMessageMissingKey("missing").strict()
+validator.setMessageMissingKey("missing")
+    .strict()
     .validate({a: {c: 1}}); // {"a.b": "missing"}
 ```
 
@@ -132,4 +135,30 @@ var validator = new DeepValidator({
 var data = {a: {b: null}};
 
 validator.getErrors(); // {"a.b": "not number"}
+```
+
+#### Special flow entries
+
+*isExists* forces the key to exist
+
+```javascript```
+var validator = new DeepValidator({a: "isExists:not exists"});
+...
+validator.getErrors(); // {"a": "not exists"}
+```
+
+*default* sets default value if the key is not defined
+
+```javascript```
+var validator = new DeepValidator({a: ["default", 5]});
+...
+// data = {a: 5}
+```
+
+*showAs* redefines key name in the set of errors
+
+```javascript```
+var validator = new DeepValidator({a: ["isExists:not exists", ["showAs", "aaa"]]});
+...
+validator.getErrors(); // {"aaa": "not exists"}
 ```
