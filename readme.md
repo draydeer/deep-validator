@@ -84,7 +84,7 @@ validator.setMessageMissingKey("missing").strict()
     .validate({a: {c: 1}}); // {"a.b": "missing"}
 ```
 
-#### Custom validator
+#### Custom validator handler
 
 Self defined handlers can be used as custom validators in any step of the validation flow. Such handler combines role of a validator and a sanitizer in one face. The handler takes as parameters the current value, the current key and the reference to the current data context (mutable) and must return *true* on successful validation or an any value (string commonly) as a error message.
 
@@ -108,9 +108,9 @@ var data = {a: {b: null}};
 validator.validate(data); // true, data = {a: {b: 0}}
 ```
 
-#### Nested validator
+#### Nested validator instance
 
-Another validator can be used as a nested validator on the current value in any step of the validation flow. All errors will be merged with the calling validator as paths extensions.
+Another validators instance can be used as nested validators on the corresponding value in any step of the validation flow. All errors will be merged with the calling validator as paths extensions.
 
 ```javascript```
 var validator = new DeepValidator({
