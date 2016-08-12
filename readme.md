@@ -108,9 +108,9 @@ var data = {a: {b: null}};
 validator.validate(data); // true, data = {a: {b: 0}}
 ```
 
-#### Nested validators
+#### Nested validator
 
-Another validator can be used as custom validators in any step of the validation flow as nested validator on the current value. All errors will be merged with the calling validator as paths extensions.
+Another validator can be used as a nested validator on the current value in any step of the validation flow. All errors will be merged with the calling validator as paths extensions.
 
 ```javascript```
 var validator = new DeepValidator({
