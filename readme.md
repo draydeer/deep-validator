@@ -69,6 +69,32 @@ var validator = new DeepValidator({
 });
 ```
 
+#### Special flow operations
+
+*isExists* forces the key to exist.
+
+```javascript```
+var validator = new DeepValidator({a: "isExists:not exists"});
+...
+validator.getErrors(); // {"a": "not exists"}
+```
+
+*default* sets a default value if the key is not defined.
+
+```javascript```
+var validator = new DeepValidator({a: [["default", 5]]});
+...
+// data = {a: 5}
+```
+
+*showAs* redefines a key name in the set of errors.
+
+```javascript```
+var validator = new DeepValidator({a: ["isExists:not exists", ["showAs", "aaa"]]});
+...
+validator.getErrors(); // {"aaa": "not exists"}
+```
+
 #### Flow control
 
 *arrayAllow* method allows applying schema on each element of provided data array.
@@ -135,32 +161,6 @@ var validator = new DeepValidator({
 var data = {a: {b: null}};
 
 validator.getErrors(); // {"a.b": "not number"}
-```
-
-#### Special flow operations
-
-*isExists* forces the key to exist.
-
-```javascript```
-var validator = new DeepValidator({a: "isExists:not exists"});
-...
-validator.getErrors(); // {"a": "not exists"}
-```
-
-*default* sets a default value if the key is not defined.
-
-```javascript```
-var validator = new DeepValidator({a: [["default", 5]]});
-...
-// data = {a: 5}
-```
-
-*showAs* redefines a key name in the set of errors.
-
-```javascript```
-var validator = new DeepValidator({a: ["isExists:not exists", ["showAs", "aaa"]]});
-...
-validator.getErrors(); // {"aaa": "not exists"}
 ```
 
 #### Branches
