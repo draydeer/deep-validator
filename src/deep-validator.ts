@@ -21,6 +21,9 @@ type ValidatorEntry = {
 }
 
 
+type ValidatorBranch = Dictionary<any>|DeepValidator;
+
+
 export class FlowBuilder {
 
     flow: any[] = [];
@@ -31,19 +34,25 @@ export class FlowBuilder {
         return this;
     }
 
-    isExists(message: string = void 0) {
+    if(checker: any, trueBranch: ValidatorBranch, falseBranch: ValidatorBranch) {
+        this.flow.push(['if', checker, trueBranch, falseBranch]);
+
+        return this;
+    }
+
+    isExists(message?: string) {
         this.flow.push(message ? 'isExists:' + message : 'isExists');
 
         return this;
     }
 
-    isInRange(message: string = void 0, min: number, max: number) {
-        this.flow.push(message ? 'isExists:' + message : 'isExists');
+    isInRange(min: number, max: number, message?: string) {
+        this.flow.push([message ? 'isInRange:' + message : 'isInRange', min, max]);
 
         return this;
     }
 
-    isString(message: string = void 0) {
+    isString(message?: string) {
         this.flow.push(message ? 'isString:' + message : 'isString');
 
         return this;
@@ -64,15 +73,19 @@ export class Flow {
         return new FlowBuilder().default(value);
     }
 
-    static isExists(message: string = void 0) {
+    static if(checker: any, trueBranch: ValidatorBranch, falseBranch: ValidatorBranch) {
+        return new FlowBuilder().if(checker, trueBranch, falseBranch);
+    }
+
+    static isExists(message?: string) {
         return new FlowBuilder().isExists(message);
     }
 
-    static isInRange(message: string = void 0, min: number, max: number) {
-        return new FlowBuilder().isInRange(message, min, max);
+    static isInRange(min: number, max: number, message?: string) {
+        return new FlowBuilder().isInRange(min, max, message);
     }
 
-    static isString(message: string = void 0) {
+    static isString(message?: string) {
         return new FlowBuilder().isString(message);
     }
 

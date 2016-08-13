@@ -40,6 +40,25 @@ describe("Flow", () => {
         expect(t).toEqual({a: 5});
     });
 
+    it("Errors iterator", () => {
+        v = new DeepValidator({
+            a: [
+                "isExists:not exists"
+            ],
+            b: [
+                "isString:not string"
+            ]
+        });
+
+        expect(v.tryAll().validate({b: 1})).toBe(false);
+
+        expect(v.getNextError()).toEqual({field: "a", message: "not exists"});
+
+        expect(v.getNextError()).toEqual({field: "b", message: "not string"});
+
+        expect(v.getNextError()).toBe(void 0);
+    });
+
     it("Errors", () => {
         f = () => new DeepValidator({a: ["dummy"]});
 
@@ -54,6 +73,10 @@ describe("Flow", () => {
         expect(f).toThrow(new Error("Condition checker is not defined or invalid: dummy"));
 
         f = () => new DeepValidator({a: [["if", "dummy", 1, 2]]});
+
+        expect(f).toThrow(new Error("Validator of [if] must define valid branch instances of [DeepValidator]."));
+
+        f = () => new DeepValidator({a: [["if", "dummy", {}, 2]]});
 
         expect(f).toThrow(new Error("Validator of [if] must define valid branch instances of [DeepValidator]."));
     });
