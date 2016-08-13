@@ -3,7 +3,6 @@
 import * as _ from 'lodash';
 import * as validator from 'validator';
 import Dictionary = _.Dictionary;
-import keyBy = require("lodash/keyBy");
 
 
 type ValidatorEntry = {

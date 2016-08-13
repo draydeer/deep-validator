@@ -210,3 +210,44 @@ validator.validate({a: "1", b: "1"}); // false
 
 validator.getErrors(); // {"b": "not number"}
 ```
+
+### Examples
+
+#### ExpressJS route
+
+```javascript```
+var validator = new DeepValidator({
+    "firstName": [
+        "isExists:not provided", "isString:invalid", ["isLength:invalid length", 1, 20]
+    ],
+    "lastName": [
+        "isExists:not provided", "isString:invalid", ["isLength:invalid length", 1, 20]
+    ],
+    "middleName": [
+        "isString:invalid", ["isLength:invalid length", 1, 20]
+    ],
+    "birthday": [
+        "isExists:not provided", "isDate:invalid", "toDate", function (val) {
+            if (val.getTime() < Date.now().getTime()) {
+                return true;
+            }
+
+            return "invalid";
+        }
+    ],
+    "contacts": [
+        "isArray:invalid", ["isLength:invalid length", 1]
+    ],
+    "contacts.[]": [
+        "isEmail:invalid"
+    ]
+});
+
+function route(request, response) {
+    if (validator.validate(request.body) !== true) {
+        response.status(400).send(validator.getErrors());
+    } else {
+        ...
+    }
+}
+```
