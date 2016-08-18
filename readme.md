@@ -147,7 +147,7 @@ validator.validate(data); // true, data = {a: {b: 0}}
 
 #### Nested validator instance
 
-Internal schemas or another validator instances can be used as nested validators on the corresponding value in any step of the validation flow. All errors will be merged with the calling validator errors set as paths extensions.
+Another validator instances or internally defined schemas can be used as nested validators on the corresponding value in any step of the validation flow. All errors will be merged with the calling validator errors set as paths extensions.
 
 ```javascript```
 var validator = new DeepValidator({
