@@ -819,7 +819,7 @@ export class DeepValidator {
      * Sanitizer.
      */
     static toNumber(value: any): number|void {
-        return this.isNumberOrNumeric(value) ? Number(value) : (_.isNumber(value) ? value : NaN);
+        return this.isNumberOrNumeric(value) ? Number(value) : NaN;
     }
 
     /**
@@ -833,7 +833,7 @@ export class DeepValidator {
      * Sanitizer.
      */
     static toString(value: any) {
-        return value === void 0 ? '' : String(value);
+        return value === void 0 || value === null ? '' : String(value);
     }
 
     /**
@@ -947,14 +947,16 @@ export class DeepValidator {
                             } else {
                                 throw new Error('Validator is not defined: ' + pair[0]);
                             }
-                        } else {
+                        } else if (DeepValidator.isObject(v[0])) {
                             last[k]['##'].v.push({
-                                args: v.slice(1),
-                                isValidator: v[0].substr(0, 2) === 'is' || v[0] in DeepValidator._isValidators,
+                                args: [],
+                                isValidator: true,
                                 message: null,
                                 notExtendErrors: false,
-                                validator: v[0]
+                                validator: new DeepValidator(v[0])
                             });
+                        } else {
+                            throw new Error('Invalid value: ' + String(v[0]));
                         }
                     }
                 );

@@ -179,6 +179,23 @@ describe("Flow", () => {
         expect(v.tryAll().validate({a: {b: 5}, b: 5})).toBe(false);
 
         expect(v.getErrors()).toEqual({"a.b": "not string"});
+
+        v = new DeepValidator({
+            a: [
+                {
+                    b: [
+                        "isString:not string"
+                    ]
+                }
+            ],
+            b: [
+                "isNumber:not number"
+            ]
+        });
+
+        expect(v.tryAll().validate({a: {b: 5}, b: 5})).toBe(false);
+
+        expect(v.getErrors()).toEqual({"a.b": "not string"});
     });
 
     it("Custom validator/sanitizer", () => {

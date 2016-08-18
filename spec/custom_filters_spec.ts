@@ -12,7 +12,11 @@ let runValidator = (validator, ok: any[], error: any[], trueValue: any = true, f
             val = [val];
         }
 
-        expect(validator.apply(DeepValidator, val)).toBe(trueValue);
+        if (_.isFunction(trueValue)) {
+            expect(trueValue(validator.apply(DeepValidator, val))).toBe(true)
+        } else {
+            expect(validator.apply(DeepValidator, val)).toBe(trueValue);
+        }
     }
 
     for (let i = 0; i < error.length; i ++) {
@@ -22,7 +26,11 @@ let runValidator = (validator, ok: any[], error: any[], trueValue: any = true, f
             val = [val];
         }
 
-        falseValue === true ? expect(validator.apply(DeepValidator, val)).not.toBe(trueValue) : expect(validator.apply(DeepValidator, val)).toBe(falseValue);
+        if (_.isFunction(falseValue)) {
+            expect(falseValue(validator.apply(DeepValidator, val))).toBe(true)
+        } else {
+            falseValue === true ? expect(validator.apply(DeepValidator, val)).not.toBe(trueValue) : expect(validator.apply(DeepValidator, val)).toBe(falseValue);
+        }
     }
 };
 
@@ -165,11 +173,23 @@ describe("Custom filters", () => {
     });
 
     it("toNumber", () => {
+        runValidator(DeepValidator.toNumber, [], [null, true, false, "a", [[]], {}, void 0], null, (v) => isNaN(v));
 
+        expect(DeepValidator.toNumber(123)).toBe(123);
+
+        expect(DeepValidator.toNumber('123')).toBe(123);
     });
 
     it("toNullIfEmpty", () => {
         runValidator(DeepValidator.toNullIfEmpty, ["", [[]], {}], [{a: 1}, ["a"], "a"], null, true);
+    });
+
+    it("toString", () => {
+        expect(DeepValidator.toString(null)).toBe('');
+
+        expect(DeepValidator.toString(void 0)).toBe('');
+
+        expect(DeepValidator.toString(123)).toBe('123');
     });
 
     it("filter", () => {

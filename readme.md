@@ -163,6 +163,22 @@ var data = {a: {b: null}};
 validator.getErrors(); // {"a.b": "not number"}
 ```
 
+Or more simply defined as object:
+
+```javascript```
+var validator = new DeepValidator({
+    "a": [
+        {
+            "b": "isNumber:not number"
+        }
+    ]
+});
+
+var data = {a: {b: null}};
+
+validator.getErrors(); // {"a.b": "not number"}
+```
+
 #### Branches
 
 The special flow operation *if* allows to select a one of sub-flows - "true" and "false" - by checking the current value with a provided condition checker. The selected validator will be run on the current data context.
