@@ -8,7 +8,7 @@ let v, t, f;
 
 
 describe("Flow", () => {
-    it("isExists, default, showAs", () => {
+    it("isExists, default, showAs, custom", () => {
         v = new DeepValidator({
             a: [
                 "isExists:not exists", "showAs:aaa"
@@ -38,6 +38,25 @@ describe("Flow", () => {
         expect(v.validate(t = {a: 5})).toBe(true);
 
         expect(t).toEqual({a: 5});
+
+        v = new DeepValidator({
+            b: [
+                [
+                    "custom",
+                    (key, ref) => {
+                        return "c" in ref;
+                    }
+                ]
+            ]
+        });
+
+        expect(v.validate(t = {a: 5})).toBe(true);
+
+        expect(t).toEqual({a: 5});
+
+        f = () => new DeepValidator({a: [["custom", null]]});
+
+        expect(f).toThrow(new Error("Validator of [custom] must be a function."));
     });
 
     it("Errors iterator", () => {
@@ -66,7 +85,7 @@ describe("Flow", () => {
 
         f = () => new DeepValidator({a: [["if"]]});
 
-        expect(f).toThrow(new Error("Validator of [if] must contain condition checker and branches."));
+        expect(f).toThrow(new Error("Validator of [if] must contain a condition checker and sub-flows."));
 
         f = () => new DeepValidator({a: [["if", "dummy", new DeepValidator({}), new DeepValidator({})]]});
 
@@ -74,11 +93,11 @@ describe("Flow", () => {
 
         f = () => new DeepValidator({a: [["if", "dummy", 1, 2]]});
 
-        expect(f).toThrow(new Error("Validator of [if] must define valid branch instances of [DeepValidator]."));
+        expect(f).toThrow(new Error("Validator of [if] must define a valid sub-flows instances of [DeepValidator]."));
 
         f = () => new DeepValidator({a: [["if", "dummy", {}, 2]]});
 
-        expect(f).toThrow(new Error("Validator of [if] must define valid branch instances of [DeepValidator]."));
+        expect(f).toThrow(new Error("Validator of [if] must define a valid sub-flows instances of [DeepValidator]."));
     });
 
     it("Array allow", () => {
@@ -267,5 +286,57 @@ describe("Flow", () => {
         expect(v.validate({a: ["a", "b", "c"]})).toBe(true);
 
         expect(v.getErrors()).toEqual({});
+    });
+
+    it("Max depth", () => {
+        v = new DeepValidator({
+            a: [
+                'isExists:required'
+            ],
+            'a.b': [
+                'isExists:required'
+            ],
+            'a.b.c': [
+                'isExists:required'
+            ]
+        }).setMessageMaxDepthReached('max depth reached').maxDepth(2);
+
+        expect(v.validate({a: {b: {c: 1}}})).toBe(false);
+
+        expect(v.getErrors()).toEqual({'a.b.*': 'max depth reached'});
+
+        v = new DeepValidator({
+            a: [
+                'isExists:required',
+                {
+                    'b': [
+                        'isExists:required'
+                    ],
+                    'b.c': [
+                        'isExists:required'
+                    ]
+                }
+            ]
+        }).setMessageMaxDepthReached('max depth reached').maxDepth(2);
+
+        expect(v.validate({a: {b: {c: 1}}})).toBe(false);
+
+        expect(v.getErrors()).toEqual({'a.b.*': false});
+
+        v = new DeepValidator({
+            a: [
+                'isExists:required',
+                {
+                    'b': [
+                        'isExists:required'
+                    ],
+                    'b.c': [
+                        'isExists:required'
+                    ]
+                }
+            ]
+        }).setMessageMaxDepthReached('max depth reached').maxDepthPassToNested(false).maxDepth(2);
+
+        expect(v.validate({a: {b: {c: 1}}})).toBe(true);
     });
 });

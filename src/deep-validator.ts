@@ -20,7 +20,7 @@ type ValidatorEntry = {
 }
 
 
-type ValidatorBranch = Dictionary<any>|DeepValidator;
+type ValidatorSubFlow = Dictionary<any>|DeepValidator;
 
 
 export class FlowBuilder {
@@ -33,14 +33,14 @@ export class FlowBuilder {
         return this;
     }
 
-    if(checker: any, trueBranch: ValidatorBranch, falseBranch: ValidatorBranch) {
-        this.flow.push(['if', checker, trueBranch, falseBranch]);
+    if(checker: any, trueFlow: ValidatorSubFlow, falseFlow: ValidatorSubFlow) {
+        this.flow.push(['if', checker, trueFlow, falseFlow]);
 
         return this;
     }
 
     isExists(message?: string) {
-        this.flow.push(message ? 'isExists:' + message : 'isExists');
+        this.flow.push([message ? 'isExists:' + message : 'isExists']);
 
         return this;
     }
@@ -51,8 +51,32 @@ export class FlowBuilder {
         return this;
     }
 
+    isNegative(message?: string) {
+        this.flow.push([message ? 'isNegative:' + message : 'isNegative']);
+
+        return this;
+    }
+
+    isNumber(message?: string) {
+        this.flow.push([message ? 'isNumber:' + message : 'isNumber']);
+
+        return this;
+    }
+
+    isNumberOrNumeric(message?: string) {
+        this.flow.push([message ? 'isNumberOrNumeric:' + message : 'isNumberOrNumeric']);
+
+        return this;
+    }
+
+    isPositive(message?: string) {
+        this.flow.push([message ? 'isPositive:' + message : 'isPositive']);
+
+        return this;
+    }
+
     isString(message?: string) {
-        this.flow.push(message ? 'isString:' + message : 'isString');
+        this.flow.push([message ? 'isString:' + message : 'isString']);
 
         return this;
     }
@@ -72,7 +96,7 @@ export class Flow {
         return new FlowBuilder().default(value);
     }
 
-    static if(checker: any, trueBranch: ValidatorBranch, falseBranch: ValidatorBranch) {
+    static if(checker: any, trueBranch: ValidatorSubFlow, falseBranch: ValidatorSubFlow) {
         return new FlowBuilder().if(checker, trueBranch, falseBranch);
     }
 
@@ -82,6 +106,22 @@ export class Flow {
 
     static isInRange(min: number, max: number, message?: string) {
         return new FlowBuilder().isInRange(min, max, message);
+    }
+
+    static isNegative(message?: string) {
+        return new FlowBuilder().isNegative(message);
+    }
+
+    static isNumber(message?: string) {
+        return new FlowBuilder().isNumber(message);
+    }
+
+    static isNumberOrNumeric(message?: string) {
+        return new FlowBuilder().isNumberOrNumeric(message);
+    }
+
+    static isPositive(message?: string) {
+        return new FlowBuilder().isPositive(message);
     }
 
     static isString(message?: string) {
@@ -106,11 +146,17 @@ export class DeepValidator {
 
     protected _arrayAllow: boolean = false;
 
-    protected _nextError = null;
+    protected _maxDepth: number = 99999999;
+
+    protected _maxDepthPassToNested: boolean = true;
+
+    protected _messageMaxDepth: any = false;
 
     protected _messageInvalid: any = false;
 
     protected _messageMissingKey: any = false;
+
+    protected _nextError = null;
 
     protected _sarray = {'##': {strict: void 0, v: []}};
 
@@ -130,6 +176,13 @@ export class DeepValidator {
 
     schema = null;
 
+    /*
+     *
+     */
+    protected static _addError(errors: _.Dictionary<any>, key: string, value: any, path?: string): DeepValidator {
+        errors[path ? path + '.' + key : key] = value;
+    }
+
     /**
      * Dummy translator.
      */
@@ -148,9 +201,16 @@ export class DeepValidator {
         strict: boolean = false,
         path: string = '',
         root: string = '',
+        depth: number = 0,
         key?: string,
         ref?: any
     ): boolean {
+        if (this._maxDepth <= depth) {
+            DeepValidator._addError(errors, '*', this._messageMaxDepth, path);
+
+            return false;
+        }
+
         let isObject = _.isObject(data);
 
         // apply validators/sanitizers
@@ -163,7 +223,25 @@ export class DeepValidator {
 
             // if nested validator
             if (entry.validator instanceof DeepValidator) {
-                result = (<DeepValidator>entry.validator).validate(data, true);
+                let validator: DeepValidator = <DeepValidator>entry.validator;
+
+                let oldMaxDepth: number = validator.getMaxDepth();
+
+                if (this._maxDepthPassToNested) {
+                    validator.maxDepth(this._maxDepth);
+                }
+
+                result = validator.validate(
+                    data,
+                    true,
+                    void 0,
+                    void 0,
+                    this._maxDepthPassToNested ? depth : 0
+                );
+
+                if (this._maxDepthPassToNested) {
+                    validator.maxDepth(oldMaxDepth);
+                }
 
                 if (result !== true) {
                     result = (<DeepValidator>entry.validator).getErrors();
@@ -204,15 +282,15 @@ export class DeepValidator {
                         // extend errors object with set of messages
                         if (entry.notExtendErrors) {
                             _.each(result, (v, k: string) => {
-                                errors[root ? root + '.' + k : k] = v;
+                                DeepValidator._addError(errors, k, v, root);
                             });
                         } else {
                             _.each(result, (v, k: string) => {
-                                errors[path ? path + '.' + k : k] = v;
+                                DeepValidator._addError(errors, k, v, path);
                             });
                         }
                     } else {
-                        errors[path] = entry.message || false;
+                        DeepValidator._addError(errors, path, entry.message || false);
                     }
 
                     return false;
@@ -242,6 +320,7 @@ export class DeepValidator {
                             strict,
                             path ? path + '.' + i : i.toString(),
                             path,
+                            depth + 1,
                             i.toString(),
                             data
                         ) === false
@@ -254,13 +333,15 @@ export class DeepValidator {
 
             // go through all nested in schema
             for (let k in schema) {
-                let field = (schema[k]['##'] && schema[k]['##'].showAs) || k;
+                let entry = schema[k]['##'];
+
+                let field = (entry && entry.showAs) || k;
 
                 if (k !== '##' && k !== '[]') {
                     let pathField: string = path ? path + '.' + field : field;
 
                     if (isObject) {
-                        if (k in data || (schema[k]['##'].custom && schema[k]['##'].custom(k, data, k in data))) {
+                        if (k in data || (entry.custom && entry.custom(k, data, k in data))) {
                             if (this._validate(
                                     data[k],
                                     schema[k],
@@ -269,6 +350,7 @@ export class DeepValidator {
                                     strict,
                                     pathField,
                                     path,
+                                    depth + 1,
                                     k,
                                     data
                                 ) || tryAll
@@ -279,17 +361,17 @@ export class DeepValidator {
                             }
                         }
 
-                        if (schema[k]['##'].def !== void 0) {
-                            data[k] = _.isFunction(schema[k]['##'].def) ?
-                                schema[k]['##'].def(k, data, k in data) :
-                                schema[k]['##'].def;
+                        if (entry.def !== void 0) {
+                            data[k] = _.isFunction(entry.def) ?
+                                entry.def(k, data, k in data) :
+                                entry.def;
 
                             continue;
                         }
                     }
 
-                    if (strict || schema[k]['##'].strict !== void 0) {
-                        errors[pathField] = schema[k]['##'].strict || this._messageMissingKey;
+                    if (strict || entry.strict !== void 0) {
+                        DeepValidator._addError(errors, pathField, entry.strict || this._messageMissingKey);
 
                         if (tryAll === false) {
                             return false;
@@ -716,6 +798,13 @@ export class DeepValidator {
     }
 
     /**
+     * Filter. Alias of [isNumberNegative].
+     */
+    static isNegative(value: any): boolean {
+        return this.isNumberNegative(value);
+    }
+
+    /**
      * Filter.
      */
     static isNotEmpty(value: any): boolean {
@@ -772,6 +861,13 @@ export class DeepValidator {
     }
 
     /**
+     * Filter. Alias of [isNumberPositive].
+     */
+    static isPositive(value: any): boolean {
+        return this.isNumberPositive(value);
+    }
+
+    /**
      * Filter.
      */
     static isVoid(value: any): boolean {
@@ -779,7 +875,7 @@ export class DeepValidator {
     }
 
     /**
-     * Sanitizer. Picks values (by RegExp checks strings only) by matching to given pattern.
+     * Sanitizer. Picks values (by RegExp checks strings only) by matching to a given pattern.
      *
      * @param value Value.
      * @param filter Filter RegExp or function.
@@ -797,7 +893,7 @@ export class DeepValidator {
     }
 
     /**
-     * Sanitizer. Picks keys by matching to given pattern.
+     * Sanitizer. Picks keys by matching to a given pattern.
      */
     static filterKeys(value: any, filter: string[]|RegExp|((v: string) => boolean)): any {
         return _.pickBy(
@@ -809,7 +905,7 @@ export class DeepValidator {
     }
 
     /**
-     * Sanitizer. Remove all key starting from [$].
+     * Sanitizer. Remove all keys of MongoDb document like object starting from [$].
      */
     static filterMongoDocKeys(value: any): any {
         return this.filterKeys(value, /^([^\$].*){1,}$/);
@@ -886,7 +982,11 @@ export class DeepValidator {
                             let pair = v[0].split(':');
 
                             if (pair[0] === 'custom') {
-                                last[k]['##'].custom = v[1];
+                                if (_.isFunction(v[1])) {
+                                    last[k]['##'].custom = v[1];
+                                } else {
+                                    throw new Error('Validator of [custom] must be a function.');
+                                }
                             } else if (pair[0] === 'default') {
                                 last[k]['##'].def = v[1];
                             } else if (pair[0] === 'isExists') {
@@ -899,39 +999,47 @@ export class DeepValidator {
                                 // special for [if]
                                 if (pair[0] === 'if') {
                                     if (v.length !== 4) {
-                                        throw new Error('Validator of [if] must contain condition checker and branches.');
+                                        throw new Error('Validator of [if] must contain a condition checker and sub-flows.');
                                     }
 
                                     let cond = _.isArray(v[1]) ? v[1][0] : v[1];
 
-                                    if (_.isString(cond) === false) {
-                                        throw new Error('Validator of [if] must define valid condition checker.');
+                                    if (_.isString(cond) === false && _.isFunction(cond) === false) {
+                                        throw new Error('Validator of [if] must define a valid condition checker.');
                                     }
 
-                                    if (v[2] instanceof DeepValidator) {
-
-                                    } else {
+                                    if (! (v[2] instanceof DeepValidator)) {
                                         if (DeepValidator.isObject(v[2])) {
                                             v[2] = new DeepValidator(v[2]);
                                         } else {
-                                            throw new Error('Validator of [if] must define valid branch instances of [DeepValidator].');
+                                            throw new Error('Validator of [if] must define a valid sub-flows instances of [DeepValidator].');
                                         }
                                     }
 
-                                    if (v[3] instanceof DeepValidator) {
-
-                                    } else {
+                                    if (! (v[3] instanceof DeepValidator)) {
                                         if (DeepValidator.isObject(v[3])) {
                                             v[3] = new DeepValidator(v[3]);
                                         } else {
-                                            throw new Error('Validator of [if] must define valid branch instances of [DeepValidator].');
+                                            throw new Error('Validator of [if] must define a valid sub-flows instances of [DeepValidator].');
                                         }
                                     }
 
-                                    if (cond in DeepValidator && cond.substr(0, 2) === 'is') {
+                                    if (_.isFunction(cond) === false) {
+                                        if (cond in DeepValidator && cond.substr(0, 2) === 'is') {
 
+                                        } else {
+                                            throw new Error('Condition checker is not defined or invalid: ' + cond);
+                                        }
                                     } else {
-                                        throw new Error('Condition checker is not defined or invalid: ' + cond);
+                                        last[k]['##'].v.push({
+                                            args: v.slice(1),
+                                            isValidator: true,
+                                            message: pair[1],
+                                            notExtendErrors: true,
+                                            validator: pair[0]
+                                        });
+
+                                        return;
                                     }
 
                                     notExtendErrors = true;
@@ -952,7 +1060,7 @@ export class DeepValidator {
                                 args: [],
                                 isValidator: true,
                                 message: null,
-                                notExtendErrors: false,
+                                notExtendErrors: v[0] instanceof DeepValidatorMerged,
                                 validator: new DeepValidator(v[0])
                             });
                         } else {
@@ -975,6 +1083,15 @@ export class DeepValidator {
      */
     getErrors(asArray: boolean = false): Dictionary<string> {
         return asArray ? _.toArray(this.errors) : this.errors;
+    }
+
+    /**
+     * Get max depth of nested scan.
+     *
+     * @returns {number}
+     */
+    getMaxDepth(): number {
+        return this._maxDepth;
     }
 
     /**
@@ -1011,6 +1128,19 @@ export class DeepValidator {
      */
     setMessageInvalid(value: number|string): DeepValidator {
         this._messageInvalid = value;
+
+        return this;
+    }
+
+    /**
+     * Set default [max  depth reached] message. Message will be set if max depth of nested scan has been reached.
+     *
+     * @param value Value.
+     *
+     * @returns {DeepValidator}
+     */
+    setMessageMaxDepthReached(value: number|string): DeepValidator {
+        this._messageMaxDepth = value;
 
         return this;
     }
@@ -1055,6 +1185,32 @@ export class DeepValidator {
     }
 
     /**
+     * Set max depth of nested scan.
+     *
+     * @param value Value.
+     *
+     * @returns {DeepValidator}
+     */
+    maxDepth(value: number): DeepValidator {
+        this._maxDepth = value;
+
+        return this;
+    }
+
+    /**
+     * Set mode of passing incremented [depth] value to a nested validator.
+     *
+     * @param value Value.
+     *
+     * @returns {DeepValidator}
+     */
+    maxDepthPassToNested(value: boolean = true): DeepValidator {
+        this._maxDepthPassToNested = value;
+
+        return this;
+    }
+
+    /**
      * Set [strict] mode. All schema keys will be checked for presence.
      *
      * @param value Value.
@@ -1081,16 +1237,17 @@ export class DeepValidator {
     }
 
     /**
-     * Validate data. If returns [false] errors list can be retrieved by [getErrors] or [getNextError] iterator.
+     * Validate data. If returns [false] then errors list can be retrieved by [getErrors] or [getNextError] iterator.
      *
      * @param data Data to be validated.
      * @param arrayAllow Allow apply schema to each element of data if data is array.
      * @param errors Internal usage.
      * @param prefix Internal usage.
+     * @param depth Internal usage.
      *
      * @returns {boolean}
      */
-    validate(data: any[]|Dictionary<any>, arrayAllow: boolean = false, errors?, prefix?): boolean {
+    validate(data: any[]|Dictionary<any>, arrayAllow: boolean = false, errors?, prefix?, depth?): boolean {
         this._nextError = null;
         this.errors = {};
 
@@ -1103,7 +1260,16 @@ export class DeepValidator {
                 return this.passed = false;
             }
 
-            this._validate(data, this._sarray, this._tryAll, errors || this.errors, this._strict, prefix || '');
+            this._validate(
+                data,
+                this._sarray,
+                this._tryAll,
+                errors || this.errors,
+                this._strict,
+                prefix || '',
+                prefix || '',
+                depth
+            );
         } else {
             if (_.isObject(data) === false) {
                 this.errors = {
@@ -1113,7 +1279,16 @@ export class DeepValidator {
                 return this.passed = false;
             }
 
-            this._validate(data, this._schema, this._tryAll, errors || this.errors, this._strict, prefix || '');
+            this._validate(
+                data,
+                this._schema,
+                this._tryAll,
+                errors || this.errors,
+                this._strict,
+                prefix || '',
+                prefix || '',
+                depth
+            );
         }
 
         return this.passed = _.isEmpty(this.errors);
@@ -1131,7 +1306,16 @@ _.each(DeepValidator, (v: any, k: string) => {
 });
 
 
+export class DeepValidatorMerged extends DeepValidator {}
+
+
 export class Validator extends DeepValidator {}
 
 
+export class ValidatorMerged extends DeepValidatorMerged {}
+
+
 export let deepValidator = (schema: Dictionary<any>): DeepValidator => new DeepValidator(schema);
+
+
+export let deepValidatorMerged = (schema: Dictionary<any>): DeepValidatorMerged => new DeepValidatorMerged(schema);

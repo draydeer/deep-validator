@@ -179,7 +179,7 @@ var data = {a: {b: null}};
 validator.getErrors(); // {"a.b": "not number"}
 ```
 
-#### Branches
+#### Sub-flows
 
 The special flow operation *if* allows to select a one of sub-flows - "true" and "false" - by checking the current value with a provided condition checker. The selected validator will be run on the current data context.
 
@@ -244,7 +244,7 @@ var validator = new DeepValidator({
     ],
     "birthday": [
         "isExists:not provided", "isDate:invalid", "toDate", function (val) {
-            if (val.getTime() < Date.now().getTime()) {
+            if (val.getTime() < Date.now()) {
                 return true;
             }
 

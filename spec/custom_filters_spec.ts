@@ -144,12 +144,12 @@ describe("Custom filters", () => {
         runValidator(DeepValidator.isNotEmptyObject, [{a: 1}], [null, 0, true, false, "a", [[]], {}, void 0, Infinity, NaN]);
     });
 
-    it("isNumberNegative", () => {
-        runValidator(DeepValidator.isNumberNegative, [- 1, - 2, - 3, - Infinity], [null, 0, true, false, "a", [[]], {}, void 0, Infinity, NaN]);
+    it("isNegative", () => {
+        runValidator(DeepValidator.isNegative, [- 1, - 2, - 3, - Infinity], [null, 0, true, false, "a", [[]], {}, void 0, Infinity, NaN]);
     });
 
-    it("isNumberPositive", () => {
-        runValidator(DeepValidator.isNumberPositive, [1, 2, 3, Infinity], [null, 0, true, false, "a", [[]], {}, void 0, - Infinity, NaN]);
+    it("isPositive", () => {
+        runValidator(DeepValidator.isPositive, [1, 2, 3, Infinity], [null, 0, true, false, "a", [[]], {}, void 0, - Infinity, NaN]);
     });
 
     it("isNumberOrNumeric", () => {
