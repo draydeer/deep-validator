@@ -341,7 +341,7 @@ export class DeepValidator {
                     let pathField: string = path ? path + '.' + field : field;
 
                     if (isObject) {
-                        if (k in data || (entry.custom && entry.custom(k, data, k in data))) {
+                        if (k in data) {
                             if (this._validate(
                                     data[k],
                                     schema[k],
@@ -359,6 +359,10 @@ export class DeepValidator {
                             } else {
                                 return false;
                             }
+                        }
+
+                        if (entry.custom && entry.custom(k, data)) {
+
                         }
 
                         if (entry.def !== void 0) {
@@ -886,9 +890,9 @@ export class DeepValidator {
     static filter(value: any, filter: RegExp|((v: string) => boolean), objectAllow?: boolean): any {
         return _.pickBy(
             value,
-            filter instanceof RegExp ?
-                (v: any) => _.isString(v) ? validator.matches(v, filter) : objectAllow !== false && _.isObjectLike(v) :
-                <((v: string) => boolean)>filter
+            filter instanceof RegExp
+                ? (v: any) => _.isString(v) ? validator.matches(v, filter) : objectAllow !== false && _.isObjectLike(v)
+                : <((v: string) => boolean)>filter
         );
     }
 
@@ -898,9 +902,9 @@ export class DeepValidator {
     static filterKeys(value: any, filter: string[]|RegExp|((v: string) => boolean)): any {
         return _.pickBy(
             value,
-            filter instanceof RegExp ?
-                (v, k) => validator.matches(k, filter) :
-                <((v: string) => boolean)>filter
+            filter instanceof RegExp
+                ? (v, k) => validator.matches(k, filter)
+                : <((v: string) => boolean)>filter
         );
     }
 

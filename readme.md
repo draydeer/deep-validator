@@ -227,6 +227,54 @@ validator.validate({a: "1", b: "1"}); // false
 validator.getErrors(); // {"b": "not number"}
 ```
 
+### Available validators/sanitizers
+
+- **contains(str, seed)** - from [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains the seed.
+- **equals(str, comparison)** - from [validator.js](https://github.com/chriso/validator.js#validators) - check if the string matches the comparison.
+- **isAfter(str [, date])** - from [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a date that's after the specified date (defaults to now).
+- **isAlpha(str [, locale])** - from [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains only letters (a-zA-Z).
+- **isAlphanumeric(str [, locale])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains only letters and numbers.
+- **isAscii(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains ASCII chars only.
+- **isBase64(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if a string is base64 encoded.
+- **isBefore(str [, date])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a date that's before the specified date.
+- **isBoolean(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if a string is a boolean.
+- **isByteLength(str, options)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string's length (in bytes) falls in a range.
+- **isCreditCard(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a credit card.
+- **isCurrency(str, options)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a valid currency amount.
+- **isDataURI(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a [data uri format](https://developer.mozilla.org/en-US/docs/Web/HTTP/data_URIs).
+- **isDate(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a date.
+- **isDecimal(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string represents a decimal number, such as 0.1, .3, 1.1, 1.00003, 4.0, etc.
+- **isDivisibleBy(str, number)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a number that's divisible by another.
+- **isEmail(str [, options])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is an email.
+- **isFQDN(str [, options])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a fully qualified domain name (e.g. domain.com).
+- **isFloat(str [, options])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a float.
+- **isFullWidth(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains any full-width chars.
+- **isHalfWidth(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains any half-width chars.
+- **isHexColor(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a hexadecimal color.
+- **isHexadecimal(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a hexadecimal number.
+- **isIP(str [, version])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is an IP (version 4 or 6).
+- **isISBN(str [, version])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is an ISBN (version 10 or 13).
+- **isISIN(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is an [ISIN][ISIN] (stock/security identifier).
+- **isISO8601(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a valid [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date.
+- **isIn(str, values)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is in a array of allowed values.
+- **isInt(str [, options])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is an integer.
+- **isJSON(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is valid JSON (note: uses JSON.parse).
+- **isLength(str, options)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string's length falls in a range.
+- **isLowercase(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is lowercase.
+- **isMACAddress(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a MAC address.
+- **isMobilePhone(str, locale)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a mobile phone number.
+- **isMongoId(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a valid hex-encoded representation of a [MongoDB ObjectId][mongoid].
+- **isMultibyte(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains one or more multibyte chars.
+- **isNull(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is null (has a length of zero).
+- **isNumeric(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains only numbers.
+- **isSurrogatePair(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains any surrogate pairs chars.
+- **isURL(str [, options])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is an URL.
+- **isUUID(str [, version])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a UUID (version 3, 4 or 5).
+- **isUppercase(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is uppercase.
+- **isVariableWidth(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains a mixture of full and half-width chars.
+- **isWhitelisted(str, chars)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks characters if they appear in the whitelist.
+- **matches(str, pattern [, modifiers])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if string matches the pattern.
+
 ### Examples
 
 #### ExpressJS route
