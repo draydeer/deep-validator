@@ -333,28 +333,27 @@ export class DeepValidator {
 
             // go through all nested in schema
             for (let k in schema) {
-                let entry = schema[k]['##'];
-
-                let field = (entry && entry.showAs) || k;
-
                 if (k !== '##' && k !== '[]') {
+                    let entry = schema[k]['##'];
+
+                    let field = (entry && entry.showAs) || k;
+
                     let pathField: string = path ? path + '.' + field : field;
 
                     if (isObject) {
                         if (k in data) {
                             if (this._validate(
-                                    data[k],
-                                    schema[k],
-                                    tryAll,
-                                    errors,
-                                    strict,
-                                    pathField,
-                                    path,
-                                    depth + 1,
-                                    k,
-                                    data
-                                ) || tryAll
-                            ) {
+                                data[k],
+                                schema[k],
+                                tryAll,
+                                errors,
+                                strict,
+                                pathField,
+                                path,
+                                depth + 1,
+                                k,
+                                data
+                            ) || tryAll) {
                                 continue;
                             } else {
                                 return false;
@@ -609,7 +608,7 @@ export class DeepValidator {
      */
     static if(
         value: any,
-        filter: [string]|string,
+        filter: any[]|string,
         branchTrue: DeepValidator,
         branchFalse: DeepValidator,
         errors: any,
@@ -623,7 +622,43 @@ export class DeepValidator {
 
         let result: boolean;
 
-        if (DeepValidator[filter[0]](value, filter[1], filter[2], filter[3], filter[4])) {
+        if (DeepValidator[filter[0]](value, filter[1], filter[2], filter[3])) {
+            result = branchTrue.validate(ref);
+
+            if (result === false) {
+                return branchTrue.getErrors();
+            }
+        } else {
+            result = branchFalse.validate(ref);
+
+            if (result === false) {
+                return branchFalse.getErrors();
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     */
+    static ifCustom(
+        value: any,
+        filter: any[]|((val: any, key: string, ref: any) => boolean),
+        branchTrue: DeepValidator,
+        branchFalse: DeepValidator,
+        errors: any,
+        key?,
+        ref?,
+        schema?
+    ): any {
+        if (_.isArray(filter) === false) {
+            filter = [<(val: any, key: string, ref: any) => boolean>filter];
+        }
+
+        let result: boolean;
+
+        if (filter[0](value, key, ref)) {
             result = branchTrue.validate(ref);
 
             if (result === false) {
@@ -979,7 +1014,7 @@ export class DeepValidator {
                                 args: v.slice(1),
                                 isValidator: true,
                                 message: null,
-                                notExtendErrors: false,
+                                notExtendErrors: v[0] instanceof DeepValidatorMerged,
                                 validator: v[0]
                             });
                         } else if (_.isString(v[0])) {
@@ -1040,7 +1075,7 @@ export class DeepValidator {
                                             isValidator: true,
                                             message: pair[1],
                                             notExtendErrors: true,
-                                            validator: pair[0]
+                                            validator: 'ifCustom'
                                         });
 
                                         return;

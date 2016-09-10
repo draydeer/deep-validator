@@ -250,7 +250,12 @@ describe("Flow", () => {
     it("If", () => {
         v = new DeepValidator({
             "a.b": [
-                ['if', 'isString', new DeepValidator({b: ['isNumber:not number']}), new DeepValidator({b: ['isString:not string']})]
+                [
+                    'if',
+                    'isString',
+                    new DeepValidator({b: ['isNumber:not number']}),
+                    new DeepValidator({b: ['isString:not string']})
+                ]
             ],
         });
 
@@ -260,7 +265,27 @@ describe("Flow", () => {
 
         v = new DeepValidator({
             "a.b": [
-                ['if', 'isString', {b: ['isString:not string']}, {b: ['isNumber:not number']}]
+                [
+                    'if',
+                    'isString',
+                    {b: ['isString:not string']},
+                    {b: ['isNumber:not number']}
+                ]
+            ],
+        });
+
+        expect(v.validate({a: {b: 1}})).toBe(true);
+
+        expect(v.getErrors()).toEqual({});
+
+        v = new DeepValidator({
+            "a.b": [
+                [
+                    'if',
+                    (val) => _.isString(val),
+                    {b: ['isString:not string']},
+                    {b: ['isNumber:not number']}
+                ]
             ],
         });
 

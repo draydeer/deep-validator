@@ -37,3 +37,5 @@ export let route = (request, response) => {
         response.status(200).send("ok");
     }
 };
+
+console.log(validator._sarray);
