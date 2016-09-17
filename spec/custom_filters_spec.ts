@@ -1,8 +1,6 @@
 
-
 import * as _ from "lodash";
 import {DeepValidator} from "../src/deep-validator";
-
 
 let runValidator = (validator, ok: any[], error: any[], trueValue: any = true, falseValue: any = false) => {
     for (let i = 0; i < ok.length; i ++) {
@@ -33,7 +31,6 @@ let runValidator = (validator, ok: any[], error: any[], trueValue: any = true, f
         }
     }
 };
-
 
 describe("Custom filters", () => {
     it("isNumberOrNull", () => {

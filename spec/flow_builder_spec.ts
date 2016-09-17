@@ -1,8 +1,6 @@
 
-
 import * as _ from "lodash";
 import {DeepValidator, Flow} from "../src/deep-validator";
-
 
 let fixtures = {
     default: [1],

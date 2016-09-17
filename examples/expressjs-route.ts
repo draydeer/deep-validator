@@ -1,7 +1,5 @@
 
-
 import {DeepValidator} from "../src/deep-validator";
-
 
 var validator = new DeepValidator({
     "firstName": [

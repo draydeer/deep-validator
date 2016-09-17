@@ -4,7 +4,11 @@ A library for validation of complex structures. Uses [LoDash](https://lodash.com
 
 ### Server-side
 
-Install the library with `npm install deep-validator`
+Install the library with:
+
+```bash
+$ npm install deep-validator
+```
 
 ```javascript
 var DeepValidator = require('deep-validator').DeepValidator;
@@ -24,6 +28,12 @@ The library can be loaded as a standalone script.
 
 ```html
 <script type="text/javascript" src="deep-validator.min.js"></script>
+```
+
+```html
+var DeepValidator = window.DeepValidator;
+
+new DeepValidator({a: "isString"}).validate({a: "123"}); // true
 ```
 
 ### Usage

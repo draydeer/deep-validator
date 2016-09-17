@@ -1,11 +1,8 @@
 
-
 import * as _ from "lodash";
 import {DeepValidator} from "../src/deep-validator";
 
-
 let v, t, f;
-
 
 describe("Flow", () => {
     it("isExists, default, showAs, custom", () => {
