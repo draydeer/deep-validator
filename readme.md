@@ -30,7 +30,7 @@ The library can be loaded as a standalone script.
 <script type="text/javascript" src="deep-validator.min.js"></script>
 ```
 
-```html
+```javascript
 var DeepValidator = window.DeepValidator;
 
 new DeepValidator({a: "isString"}).validate({a: "123"}); // true
