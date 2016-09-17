@@ -1,6 +1,7 @@
 
 import * as _ from "lodash";
 import {DeepValidator} from "../src/deep-validator";
+import extend = require("lodash/extend");
 
 let v, t, f;
 
@@ -360,5 +361,26 @@ describe("Flow", () => {
         }).setMessageMaxDepthReached('max depth reached').maxDepthPassToNested(false).maxDepth(2);
 
         expect(v.validate({a: {b: {c: 1}}})).toBe(true);
+    });
+
+    it("Translator", () => {
+        let mes = {
+            _not_exists: 'not exists'
+        };
+
+        v = new DeepValidator({
+            a: [
+                "isExists:_not_exists"
+            ],
+            b: [
+                "isString:_not_string"
+            ]
+        }).setTranslator((message: string) => {
+            return mes[message] || message;
+        }).tryAll();
+
+        expect(v.validate({b: 123})).toBe(false);
+
+        expect(v.getErrors()).toEqual({a: "not exists", b: "_not_string"})
     });
 });

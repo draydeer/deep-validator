@@ -198,9 +198,9 @@ export class DeepValidator {
 
     protected _nextError = null;
 
-    protected _sarray: ValidatorEntrySet = new ValidatorEntrySet();
-
     protected _schema: ValidatorEntrySet = new ValidatorEntrySet();
+
+    protected _schemaAsArray: ValidatorEntrySet = new ValidatorEntrySet();
 
     protected _strict: boolean = false;
 
@@ -219,14 +219,14 @@ export class DeepValidator {
     /**
      *
      */
-    protected static _addError(errors: _.Dictionary<any>, key: string, value: any, path?: string) {
-        errors[path ? path + "." + key : key] = value;
+    protected _addError(errors: _.Dictionary<any>, key: string, value: any, path?: string) {
+        errors[path ? path + "." + key : key] = this._translator(value);
     }
 
     /**
      * Dummy translator.
      */
-    protected static _translate(message: string): any {
+    protected _translate(message: string): any {
         return message;
     }
 
@@ -246,7 +246,7 @@ export class DeepValidator {
         ref?: any
     ): boolean {
         if (this._maxDepth <= depth) {
-            DeepValidator._addError(errors, "*", this._messageMaxDepth, path);
+            this._addError(errors, "*", this._messageMaxDepth, path);
 
             return false;
         }
@@ -322,15 +322,15 @@ export class DeepValidator {
                         // extend errors object with set of messages
                         if (entry.notExtendErrors) {
                             _.each(result, (v, k: string) => {
-                                DeepValidator._addError(errors, k, v, root);
+                                this._addError(errors, k, v, root);
                             });
                         } else {
                             _.each(result, (v, k: string) => {
-                                DeepValidator._addError(errors, k, v, path);
+                                this._addError(errors, k, v, path);
                             });
                         }
                     } else {
-                        DeepValidator._addError(errors, path, entry.message || false);
+                        this._addError(errors, path, entry.message || false);
                     }
 
                     return false;
@@ -414,7 +414,7 @@ export class DeepValidator {
                     }
 
                     if (strict || entry.strict !== void 0) {
-                        DeepValidator._addError(errors, pathField, entry.strict || this._messageMissingKey);
+                        this._addError(errors, pathField, entry.strict || this._messageMissingKey);
 
                         if (tryAll === false) {
                             return false;
@@ -1156,9 +1156,9 @@ export class DeepValidator {
             }
         );
 
-        this._sarray.properties["[]"] = this._schema;
+        this._schemaAsArray.properties["[]"] = this._schema;
 
-        this._translator = DeepValidator._translate;
+        this._translator = this._translate;
     }
 
     /**
@@ -1347,7 +1347,7 @@ export class DeepValidator {
 
             this._validate(
                 data,
-                this._sarray,
+                this._schemaAsArray,
                 this._tryAll,
                 errors || this.errors,
                 this._strict,
