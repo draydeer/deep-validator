@@ -1338,9 +1338,7 @@ export class DeepValidator {
 
         if (_.isArray(data)) {
             if (this._arrayAllow === false && arrayAllow === false) {
-                this.errors = {
-                    "??": this._messageInvalid,
-                };
+                this._addError(this.errors, "??", this._messageInvalid);
 
                 return this.passed = false;
             }
@@ -1357,9 +1355,7 @@ export class DeepValidator {
             );
         } else {
             if (_.isObject(data) === false) {
-                this.errors = {
-                    "??": this._messageInvalid,
-                };
+                this._addError(this.errors, "??", this._messageInvalid);
 
                 return this.passed = false;
             }
