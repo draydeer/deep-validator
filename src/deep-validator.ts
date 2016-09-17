@@ -3,17 +3,51 @@ import * as _ from "lodash";
 import * as validator from "validator";
 import Dictionary = _.Dictionary;
 
-type ValidatorEntry = {
+class ValidatorEntry {
 
-    args: string;
+    // custom arguments
+    public args: string;
 
-    isValidator: boolean;
+    // flag of behavior
+    public isValidator: boolean;
 
-    message: string;
+    // error message
+    public message: string;
 
-    notExtendErrors: boolean;
+    // flag of denial of path extensions if errors set
+    public notExtendErrors: boolean;
 
-    validator: string|((...a: any[]) => any)|DeepValidator;
+    // definition
+    public validator: string|((...a: any[]) => any)|DeepValidator;
+
+}
+
+class ValidatorEntrySet {
+
+    // current key validation flow
+    public current: ValidatorEntrySetCurrent = new ValidatorEntrySetCurrent();
+
+    // validators on sub properties
+    public properties: _.Dictionary<ValidatorEntrySet> = {};
+
+}
+
+class ValidatorEntrySetCurrent {
+
+    // custom check
+    public custom: any;
+
+    // default value
+    public def: any;
+
+    // show as specified name
+    public showAs: string;
+
+    // flag of forced checking for presence
+    public strict: boolean;
+
+    // validation flow descriptors list
+    public v: ValidatorEntry[] = [];
 
 }
 
@@ -164,9 +198,9 @@ export class DeepValidator {
 
     protected _nextError = null;
 
-    protected _sarray = {"##": {strict: void 0, v: []}};
+    protected _sarray: ValidatorEntrySet = new ValidatorEntrySet();
 
-    protected _schema = {"##": {strict: void 0, v: []}};
+    protected _schema: ValidatorEntrySet = new ValidatorEntrySet();
 
     protected _strict: boolean = false;
 
@@ -201,7 +235,7 @@ export class DeepValidator {
      */
     protected _validate(
         data: any,
-        schema: Dictionary<any> = {},
+        schema: ValidatorEntrySet,
         tryAll: boolean = false,
         errors: Dictionary<any> = {},
         strict: boolean = false,
@@ -220,8 +254,8 @@ export class DeepValidator {
         let isObject = _.isObject(data);
 
         // apply validators/sanitizers
-        for (let i = 0, l = schema["##"].v.length; i < l; i ++) {
-            let entry: ValidatorEntry = schema["##"].v[i];
+        for (let i = 0, l = schema.current.v.length; i < l; i ++) {
+            let entry: ValidatorEntry = schema.current.v[i];
 
             let isValidator: boolean = true;
 
@@ -316,11 +350,11 @@ export class DeepValidator {
         if (_.isArray(data)) {
 
             // go through each element if data is array
-            if (schema["[]"]) {
+            if (schema.properties["[]"]) {
                 for (let i = 0, l = data.length; i < l; i ++) {
                     if (this._validate(
                             data[i],
-                            schema["[]"],
+                            schema.properties["[]"],
                             tryAll,
                             errors,
                             strict,
@@ -338,11 +372,11 @@ export class DeepValidator {
         } else {
 
             // go through all nested in schema
-            for (let k in schema) {
-                if (k !== "##" && k !== "[]") {
-                    let entry = schema[k]["##"];
+            for (let k in schema.properties) {
+                if (k !== "[]") {
+                    let entry: ValidatorEntrySetCurrent = schema.properties[k].current;
 
-                    let field = (entry && entry.showAs) || k;
+                    let field: string = (entry && entry.showAs) || k;
 
                     let pathField: string = path ? path + "." + field : field;
 
@@ -350,7 +384,7 @@ export class DeepValidator {
                         if (k in data) {
                             if (this._validate(
                                 data[k],
-                                schema[k],
+                                schema.properties[k],
                                 tryAll,
                                 errors,
                                 strict,
@@ -606,7 +640,7 @@ export class DeepValidator {
      * Clean value. Similar to [filter] but filters a given value using an active (internal) schema.
      */
     public static clean(value: any, a, b, c, d, key: string, ref: any, schema: any): any {
-        return _.pick(value, Object.keys(schema));
+        return _.pick(value, Object.keys(schema.properties));
     }
 
     /**
@@ -615,8 +649,8 @@ export class DeepValidator {
     public static if(
         value: any,
         filter: any[]|string,
-        branchTrue: DeepValidator,
-        branchFalse: DeepValidator,
+        flowTrue: DeepValidator,
+        flowFalse: DeepValidator,
         errors: any,
         key?,
         ref?,
@@ -629,16 +663,16 @@ export class DeepValidator {
         let result: boolean;
 
         if (DeepValidator[filter[0]](value, filter[1], filter[2], filter[3])) {
-            result = branchTrue.validate(ref);
+            result = flowTrue.validate(ref);
 
             if (result === false) {
-                return branchTrue.getErrors();
+                return flowTrue.getErrors();
             }
         } else {
-            result = branchFalse.validate(ref);
+            result = flowFalse.validate(ref);
 
             if (result === false) {
-                return branchFalse.getErrors();
+                return flowFalse.getErrors();
             }
         }
 
@@ -651,8 +685,8 @@ export class DeepValidator {
     public static ifCustom(
         value: any,
         filter: any[]|((val: any, key: string, ref: any) => boolean),
-        branchTrue: DeepValidator,
-        branchFalse: DeepValidator,
+        flowTrue: DeepValidator,
+        flowFalse: DeepValidator,
         errors: any,
         key?,
         ref?,
@@ -665,16 +699,16 @@ export class DeepValidator {
         let result: boolean;
 
         if (filter[0](value, key, ref)) {
-            result = branchTrue.validate(ref);
+            result = flowTrue.validate(ref);
 
             if (result === false) {
-                return branchTrue.getErrors();
+                return flowTrue.getErrors();
             }
         } else {
-            result = branchFalse.validate(ref);
+            result = flowFalse.validate(ref);
 
             if (result === false) {
-                return branchFalse.getErrors();
+                return flowFalse.getErrors();
             }
         }
 
@@ -988,16 +1022,22 @@ export class DeepValidator {
         _.each(
             schema,
             (v, k: string) => {
-                let last = this._schema,
-                    elem = this._schema;
+                let elem: ValidatorEntrySet = this._schema;
+
+                let last: ValidatorEntrySet = this._schema;
 
                 k.split(".").forEach(
                     (v) => {
                         last = elem;
-                        elem = elem[k = v] || (elem[v] = {"##": {s: void 0, v: []}});
+
+                        if (elem.properties[k = v] === void 0) {
+                            elem = elem.properties[v] = new ValidatorEntrySet();
+                        } else {
+                            elem = elem.properties[v];
+                        }
 
                         if (k === "[]") {
-                            last["##"].v.push({
+                            last.current.v.push({
                                 args: [],
                                 isValidator: true,
                                 message: void 0,
@@ -1016,7 +1056,7 @@ export class DeepValidator {
                         _.isArray(v) || (v = [v]);
 
                         if (v[0] instanceof DeepValidator || _.isFunction(v[0])) {
-                            last[k]["##"].v.push({
+                            last.properties[k].current.v.push({
                                 args: v.slice(1),
                                 isValidator: true,
                                 message: null,
@@ -1028,16 +1068,16 @@ export class DeepValidator {
 
                             if (pair[0] === "custom") {
                                 if (_.isFunction(v[1])) {
-                                    last[k]["##"].custom = v[1];
+                                    last.properties[k].current.custom = v[1];
                                 } else {
                                     throw new Error("Validator of [custom] must be a function.");
                                 }
                             } else if (pair[0] === "default") {
-                                last[k]["##"].def = v[1];
+                                last.properties[k].current.def = v[1];
                             } else if (pair[0] === "isExists") {
-                                last[k]["##"].strict = pair[1] || false;
+                                last.properties[k].current.strict = pair[1] || false;
                             } else if (pair[0] === "showAs") {
-                                last[k]["##"].showAs = pair[1] || false;
+                                last.properties[k].current.showAs = pair[1] || false;
                             } else if (DeepValidator[pair[0]]) {
                                 let notExtendErrors: boolean = false;
 
@@ -1076,7 +1116,7 @@ export class DeepValidator {
                                             throw new Error("Condition checker is not defined or invalid: " + cond);
                                         }
                                     } else {
-                                        last[k]["##"].v.push({
+                                        last.properties[k].current.v.push({
                                             args: v.slice(1),
                                             isValidator: true,
                                             message: pair[1],
@@ -1090,7 +1130,7 @@ export class DeepValidator {
                                     notExtendErrors = true;
                                 }
 
-                                last[k]["##"].v.push({
+                                last.properties[k].current.v.push({
                                     args: v.slice(1),
                                     isValidator: pair[0].substr(0, 2) === "is" || v[0] in DeepValidator._isValidators,
                                     message: pair[1],
@@ -1101,7 +1141,7 @@ export class DeepValidator {
                                 throw new Error("Validator is not defined: " + pair[0]);
                             }
                         } else if (DeepValidator.isObject(v[0])) {
-                            last[k]["##"].v.push({
+                            last.properties[k].current.v.push({
                                 args: [],
                                 isValidator: true,
                                 message: null,
@@ -1116,7 +1156,7 @@ export class DeepValidator {
             }
         );
 
-        this._sarray["[]"] = this._schema;
+        this._sarray.properties["[]"] = this._schema;
 
         this._translator = DeepValidator._translate;
     }
