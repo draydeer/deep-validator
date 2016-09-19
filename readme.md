@@ -287,7 +287,7 @@ validator.getErrors(); // {"b": "not number"}
 - **isMobilePhone(str, locale)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a mobile phone number.
 - **isMongoId(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a valid hex-encoded representation of a [MongoDB ObjectId][mongoid].
 - **isMultibyte(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains one or more multibyte chars.
-- **isNuN(value)** - [LoDash](https://lodash.com/docs/#isNaN) - checks if value is NaN.
+- **isNaN(value)** - [LoDash](https://lodash.com/docs/#isNaN) - checks if value is NaN.
 - **isNil(value)** - [LoDash](https://lodash.com/docs/#isNil) - checks if value is null or undefined.
 - **isNotContains(value, compare)** - check if the complex value not contains all values of a comparison list or set.
 - **isNull(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is null (has a length of zero).
@@ -306,10 +306,6 @@ validator.getErrors(); // {"b": "not number"}
 - **toDate(value)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - convert the input string to a date, or null if the input is not a date.
 - **toFinite(value)** - [LoDash](https://lodash.com/docs/#toFinite) - converts value to a finite number.
 - **toInt(value)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - convert the input string to a date, or null if the input is not a date.
-- **toArray(value)** - [LoDash](https://lodash.com/docs/#toArray) - converts value to an array.
-- **toArray(value)** - [LoDash](https://lodash.com/docs/#toArray) - converts value to an array.
-- **toArray(value)** - [LoDash](https://lodash.com/docs/#toArray) - converts value to an array.
-- **toArray(value)** - [LoDash](https://lodash.com/docs/#toArray) - converts value to an array.
 
 ### Examples
 
