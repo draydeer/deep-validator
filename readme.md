@@ -279,7 +279,7 @@ validator.getErrors(); // {"b": "not number"}
 - **isISIN(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is an [ISIN][ISIN] (stock/security identifier).
 - **isISO8601(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a valid [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date.
 - **isIn(str, values)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is in a array of allowed values.
-- **isInRange(value[, min[, max]]) - check if the number is between min and max values.
+- **isInRange(value[, min[, max]])** - check if the number is between min and max values.
 - **isInt(str [, options])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is an integer.
 - **isJSON(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is valid JSON (note: uses JSON.parse).
 - **isLength(value)** - check if the value's length falls in a range (takes property of array/string length as number or number of properties in case of object).
