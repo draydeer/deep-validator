@@ -88,24 +88,24 @@ describe("Custom filters", () => {
         runValidator(DeepValidator.isGreater, [[1, 0]], [[0, 0], [0, 1], [false, false]]);
     });
 
-    it("isGreaterOrEqual", () => {
-        runValidator(DeepValidator.isGreaterOrEqual, [[0, 0], [1, 0]], [[0, 1], [false, false]]);
+    it("isGreaterOrEquals", () => {
+        runValidator(DeepValidator.isGreaterOrEquals, [[0, 0], [1, 0]], [[0, 1], [false, false]]);
     });
 
-    it("isGreaterOrEqualToZero", () => {
-        runValidator(DeepValidator.isGreaterOrEqualToZero, [1, 0], [null, - 1, true, false, "", [[]], {}, void 0]);
+    it("isGreaterOrEqualsToZero", () => {
+        runValidator(DeepValidator.isGreaterOrEqualsToZero, [1, 0], [null, - 1, true, false, "", [[]], {}, void 0]);
     });
 
     it("isLess", () => {
         runValidator(DeepValidator.isLess, [[0, 1]], [[0, 0], [1, 0], [false, false]]);
     });
 
-    it("isLessOrEqual", () => {
-        runValidator(DeepValidator.isLessOrEqual, [[0, 0], [0, 1]], [[1, 0], [false, false]]);
+    it("isLessOrEquals", () => {
+        runValidator(DeepValidator.isLessOrEquals, [[0, 0], [0, 1]], [[1, 0], [false, false]]);
     });
 
-    it("isLessOrEqualToZero", () => {
-        runValidator(DeepValidator.isLessOrEqualToZero, [- 1, 0], [null, 1, true, false, "", [[]], {}, void 0]);
+    it("isLessOrEqualsToZero", () => {
+        runValidator(DeepValidator.isLessOrEqualsToZero, [- 1, 0], [null, 1, true, false, "", [[]], {}, void 0]);
     });
 
     it("isLength", () => {

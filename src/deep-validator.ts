@@ -812,14 +812,14 @@ export class DeepValidator {
     /**
      * Filter.
      */
-    public static isGreaterOrEqual(value: any, compare: number): boolean {
+    public static isGreaterOrEquals(value: any, compare: number): boolean {
         return _.isNumber(value) && value >= compare;
     }
 
     /**
      * Filter.
      */
-    public static isGreaterOrEqualToZero(value: any): boolean {
+    public static isGreaterOrEqualsToZero(value: any): boolean {
         return value === 0 || this.isGreater(value, 0);
     }
 
@@ -865,14 +865,14 @@ export class DeepValidator {
     /**
      * Filter.
      */
-    public static isLessOrEqual(value: any, compare: number): boolean {
+    public static isLessOrEquals(value: any, compare: number): boolean {
         return _.isNumber(value) && value <= compare;
     }
 
     /**
      * Filter.
      */
-    public static isLessOrEqualToZero(value: any): boolean {
+    public static isLessOrEqualsToZero(value: any): boolean {
         return value === 0 || this.isLess(value, 0);
     }
 
