@@ -237,7 +237,7 @@ validator.validate({a: "1", b: "1"}); // false
 validator.getErrors(); // {"b": "not number"}
 ```
 
-### Available validators/sanitizers
+### Available validators
 
 - **contains(str, seed)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains the seed.
 - **equals(str, comparison)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string matches the comparison.
@@ -250,7 +250,7 @@ validator.getErrors(); // {"b": "not number"}
 - **isBefore(str [, date])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a date that's before the specified date.
 - **isBoolean(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if a string is a boolean.
 - **isByteLength(str, options)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string's length (in bytes) falls in a range.
-- **isContains(value, compare)** - check if the complex value contains all values of a comparison list or set.
+- **isContains(value, compare)** - check if the complex value contains all of values in a comparison list or set.
 - **isContainsOnly(value, compare)** - check if the complex value contains only values of a comparison list or set.
 - **isCreditCard(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a credit card.
 - **isCurrency(str, options)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a valid currency amount.
@@ -279,33 +279,54 @@ validator.getErrors(); // {"b": "not number"}
 - **isISIN(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is an [ISIN][ISIN] (stock/security identifier).
 - **isISO8601(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a valid [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date.
 - **isIn(str, values)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is in a array of allowed values.
+- **isInRange(value[, min[, max]]) - check if the number is between min and max values.
 - **isInt(str [, options])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is an integer.
 - **isJSON(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is valid JSON (note: uses JSON.parse).
-- **isLength(str, options)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string's length falls in a range.
+- **isLength(value)** - check if the value's length falls in a range (takes property of array/string length as number or number of properties in case of object).
 - **isLowercase(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is lowercase.
 - **isMACAddress(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a MAC address.
 - **isMobilePhone(str, locale)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a mobile phone number.
 - **isMongoId(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a valid hex-encoded representation of a [MongoDB ObjectId][mongoid].
 - **isMultibyte(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains one or more multibyte chars.
 - **isNaN(value)** - [LoDash](https://lodash.com/docs/#isNaN) - checks if value is NaN.
+- **isNegative(value)** - alias of **isNumberNegative** - checks if value is a negative number (less than 0).
 - **isNil(value)** - [LoDash](https://lodash.com/docs/#isNil) - checks if value is null or undefined.
-- **isNotContains(value, compare)** - check if the complex value not contains all values of a comparison list or set.
+- **isNotContains(value, compare)** - check if the complex value contains no one of values in a comparison list or set.
+- **isNotEmpty(value)** - negative validator of the **isEmpty**.
+- **isNotEmptyObject(value)** - checks if the value is a not empty object.
+- **isNotEmptyArray(value)** - checks if the value is a not empty array.
+- **isNotVoid(value)** - checks if the value is a defined value (not *undefined*).
 - **isNull(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is null (has a length of zero).
 - **isNumber(value)** - [LoDash](https://lodash.com/docs/#isNumber) - checks if value is classified as a Number primitive or object.
+- **isNumberNegative(value)** - checks if the value is a negative number (less than 0).
+- **isNumberPositive(value)** - checks if the value is a positive number (greater than 0).
+- **isNumberOrNumeric(value)** - checks if the value if a valid string representation of number, number object or primitive.
 - **isNumeric(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains only numbers.
+- **isObject(value)** - check if the value is a object like value and is not defined as an array.
+- **isPositive(value)** - alias of **isNumberPositive** - checks if value is a positive number (greater than 0).
 - **isString(value)** - [LoDash](https://lodash.com/docs/#isString) - checks if value is classified as a String primitive or object.
 - **isSurrogatePair(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains any surrogate pairs chars.
 - **isURL(str [, options])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is an URL.
 - **isUUID(str [, version])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is a UUID (version 3, 4 or 5).
 - **isUppercase(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string is uppercase.
 - **isVariableWidth(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - check if the string contains a mixture of full and half-width chars.
+- **isVoid** - check if the value is an *undefined* value.
 - **isWhitelisted(str, chars)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks characters if they appear in the whitelist.
 - **matches(str, pattern [, modifiers])** - [validator.js](https://github.com/chriso/validator.js#validators) - check if string matches the pattern.
+
+### Available sanitizers
+
+- **filter(value, filter, [objectAllow])** - picks values (by RegExp checks strings only) by matching to a given pattern.
+- **filterKeys(value, filter)** - picks keys by matching to a given pattern.
+- **filterMongoDocKeys(value)** - removes all keys of MongoDb document like object starting from [$].
 - **toArray(value)** - [LoDash](https://lodash.com/docs/#toArray) - converts value to an array.
 - **toBoolean(value)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - convert the input string to a boolean.
 - **toDate(value)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - convert the input string to a date, or null if the input is not a date.
 - **toFinite(value)** - [LoDash](https://lodash.com/docs/#toFinite) - converts value to a finite number.
 - **toInt(value)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - convert the input string to a date, or null if the input is not a date.
+- **toNumber(value)** - converts string representation of a number or takes the number as-is.
+- **toNullIfEmpty(value)** - converts the value to *null* value if the value **isEmpty**.
+- **toString(value)** - converts the value to a string taking *null* and *undefined* values as an empty string - "".
 
 ### Examples
 
