@@ -1,6 +1,6 @@
 # DeepValidator
 
-[![Build Status][travis-image]][travis-url]
+[![Build Status](https://travis-ci.org/draydeer/validator.svg?branch=master)](https://travis-ci.org/draydeer/validator)
 
 A library for validation of complex data structures. Uses [LoDash](https://lodash.com) and [validator.js](https://github.com/chriso/validator.js) libraries.
 
