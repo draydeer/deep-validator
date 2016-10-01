@@ -1,6 +1,7 @@
 .idea
 *.js
 *.map
+!deep-validator.js
 !deep-validator.min.js
 !spec/*.js
 coverage
