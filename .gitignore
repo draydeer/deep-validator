@@ -2,6 +2,7 @@
 *.js
 *.map
 !deep-validator.min.js
+!spec/*.js
 coverage
 ignore*
 node_modules

@@ -6,7 +6,7 @@ import Dictionary = _.Dictionary;
 class ValidatorEntry {
 
     // custom arguments
-    public args: string;
+    public args: string[];
 
     // flag of behavior
     public isValidator: boolean;
@@ -1090,7 +1090,8 @@ export class DeepValidator {
                             last.current.v.push({
                                 args: [],
                                 isValidator: true,
-                                message: void 0,
+                                message: null,
+                                notExtendErrors: false,
                                 validator: "isArray",
                             });
                         }
