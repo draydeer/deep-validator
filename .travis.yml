@@ -1,6 +1,12 @@
 sudo: false
 language: node_js
 node_js:
+  - 4.0
+  - 5.0
   - stable
-after_script:
+install:
+  - npm install -g typescript
+before_script:
+  - tsc -w
+script:
   - npm run coveralls
