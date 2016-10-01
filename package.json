@@ -22,7 +22,7 @@
     "validator": "^5.5.0"
   },
   "scripts": {
-    "coverall": "istanbul cover --root src jasmine-node spec",
+    "coveralls": "istanbul cover --root src jasmine-node spec",
     "test": "jasmine-node spec"
   }
 }
