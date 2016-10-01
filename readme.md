@@ -1,5 +1,7 @@
 # DeepValidator
 
+[![Build Status][travis-image]][travis-url]
+
 A library for validation of complex data structures. Uses [LoDash](https://lodash.com) and [validator.js](https://github.com/chriso/validator.js) libraries.
 
 ### Server-side
