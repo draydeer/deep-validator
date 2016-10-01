@@ -19,6 +19,16 @@ describe("Flow", () => {
 
         v = new DeepValidator({
             a: [
+                "required:not exists", "showAs:aaa"
+            ]
+        });
+
+        expect(v.validate({})).toBe(false);
+
+        expect(v.getErrors()).toEqual({"aaa": "not exists"});
+
+        v = new DeepValidator({
+            a: [
                 ["default", 1]
             ]
         });

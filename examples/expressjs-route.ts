@@ -28,8 +28,6 @@ var validator = new DeepValidator({
     ]
 });
 
-console.log(validator._schema.properties.contacts.current);
-
 export let route = (request, response) => {
     if (validator.validate(request.body) !== true) {
         response.status(400).send(validator.getErrors());

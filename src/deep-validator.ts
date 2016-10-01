@@ -202,6 +202,8 @@ export class DeepValidator {
 
     protected _schemaAsArray: ValidatorEntrySet = new ValidatorEntrySet();
 
+    protected _schemaCoverAll: boolean = false;
+
     protected _strict: boolean = false;
 
     protected _translator: (message: string) => any = null;
@@ -290,7 +292,7 @@ export class DeepValidator {
 
                 // custom validator/sanitizer; sanitizer can modify data by reference (v, k <= key, d <= reference) and then must return [true]
                 if (_.isFunction(entry.validator)) {
-                    let validator = <(...a:any[]) => any>entry.validator;
+                    let validator = <(...a: any[]) => any>entry.validator;
 
                     result = entry.message = validator(data, key, ref);
 
@@ -640,7 +642,16 @@ export class DeepValidator {
      * Clean value. Similar to [filter] but filters a given value using an active (internal) schema.
      */
     public static clean(value: any, a, b, c, d, key: string, ref: any, schema: any): any {
-        return _.pick(value, Object.keys(schema.properties));
+        _.each(
+            value,
+            (v: any, k: string) => {
+                if (! (k in schema.properties)) {
+                    delete value[k];
+                }
+            }
+        );
+
+        return value;
     }
 
     /**
@@ -963,24 +974,54 @@ export class DeepValidator {
      * @returns {TResult}
      */
     public static filter(value: any, filter: RegExp|((v: string) => boolean), objectAllow?: boolean): any {
-        return _.pickBy(
-            value,
-            filter instanceof RegExp
-                ? (v: any) => _.isString(v) ? validator.matches(v, filter) : objectAllow !== false && _.isObjectLike(v)
-                : <((v: string) => boolean)>filter
-        );
+        if (filter instanceof RegExp) {
+            _.each(
+                value,
+                (v: any, k: string) => {
+                    if (! (_.isString(v) ? validator.matches(v, filter) : objectAllow !== false && _.isObjectLike(v))) {
+                        delete value[k];
+                    }
+                }
+            );
+        } else {
+            _.each(
+                value,
+                (v: any, k: string) => {
+                    if (! (<((v: string) => boolean)>filter)(v)) {
+                        delete value[k];
+                    }
+                }
+            );
+        }
+
+        return value;
     }
 
     /**
      * Sanitizer. Picks keys by matching to a given pattern.
      */
     public static filterKeys(value: any, filter: string[]|RegExp|((v: string) => boolean)): any {
-        return _.pickBy(
-            value,
-            filter instanceof RegExp
-                ? (v, k) => validator.matches(k, filter)
-                : <((v: string) => boolean)>filter
-        );
+        if (filter instanceof RegExp) {
+            _.each(
+                value,
+                (v: any, k: string) => {
+                    if (! validator.matches(k, filter)) {
+                        delete value[k];
+                    }
+                }
+            );
+        } else {
+            _.each(
+                value,
+                (v: any, k: string) => {
+                    if (! (<((v: string) => boolean)>filter)(k)) {
+                        delete value[k];
+                    }
+                }
+            );
+        }
+
+        return value;
     }
 
     /**
@@ -1015,8 +1056,17 @@ export class DeepValidator {
      * Constructor.
      *
      * @param schema Data validation schema.
+     * @param rootFlow Flow to be run on the root value.
      */
-    public constructor(schema: Dictionary<any>) {
+    public constructor(schema: Dictionary<any>, rootFlow?: any[]) {
+        if (rootFlow) {
+            this._schemaCoverAll = true;
+
+            schema = _.fromPairs(_.map(schema, (v, k) => ["$." + k, v]));
+
+            schema["$"] = rootFlow;
+        }
+
         this.schema = schema;
 
         _.each(
@@ -1041,7 +1091,7 @@ export class DeepValidator {
                                 args: [],
                                 isValidator: true,
                                 message: void 0,
-                                validator: "isArray"
+                                validator: "isArray",
                             });
                         }
                     }
@@ -1074,7 +1124,7 @@ export class DeepValidator {
                                 }
                             } else if (pair[0] === "default") {
                                 last.properties[k].current.def = v[1];
-                            } else if (pair[0] === "isExists") {
+                            } else if (pair[0] === "isExists" || pair[0] === 'required') {
                                 last.properties[k].current.strict = pair[1] || false;
                             } else if (pair[0] === "showAs") {
                                 last.properties[k].current.showAs = pair[1] || false;
@@ -1121,7 +1171,7 @@ export class DeepValidator {
                                             isValidator: true,
                                             message: pair[1],
                                             notExtendErrors: true,
-                                            validator: "ifCustom"
+                                            validator: "ifCustom",
                                         });
 
                                         return;
@@ -1344,7 +1394,7 @@ export class DeepValidator {
             }
 
             this._validate(
-                data,
+                this._schemaCoverAll ? {$: data} : data,
                 this._schemaAsArray,
                 this._tryAll,
                 errors || this.errors,
@@ -1361,7 +1411,7 @@ export class DeepValidator {
             }
 
             this._validate(
-                data,
+                this._schemaCoverAll ? {$: data} : data,
                 this._schema,
                 this._tryAll,
                 errors || this.errors,

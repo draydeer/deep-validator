@@ -2,6 +2,8 @@
 import * as _ from "lodash";
 import {DeepValidator} from "../src/deep-validator";
 
+let k, v, t;
+
 let runValidator = (validator, ok: any[], error: any[], trueValue: any = true, falseValue: any = false) => {
     for (let i = 0; i < ok.length; i ++) {
         let val = ok[i];
@@ -189,22 +191,63 @@ describe("Custom filters", () => {
         expect(DeepValidator.toString(123)).toBe('123');
     });
 
+    it("clean", () => {
+        v = new DeepValidator(
+            {
+                'a': [
+                    'isObject', 'clean'
+                ],
+                'a.b': [
+                    'isObject', 'clean'
+                ],
+                'a.b.c': [
+
+                ],
+                'a.c': [
+
+                ]
+            },
+            [
+                'clean'
+            ]
+        );
+
+        expect(v.validate(t = {a: {b: {c: 3, d: 4}, c: {x: 1}, d: 2}, e: 2})).toBe(true);
+
+        expect(t).toEqual({a: {b: {c: 3}, c: {x: 1}}});
+    });
+
     it("filter", () => {
-        let v = new DeepValidator({
+        v = new DeepValidator({
             'a': [
                 'isObject', ['filter', /x/]
             ],
             'a.b': [
                 'isObject', ['filter', /y/]
             ]
-        });
+        }, [['filter', /q/]]);
 
-        let t;
+        expect(v.validate(t = {a: {b: {$x: 'y', y: 2, c: []}, $x: 1, $y: 'x', z: 3}, g: 'aqa', h: 123, i: 'a'})).toBe(true);
 
-        expect(v.validate(t = {a: {b: {$x: 'y', y: 2, c: []}, $x: 1, $y: 'x', z: 3}})).toBe(true);
+        expect(t).toEqual({a: {b: {$x: 'y', c: []}, $y: 'x'}, g: 'aqa'});
+    });
 
-        expect(t).toEqual({a: {b: {$x: 'y', c: []}, $y: 'x'}});
+    it("filter with custom handler", () => {
+        v = new DeepValidator({
+            'a': [
+                'isObject', ['filter', (v) => _.isObjectLike(v) || /x/.test(v)]
+            ],
+            'a.b': [
+                'isObject', ['filter', (v) => _.isObjectLike(v) || /y/.test(v)]
+            ]
+        }, [['filter', (v) => _.isObjectLike(v) || /q/.test(v)]]);
 
+        expect(v.validate(t = {a: {b: {$x: 'y', y: 2, c: []}, $x: 1, $y: 'x', z: 3}, g: 'aqa', h: 123, i: 'a'})).toBe(true);
+
+        expect(t).toEqual({a: {b: {$x: 'y', c: []}, $y: 'x'}, g: 'aqa'});
+    });
+    
+    it("filter with no object allow", () => {
         v = new DeepValidator({
             'a': [
                 'isObject', ['filter', /x/]
@@ -220,24 +263,37 @@ describe("Custom filters", () => {
     });
 
     it("filterKeys", () => {
-        let v = new DeepValidator({
+        v = new DeepValidator({
             'a': [
                 'isObject', ['filterKeys', /x|b/]
             ],
             'a.b': [
                 'isObject', ['filterKeys', /y/]
             ]
-        });
+        }, [['filterKeys', /a/]]);
 
-        let t;
+        expect(v.validate(t = {a: {b: {$x: 1, y: 2}, $x: 1, $y: 2, z: 3}, g: 'aqa', ha: 123, i: 'a'})).toBe(true);
 
-        expect(v.validate(t = {a: {b: {$x: 1, y: 2}, $x: 1, $y: 2, z: 3}})).toBe(true);
+        expect(t).toEqual({a: {b: {y: 2}, $x: 1}, ha: 123});
+    });
 
-        expect(t).toEqual({a: {b: {y: 2}, $x: 1}});
+    it("filterKeys with custom handler", () => {
+        v = new DeepValidator({
+            'a': [
+                'isObject', ['filterKeys', (v) => /x|b/.test(v)]
+            ],
+            'a.b': [
+                'isObject', ['filterKeys', (v) => /y/.test(v)]
+            ]
+        }, [['filterKeys', (v) => /a/.test(v)]]);
+
+        expect(v.validate(t = {a: {b: {$x: 1, y: 2}, $x: 1, $y: 2, z: 3}, g: 'aqa', ha: 123, i: 'a'})).toBe(true);
+
+        expect(t).toEqual({a: {b: {y: 2}, $x: 1}, ha: 123});
     });
 
     it("filterMongoDocKeys", () => {
-        let v = new DeepValidator({
+        v = new DeepValidator({
             'a': [
                 'isObject', 'filterMongoDocKeys'
             ],
@@ -245,8 +301,6 @@ describe("Custom filters", () => {
                 'isObject', 'filterMongoDocKeys'
             ]
         });
-
-        let t;
 
         expect(v.validate(t = {a: {b: {$x: 1, y: 2}, $x: 1, $y: 2, z: 3}})).toBe(true);
 

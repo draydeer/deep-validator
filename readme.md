@@ -1,6 +1,6 @@
 # DeepValidator
 
-A library for validation of complex structures. Uses [LoDash](https://lodash.com) and [validator.js](https://github.com/chriso/validator.js) libraries.
+A library for validation of complex data structures. Uses [LoDash](https://lodash.com) and [validator.js](https://github.com/chriso/validator.js) libraries.
 
 ### Server-side
 
@@ -77,6 +77,21 @@ The validation flow list can also be built with the flow builder which provides 
 var validator = new DeepValidator({
     "a": Flow.isExists("not exists").isNumber("not number").isInRange("invalid", 1, 2)
 });
+```
+
+#### Root data validation
+
+The validation flow can be applied to a root data in same way as to all nested values. This flow is provided as a second argument of constructor.
+
+```javascript```
+var validator = new DeepValidator({
+    "a": "isString", "b": "isString"
+}, [["filterKeys", /^(a|b)$/]]);
+
+var data = {a: "abc", b: "cba", c: "cccc"};
+
+validator.validate(data); // true, data = {a: "abc", b: "cba"}
+
 ```
 
 #### Special flow operations

@@ -3,5 +3,6 @@
 *.map
 !deep-validator.min.js
 coverage
+ignore*
 node_modules
 typings
