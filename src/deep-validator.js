@@ -742,6 +742,12 @@ var __extends = (this && this.__extends) || function (d, b) {
         /**
          * Sanitizer.
          */
+        DeepValidator.toNullIfInsignificant = function (value) {
+            return _.isObject(value) ? (this.isLength(value, 1) ? value : null) : (!!value ? value : null);
+        };
+        /**
+         * Sanitizer.
+         */
         DeepValidator.toString = function (value) {
             return value === void 0 || value === null ? "" : String(value);
         };

@@ -1048,6 +1048,13 @@ export class DeepValidator {
     /**
      * Sanitizer.
      */
+    public static toNullIfInsignificant(value: any) {
+        return _.isObject(value) ? (this.isLength(value, 1) ? value : null) : (!! value ? value : null);
+    }
+
+    /**
+     * Sanitizer.
+     */
     public static toString(value: any) {
         return value === void 0 || value === null ? "" : String(value);
     }

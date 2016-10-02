@@ -346,6 +346,7 @@ validator.getErrors(); // {"b": "not number"}
 - **toInt(value)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - convert the input string to a date, or null if the input is not a date.
 - **toNumber(value)** - converts string representation of a number or takes the number as-is.
 - **toNullIfEmpty(value)** - converts the value to *null* value if the value **isEmpty**.
+- **toNullIfInsignificant(value)** - converts the value to *null* value if the value **isEmpty** or equals to *false*, *0*, *""*, *null* or *undefined*.
 - **toString(value)** - converts the value to a string taking *null* and *undefined* values as an empty string - "".
 - **rtrim(input [, chars])** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - trim characters from the right-side of the input.
 - **stripLow(input [, keep_new_lines])** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - remove characters with a numerical value < 32 and 127, mostly control characters.

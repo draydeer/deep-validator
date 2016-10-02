@@ -1,6 +1,7 @@
 
 import * as _ from "lodash";
 import {DeepValidator} from "../src/deep-validator";
+import isUndefined = require("lodash/isUndefined");
 
 let k, v, t;
 
@@ -181,6 +182,10 @@ describe("Custom filters", () => {
 
     it("toNullIfEmpty", () => {
         runValidator(DeepValidator.toNullIfEmpty, ["", [[]], {}], [{a: 1}, ["a"], "a"], null, true);
+    });
+
+    it("toNullIfInsignificant", () => {
+        runValidator(DeepValidator.toNullIfInsignificant, ["", [[]], {}, 0, false, null, void 0], [{a: 1}, ["a"], "a", 1, true], null, true);
     });
 
     it("toString", () => {

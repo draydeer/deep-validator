@@ -145,6 +145,9 @@
         it("toNullIfEmpty", function () {
             runValidator(deep_validator_1.DeepValidator.toNullIfEmpty, ["", [[]], {}], [{ a: 1 }, ["a"], "a"], null, true);
         });
+        it("toNullIfInsignificant", function () {
+            runValidator(deep_validator_1.DeepValidator.toNullIfInsignificant, ["", [[]], {}, 0, false, null, void 0], [{ a: 1 }, ["a"], "a", 1, true], null, true);
+        });
         it("toString", function () {
             expect(deep_validator_1.DeepValidator.toString(null)).toBe('');
             expect(deep_validator_1.DeepValidator.toString(void 0)).toBe('');
