@@ -131,6 +131,12 @@
         it("isInRange", function () {
             runValidator(deep_validator_1.DeepValidator.isInRange, [[1, 0, 2]], [null, 0, true, false, "a", [[]], {}, [0, 1, 2], [3, 0, 2]]);
         });
+        it("isInsignificant", function () {
+            runValidator(deep_validator_1.DeepValidator.isInsignificant, ["", [[]], {}, 0, false, null, void 0], [{ a: 1 }, ["a"], "a", 1, true]);
+        });
+        it("isSignificant", function () {
+            runValidator(deep_validator_1.DeepValidator.isSignificant, [{ a: 1 }, ["a"], "a", 1, true], ["", [[]], {}, 0, false, null, void 0]);
+        });
         it("isVoid", function () {
             runValidator(deep_validator_1.DeepValidator.isVoid, [void 0], [null, 0, true, false, "a", [[]], {}]);
         });

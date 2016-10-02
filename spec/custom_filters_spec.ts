@@ -164,6 +164,14 @@ describe("Custom filters", () => {
         runValidator(DeepValidator.isInRange, [[1, 0, 2]], [null, 0, true, false, "a", [[]], {}, [0, 1, 2], [3, 0, 2]]);
     });
 
+    it("isInsignificant", () => {
+        runValidator(DeepValidator.isInsignificant, ["", [[]], {}, 0, false, null, void 0], [{a: 1}, ["a"], "a", 1, true]);
+    });
+
+    it("isSignificant", () => {
+        runValidator(DeepValidator.isSignificant, [{a: 1}, ["a"], "a", 1, true], ["", [[]], {}, 0, false, null, void 0]);
+    });
+
     it("isVoid", () => {
         runValidator(DeepValidator.isVoid, [void 0], [null, 0, true, false, "a", [[]], {}]);
     });

@@ -572,6 +572,12 @@ var __extends = (this && this.__extends) || function (d, b) {
         /**
          * Filter.
          */
+        DeepValidator.isInsignificant = function (value) {
+            return _.isObject(value) ? this.isLength(value, 1) === false : !!value === false;
+        };
+        /**
+         * Filter.
+         */
         DeepValidator.isLength = function (value, min, max) {
             var length;
             if (_.isArray(value) || _.isString(value)) {
@@ -672,6 +678,12 @@ var __extends = (this && this.__extends) || function (d, b) {
         /**
          * Filter.
          */
+        DeepValidator.isSignificant = function (value) {
+            return this.isInsignificant(value) === false;
+        };
+        /**
+         * Filter.
+         */
         DeepValidator.isVoid = function (value) {
             return value === void 0;
         };
@@ -743,7 +755,7 @@ var __extends = (this && this.__extends) || function (d, b) {
          * Sanitizer.
          */
         DeepValidator.toNullIfInsignificant = function (value) {
-            return _.isObject(value) ? (this.isLength(value, 1) ? value : null) : (!!value ? value : null);
+            return this.isInsignificant(value) ? null : value;
         };
         /**
          * Sanitizer.

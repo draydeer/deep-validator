@@ -844,6 +844,13 @@ export class DeepValidator {
     /**
      * Filter.
      */
+    public static isInsignificant(value: any) {
+        return _.isObject(value) ? this.isLength(value, 1) === false : !! value === false;
+    }
+
+    /**
+     * Filter.
+     */
     public static isLength(value: any, min?: number, max?: number): boolean {
         let length: number;
 
@@ -960,6 +967,13 @@ export class DeepValidator {
     /**
      * Filter.
      */
+    public static isSignificant(value: any) {
+        return this.isInsignificant(value) === false;
+    }
+
+    /**
+     * Filter.
+     */
     public static isVoid(value: any): boolean {
         return value === void 0;
     }
@@ -1049,7 +1063,7 @@ export class DeepValidator {
      * Sanitizer.
      */
     public static toNullIfInsignificant(value: any) {
-        return _.isObject(value) ? (this.isLength(value, 1) ? value : null) : (!! value ? value : null);
+        return this.isInsignificant(value) ? null : value;
     }
 
     /**
