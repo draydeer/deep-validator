@@ -333,9 +333,12 @@ validator.getErrors(); // {"b": "not number"}
 
 ### Available sanitizers
 
-- **filter(value, filter, [objectAllow])** - picks values (by RegExp checks strings only) by matching to a given pattern.
-- **filterKeys(value, filter)** - picks keys by matching to a given pattern.
-- **filterMongoDocKeys(value)** - removes all keys of MongoDb document like object starting from [$].
+- **escape(input)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - replace *<*, *>*, *&*, *'*, *"* and */* with HTML entities.
+- **filter(value, filter, [objectAllow])** - picks values (by RegExp checks strings only) by matching to a filter.
+- **filterKeys(value, filter)** - picks keys by matching to a filter.
+- **filterMongoDocKeys(value)** - removes all keys of MongoDb document like object starting from *$*.
+- **ltrim(input [, chars])** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - trim characters from the left-side of the input.
+- **normalizeEmail(email [, options])** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - canonicalizes an email address.
 - **toArray(value)** - [LoDash](https://lodash.com/docs/#toArray) - converts value to an array.
 - **toBoolean(value)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - convert the input string to a boolean.
 - **toDate(value)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - convert the input string to a date, or null if the input is not a date.
@@ -344,6 +347,11 @@ validator.getErrors(); // {"b": "not number"}
 - **toNumber(value)** - converts string representation of a number or takes the number as-is.
 - **toNullIfEmpty(value)** - converts the value to *null* value if the value **isEmpty**.
 - **toString(value)** - converts the value to a string taking *null* and *undefined* values as an empty string - "".
+- **rtrim(input [, chars])** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - trim characters from the right-side of the input.
+- **stripLow(input [, keep_new_lines])** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - remove characters with a numerical value < 32 and 127, mostly control characters.
+- **trim(input [, chars])** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - trim characters (whitespace by default) from both sides of the input.
+- **unescape(input)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - replaces HTML encoded entities with *<*, *>*, *&*, *'*, *"* and */*.
+- **whitelist(input, chars)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - remove characters that do not appear in the whitelist.
 
 ### Examples
 
