@@ -129,6 +129,9 @@
         it("isObject", function () {
             runValidator(deep_validator_1.DeepValidator.isObject, [{}], [null, 0, true, false, "a", [[]], void 0]);
         });
+        it("isInt", function () {
+            runValidator(deep_validator_1.DeepValidator.isInt, [1, '1'], [null, true, false, NaN, Infinity, "a", [[]], {}, 0.1, '0.1']);
+        });
         it("isInRange", function () {
             runValidator(deep_validator_1.DeepValidator.isInRange, [[1, 0, 2]], [null, 0, true, false, "a", [[]], {}, [0, 1, 2], [3, 0, 2]]);
         });

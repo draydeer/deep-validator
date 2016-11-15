@@ -567,6 +567,12 @@ var __extends = (this && this.__extends) || function (d, b) {
         /**
          * Filter.
          */
+        DeepValidator.isInt = function (value) {
+            return _.isInteger(_.isString(value) ? Number(value) : value);
+        };
+        /**
+         * Filter.
+         */
         DeepValidator.isInRange = function (value, min, max) {
             return _.isNumber(value) && value >= min && value <= max;
         };
@@ -1024,8 +1030,6 @@ var __extends = (this && this.__extends) || function (d, b) {
         DeepValidator.isISO8601 = validator.isISO8601;
         // from validator
         DeepValidator.isIn = validator.isIn;
-        // from validator
-        DeepValidator.isInt = validator.isInt;
         // from validator
         DeepValidator.isLowercase = validator.isLowercase;
         // from validator
