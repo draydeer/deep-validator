@@ -624,12 +624,6 @@ export class DeepValidator {
     public static toFinite = _.toFinite;
 
     // from validator
-    public static toFloat = validator.toFloat;
-
-    // from validator
-    public static toInt = validator.toInt;
-
-    // from validator
     public static trim = validator.trim;
 
     // from validator
@@ -947,7 +941,7 @@ export class DeepValidator {
      * Filter.
      */
     public static isNumberOrNumeric(value: any): boolean {
-        return _.isNumber(value) || (_.isString(value) && validator.isNumeric(value));
+        return _.isNumber(value) || (_.isString(value) && validator.isFloat(value));
     }
 
     /**
@@ -1043,6 +1037,20 @@ export class DeepValidator {
      */
     public static filterMongoDocKeys(value: any): any {
         return this.filterKeys(value, /^([^\$].*){1,}$/);
+    }
+
+    /**
+     * Sanitizer.
+     */
+    public static toInt(value: any): number|void {
+        return this.isNumberOrNumeric(value) ? _.toInteger(value) : NaN;
+    }
+
+    /**
+     * Sanitizer.
+     */
+    public static toFloat(value: any): number|void {
+        return this.toNumber(value);
     }
 
     /**

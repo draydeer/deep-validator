@@ -3,7 +3,7 @@
   "description": "Deep validator.",
   "version": "1.0.1",
   "filename": "deep-validator.ts",
-  "main": "./src/deep-validator.min.js",
+  "main": "./src/deep-validator.js",
   "homepage": "https://github.com/draydeer/deep-validator",
   "repository": {
     "type": "git",

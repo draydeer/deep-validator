@@ -6,6 +6,7 @@
         define(["require", "exports", "lodash", "../src/deep-validator"], factory);
     }
 })(function (require, exports) {
+    "use strict";
     var _ = require("lodash");
     var deep_validator_1 = require("../src/deep-validator");
     var k, v, t;
@@ -123,7 +124,7 @@
             runValidator(deep_validator_1.DeepValidator.isPositive, [1, 2, 3, Infinity], [null, 0, true, false, "a", [[]], {}, void 0, -Infinity, NaN]);
         });
         it("isNumberOrNumeric", function () {
-            runValidator(deep_validator_1.DeepValidator.isNumberOrNumeric, [0, 1, "1", NaN, Infinity], [null, true, false, "a", [[]], {}, void 0]);
+            runValidator(deep_validator_1.DeepValidator.isNumberOrNumeric, [0, 1, "1", 1.5, "1.5", NaN, Infinity], [null, true, false, "a", [[]], {}, void 0]);
         });
         it("isObject", function () {
             runValidator(deep_validator_1.DeepValidator.isObject, [{}], [null, 0, true, false, "a", [[]], void 0]);
@@ -143,10 +144,15 @@
         it("isNotVoid", function () {
             runValidator(deep_validator_1.DeepValidator.isNotVoid, [null, 0, true, false, "a", [[]], {}], [void 0]);
         });
-        it("toNumber", function () {
-            runValidator(deep_validator_1.DeepValidator.toNumber, [], [null, true, false, "a", [[]], {}, void 0], null, function (v) { return isNaN(v); });
-            expect(deep_validator_1.DeepValidator.toNumber(123)).toBe(123);
-            expect(deep_validator_1.DeepValidator.toNumber('123')).toBe(123);
+        it("toInt", function () {
+            runValidator(deep_validator_1.DeepValidator.toInt, [1, "1", 123.5, "123.5"], [null, true, false, "", [[]], {}, { a: 1 }, ["a"], "a"], function (v) { return _.isNumber(v); }, function (v) { return isNaN(v); });
+            expect(deep_validator_1.DeepValidator.toInt(123)).toBe(123);
+            expect(deep_validator_1.DeepValidator.toInt("123.5")).toBe(123);
+        });
+        it("toFloat", function () {
+            runValidator(deep_validator_1.DeepValidator.toFloat, [1, "1", 123.5, "123.5"], [null, true, false, "", [[]], {}, { a: 1 }, ["a"], "a"], function (v) { return _.isNumber(v); }, function (v) { return isNaN(v); });
+            expect(deep_validator_1.DeepValidator.toFloat(123)).toBe(123);
+            expect(deep_validator_1.DeepValidator.toFloat("123.5")).toBe(123.5);
         });
         it("toNullIfEmpty", function () {
             runValidator(deep_validator_1.DeepValidator.toNullIfEmpty, ["", [[]], {}], [{ a: 1 }, ["a"], "a"], null, true);

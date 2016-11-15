@@ -11,13 +11,14 @@ var __extends = (this && this.__extends) || function (d, b) {
         define(["require", "exports", "lodash", "validator"], factory);
     }
 })(function (require, exports) {
+    "use strict";
     var _ = require("lodash");
     var validator = require("validator");
     var ValidatorEntry = (function () {
         function ValidatorEntry() {
         }
         return ValidatorEntry;
-    })();
+    }());
     var ValidatorEntrySet = (function () {
         function ValidatorEntrySet() {
             // current key validation flow
@@ -26,14 +27,14 @@ var __extends = (this && this.__extends) || function (d, b) {
             this.properties = {};
         }
         return ValidatorEntrySet;
-    })();
+    }());
     var ValidatorEntrySetCurrent = (function () {
         function ValidatorEntrySetCurrent() {
             // validation flow descriptors list
             this.v = [];
         }
         return ValidatorEntrySetCurrent;
-    })();
+    }());
     var FlowBuilder = (function () {
         function FlowBuilder() {
             this.flow = [];
@@ -79,7 +80,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             return this;
         };
         return FlowBuilder;
-    })();
+    }());
     exports.FlowBuilder = FlowBuilder;
     var Flow = (function () {
         function Flow() {
@@ -115,7 +116,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             return new FlowBuilder().showAs(name);
         };
         return Flow;
-    })();
+    }());
     exports.Flow = Flow;
     var validatorIfInvalidConditionCheckerError = new Error("Validator of [if] must define a valid condition checker.");
     var validatorIfInvalidError = new Error("Validator of [if] must contain a condition checker and sub-flows.");
@@ -661,7 +662,7 @@ var __extends = (this && this.__extends) || function (d, b) {
          * Filter.
          */
         DeepValidator.isNumberOrNumeric = function (value) {
-            return _.isNumber(value) || (_.isString(value) && validator.isNumeric(value));
+            return _.isNumber(value) || (_.isString(value) && validator.isFloat(value));
         };
         /**
          * Filter.
@@ -742,6 +743,18 @@ var __extends = (this && this.__extends) || function (d, b) {
         /**
          * Sanitizer.
          */
+        DeepValidator.toInt = function (value) {
+            return this.isNumberOrNumeric(value) ? _.toInteger(value) : NaN;
+        };
+        /**
+         * Sanitizer.
+         */
+        DeepValidator.toFloat = function (value) {
+            return this.toNumber(value);
+        };
+        /**
+         * Sanitizer.
+         */
         DeepValidator.toNumber = function (value) {
             return this.isNumberOrNumeric(value) ? Number(value) : NaN;
         };
@@ -788,12 +801,12 @@ var __extends = (this && this.__extends) || function (d, b) {
         DeepValidator.prototype.getNextError = function () {
             var _this = this;
             if (this._nextError === null) {
-                var k = Object.keys(this.errors), i = 0;
+                var k_1 = Object.keys(this.errors), i_1 = 0;
                 this._nextError = function () {
-                    if (i++ < k.length) {
+                    if (i_1++ < k_1.length) {
                         return {
-                            field: k[i - 1],
-                            message: _this.errors[k[i - 1]]
+                            field: k_1[i_1 - 1],
+                            message: _this.errors[k_1[i_1 - 1]]
                         };
                     }
                     return void 0;
@@ -1072,17 +1085,13 @@ var __extends = (this && this.__extends) || function (d, b) {
         // from lodash [toFinite]
         DeepValidator.toFinite = _.toFinite;
         // from validator
-        DeepValidator.toFloat = validator.toFloat;
-        // from validator
-        DeepValidator.toInt = validator.toInt;
-        // from validator
         DeepValidator.trim = validator.trim;
         // from validator
         DeepValidator.unescape = validator.unescape;
         // from validator
         DeepValidator.whitelist = validator.whitelist;
         return DeepValidator;
-    })();
+    }());
     exports.DeepValidator = DeepValidator;
     // [OrNull] patch
     _.each(DeepValidator, function (v, k) {
@@ -1098,7 +1107,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             _super.apply(this, arguments);
         }
         return DeepValidatorMerged;
-    })(DeepValidator);
+    }(DeepValidator));
     exports.DeepValidatorMerged = DeepValidatorMerged;
     var Validator = (function (_super) {
         __extends(Validator, _super);
@@ -1106,7 +1115,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             _super.apply(this, arguments);
         }
         return Validator;
-    })(DeepValidator);
+    }(DeepValidator));
     exports.Validator = Validator;
     var ValidatorMerged = (function (_super) {
         __extends(ValidatorMerged, _super);
@@ -1114,7 +1123,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             _super.apply(this, arguments);
         }
         return ValidatorMerged;
-    })(DeepValidatorMerged);
+    }(DeepValidatorMerged));
     exports.ValidatorMerged = ValidatorMerged;
     exports.deepValidator = function (schema) { return new DeepValidator(schema); };
     exports.deepValidatorMerged = function (schema) { return new DeepValidatorMerged(schema); };
