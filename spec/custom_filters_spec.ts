@@ -159,8 +159,8 @@ describe("Custom filters", () => {
         runValidator(DeepValidator.isObject, [{}], [null, 0, true, false, "a", [[]], void 0]);
     });
 
-    it("isInt", () => {
-        runValidator(DeepValidator.isInt, [1, '1'], [null, true, false, NaN, Infinity, "a", [[]], {}, 0.1, '0.1']);
+    it("isIntOrNumeric", () => {
+        runValidator(DeepValidator.isIntOrNumeric, [1, '1'], [null, true, false, NaN, Infinity, "a", [[]], {}, 0.1, '0.1']);
     });
 
     it("isInRange", () => {

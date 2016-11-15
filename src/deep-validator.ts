@@ -534,6 +534,9 @@ export class DeepValidator {
     public static isIn = validator.isIn;
 
     // from validator
+    public static isInt = validator.isInt;
+
+    // from validator
     public static isLowercase = validator.isLowercase;
 
     // from validator
@@ -828,8 +831,8 @@ export class DeepValidator {
     /**
      * Filter.
      */
-    public static isInt(value: any): boolean {
-        return _.isInteger(_.isString(value) ? Number(value) : value);
+    public static isIntOrNumeric(value: any): boolean {
+        return _.isInteger(value) || (_.isString(value) && validator.isInt(value));
     }
 
     /**
