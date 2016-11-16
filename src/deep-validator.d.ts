@@ -236,7 +236,7 @@ export declare class DeepValidator {
      *
      * @param schema Data validation schema.
      */
-    constructor(schema: Dictionary<any>);
+    constructor(schema: Dictionary<any>, rootFlow?: any[]);
     /**
      * Get all errors of last validation.
      *
