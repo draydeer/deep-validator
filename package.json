@@ -3,7 +3,7 @@
   "description": "Deep validator.",
   "version": "1.0.1",
   "filename": "deep-validator.ts",
-  "main": "./src/deep-validator.min.js",
+  "main": "./dist/src/deep-validator.min.js",
   "homepage": "https://github.com/draydeer/deep-validator",
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
     "validator": "^5.5.0"
   },
   "scripts": {
-    "coveralls": "istanbul cover --root src jasmine-node spec",
-    "test": "jasmine-node spec"
+    "coveralls": "istanbul cover --root src jasmine-node dist/specs",
+    "test": "jasmine-node dist/specs"
   }
 }

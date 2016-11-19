@@ -1,0 +1,7 @@
+{
+  "name": "deep-validator",
+  "dependencies": {
+    "lodash": "registry:npm/lodash#4.0.0+20161015015725",
+    "validator": "registry:npm/validator#5.7.0+20160912014851"
+  }
+}

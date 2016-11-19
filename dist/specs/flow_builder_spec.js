@@ -6,33 +6,35 @@
         define(["require", "exports", "lodash", "../src/deep-validator"], factory);
     }
 })(function (require, exports) {
+    "use strict";
     var _ = require("lodash");
     var deep_validator_1 = require("../src/deep-validator");
     var fixtures = {
         default: [1],
-        showAs: ["b"],
         isExists: ["not exists"],
         isInRange: [0, 1, "not in range"],
         isNegative: ["not number negative"],
         isNumber: ["not number"],
         isNumberOrNumeric: ["not number nor numeric"],
         isPositive: ["not number positive"],
-        isString: ["not string"]
+        isString: ["not string"],
+        required: ["required"],
+        showAs: ["b"],
     };
     describe("Flow builder", function () {
-        it("Common", function () {
+        it("should construct flow", function () {
             var list = [];
             var elem;
             _.each(fixtures, function (v, k) {
                 var flow = deep_validator_1.Flow[k].apply(deep_validator_1.Flow, v);
-                if (k.substr(0, 2) === 'is') {
-                    expect(flow.flow).toEqual([elem = [k + ':' + v[v.length - 1]].concat(v.slice(0, v.length - 1))]);
+                if (k.substr(0, 2) === "is" || k === "required") {
+                    expect(flow.flow).toEqual([elem = [k + ":" + v[v.length - 1]].concat(v.slice(0, v.length - 1))]);
                 }
                 else {
                     expect(flow.flow).toEqual([elem = [k].concat(v)]);
                 }
                 list.push(elem);
-                if (k.substr(0, 2) === 'is') {
+                if (k.substr(0, 2) === "is") {
                     var flow_1 = deep_validator_1.Flow[k].apply(deep_validator_1.Flow, v.slice(0, v.length - 1));
                     expect(flow_1.flow).toEqual([[k].concat(v.slice(0, v.length - 1))]);
                 }

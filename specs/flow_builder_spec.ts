@@ -4,19 +4,19 @@ import {DeepValidator, Flow} from "../src/deep-validator";
 
 let fixtures = {
     default: [1],
-    showAs: ["b"],
     isExists: ["not exists"],
     isInRange: [0, 1, "not in range"],
     isNegative: ["not number negative"],
     isNumber: ["not number"],
     isNumberOrNumeric: ["not number nor numeric"],
     isPositive: ["not number positive"],
-    isString: ["not string"]
+    isString: ["not string"],
+    required: ["required"],
+    showAs: ["b"],
 };
 
-
 describe("Flow builder", () => {
-    it("Common", () => {
+    it("should construct flow", () => {
         let list = [];
 
         let elem;
@@ -24,15 +24,15 @@ describe("Flow builder", () => {
         _.each(fixtures, (v, k) => {
             let flow = Flow[k].apply(Flow, v);
 
-            if (k.substr(0, 2) === 'is') {
-                expect(flow.flow).toEqual([elem = [k + ':' + v[v.length - 1]].concat(v.slice(0, v.length - 1))]);
+            if (k.substr(0, 2) === "is" || k === "required") {
+                expect(flow.flow).toEqual([elem = [k + ":" + v[v.length - 1]].concat(v.slice(0, v.length - 1))]);
             } else {
                 expect(flow.flow).toEqual([elem = [k].concat(v)]);
             }
 
             list.push(elem);
 
-            if (k.substr(0, 2) === 'is') {
+            if (k.substr(0, 2) === "is") {
                 let flow = Flow[k].apply(Flow, v.slice(0, v.length - 1));
 
                 expect(flow.flow).toEqual([[k].concat(v.slice(0, v.length - 1))]);

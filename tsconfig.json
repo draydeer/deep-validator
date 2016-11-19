@@ -2,11 +2,13 @@
     "compilerOptions": {
         "emitDecoratorMetadata": true,
         "module": "umd",
-        "outDir": ".",
+        "outDir": "dist",
         "target": "ES5",
         "rootDir": "."
     },
     "exclude": [
-        "node_modules"
+        "coverage",
+        "node_modules",
+        "typings"
     ]
 }

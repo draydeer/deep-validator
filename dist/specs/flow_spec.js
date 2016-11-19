@@ -6,36 +6,68 @@
         define(["require", "exports", "lodash", "../src/deep-validator"], factory);
     }
 })(function (require, exports) {
+    "use strict";
     var _ = require("lodash");
     var deep_validator_1 = require("../src/deep-validator");
     var v, t, f;
     describe("Flow", function () {
+        describe("include", function () {
+            it("should initiate self reference", function () {
+                v = new deep_validator_1.DeepValidator({
+                    a: [
+                        ["include", "self"]
+                    ]
+                });
+                expect(v._includedPending.length).toBe(0);
+                expect(v._schema.properties.a.current.v[0].validator).toBe(v);
+            });
+            it("should pend for external", function () {
+                v = new deep_validator_1.DeepValidator({
+                    a: [
+                        ["include", "test"]
+                    ]
+                });
+                expect(v._includedPending.length).toBe(1);
+                expect(v._includedPending[0]).toBe("test");
+            });
+            it("should link external on definition", function () {
+                v = new deep_validator_1.DeepValidator({
+                    a: [
+                        ["include", "test"]
+                    ]
+                });
+                t = new deep_validator_1.DeepValidator({}).setName("test");
+                v.include(t);
+                expect(v._includedPending.length).toBe(0);
+                expect(v._schema.properties.a.current.v[0].validator).toBe(t);
+            });
+        });
         it("isExists, default, showAs, custom", function () {
             v = new deep_validator_1.DeepValidator({
                 a: [
-                    "isExists:not exists", "showAs:aaa"
-                ]
+                    "isExists:not exists", "showAs:aaa",
+                ],
             });
             expect(v.validate({})).toBe(false);
             expect(v.getErrors()).toEqual({ "aaa": "not exists" });
             v = new deep_validator_1.DeepValidator({
                 a: [
-                    "required:not exists", "showAs:aaa"
-                ]
+                    "required:not exists", "showAs:aaa",
+                ],
             });
             expect(v.validate({})).toBe(false);
             expect(v.getErrors()).toEqual({ "aaa": "not exists" });
             v = new deep_validator_1.DeepValidator({
                 a: [
-                    ["default", 1]
-                ]
+                    ["default", 1],
+                ],
             });
             expect(v.validate(t = {})).toBe(true);
             expect(t).toEqual({ a: 1 });
             v = new deep_validator_1.DeepValidator({
                 a: [
-                    "isNumber", ["default", 1]
-                ]
+                    "isNumber", ["default", 1],
+                ],
             });
             expect(v.validate(t = { a: 5 })).toBe(true);
             expect(t).toEqual({ a: 5 });

@@ -1,7 +1,6 @@
 
 import * as _ from "lodash";
 import {DeepValidator} from "../src/deep-validator";
-import isUndefined = require("lodash/isUndefined");
 
 let k, v, t;
 
@@ -178,6 +177,12 @@ describe("Custom filters", () => {
 
     it("isNotVoid", () => {
         runValidator(DeepValidator.isNotVoid, [null, 0, true, false, "a", [[]], {}], [void 0]);
+    });
+
+    it("toMongoId", () => {
+        let ObjectID = require("mongodb").ObjectID;
+
+        expect(DeepValidator.toMongoId("123456654321") instanceof ObjectID).toBe(true);
     });
 
     it("toNumber", () => {

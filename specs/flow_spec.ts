@@ -1,16 +1,57 @@
 
 import * as _ from "lodash";
 import {DeepValidator} from "../src/deep-validator";
-import extend = require("lodash/extend");
 
 let v, t, f;
 
 describe("Flow", () => {
+    describe("include", () => {
+        it("should initiate self reference", () => {
+            v = new DeepValidator({
+                a: [
+                    ["include", "self"]
+                ]
+            });
+
+            expect(v._includedPending.length).toBe(0);
+
+            expect(v._schema.properties.a.current.v[0].validator).toBe(v);
+        });
+
+        it("should pend for external", () => {
+            v = new DeepValidator({
+                a: [
+                    ["include", "test"]
+                ]
+            });
+
+            expect(v._includedPending.length).toBe(1);
+
+            expect(v._includedPending[0]).toBe("test");
+        });
+
+        it("should link external on definition", () => {
+            v = new DeepValidator({
+                a: [
+                    ["include", "test"]
+                ]
+            });
+
+            t = new DeepValidator({}).setName("test");
+
+            v.include(t);
+
+            expect(v._includedPending.length).toBe(0);
+
+            expect(v._schema.properties.a.current.v[0].validator).toBe(t);
+        });
+    });
+
     it("isExists, default, showAs, custom", () => {
         v = new DeepValidator({
             a: [
-                "isExists:not exists", "showAs:aaa"
-            ]
+                "isExists:not exists", "showAs:aaa",
+            ],
         });
 
         expect(v.validate({})).toBe(false);
@@ -19,8 +60,8 @@ describe("Flow", () => {
 
         v = new DeepValidator({
             a: [
-                "required:not exists", "showAs:aaa"
-            ]
+                "required:not exists", "showAs:aaa",
+            ],
         });
 
         expect(v.validate({})).toBe(false);
@@ -29,8 +70,8 @@ describe("Flow", () => {
 
         v = new DeepValidator({
             a: [
-                ["default", 1]
-            ]
+                ["default", 1],
+            ],
         });
 
         expect(v.validate(t = {})).toBe(true);
@@ -39,8 +80,8 @@ describe("Flow", () => {
 
         v = new DeepValidator({
             a: [
-                "isNumber", ["default", 1]
-            ]
+                "isNumber", ["default", 1],
+            ],
         });
 
         expect(v.validate(t = {a: 5})).toBe(true);

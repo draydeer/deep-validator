@@ -6,6 +6,7 @@
         define(["require", "exports", "lodash", "../src/deep-validator"], factory);
     }
 })(function (require, exports) {
+    "use strict";
     var _ = require("lodash");
     var deep_validator_1 = require("../src/deep-validator");
     var k, v, t;
@@ -142,6 +143,10 @@
         });
         it("isNotVoid", function () {
             runValidator(deep_validator_1.DeepValidator.isNotVoid, [null, 0, true, false, "a", [[]], {}], [void 0]);
+        });
+        it("toMongoId", function () {
+            var ObjectID = require("mongodb").ObjectID;
+            expect(deep_validator_1.DeepValidator.toMongoId("123456654321") instanceof ObjectID).toBe(true);
         });
         it("toNumber", function () {
             runValidator(deep_validator_1.DeepValidator.toNumber, [], [null, true, false, "a", [[]], {}, void 0], null, function (v) { return isNaN(v); });

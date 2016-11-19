@@ -1,10 +1,8 @@
 .idea
 *.js
 *.map
-!deep-validator.js
-!deep-validator.min.js
-!spec/*.js
 coverage
-ignore*
+!dist/*/*.js
+*ignore*
 node_modules
 typings
