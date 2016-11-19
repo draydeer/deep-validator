@@ -6,7 +6,6 @@
         define(["require", "exports", "lodash", "../src/deep-validator"], factory);
     }
 })(function (require, exports) {
-    "use strict";
     var _ = require("lodash");
     var deep_validator_1 = require("../src/deep-validator");
     var v, t, f;
@@ -224,8 +223,8 @@
                     [
                         'if',
                         'isString',
-                        new deep_validator_1.DeepValidator({ b: ['isNumber:not number'] }),
-                        new deep_validator_1.DeepValidator({ b: ['isString:not string'] })
+                        { b: ['isNumber:not number'] },
+                        { b: ['isString:not string'] }
                     ]
                 ],
             });
@@ -243,6 +242,18 @@
             });
             expect(v.validate({ a: { b: 1 } })).toBe(true);
             expect(v.getErrors()).toEqual({});
+            v = new deep_validator_1.DeepValidator({
+                "a.b": [
+                    [
+                        'if',
+                        function (val) { return _.isString(val); },
+                        { b: ['isNumber:not number'] },
+                        { b: ['isString:not string'] }
+                    ]
+                ],
+            });
+            expect(v.validate({ a: { b: 1 } })).toBe(false);
+            expect(v.getErrors()).toEqual({ "a.b": "not string" });
             v = new deep_validator_1.DeepValidator({
                 "a.b": [
                     [

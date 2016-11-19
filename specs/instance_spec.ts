@@ -21,7 +21,7 @@ describe("Instance", () => {
         it("should fail with max depth of 3 on self referenced include", () => {
             v = new DeepValidator({
                 a: [
-                    ["include", "self"],
+                    ["self"],
                 ],
                 b: [
                     "required:required", "isNumber:not number",

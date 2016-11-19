@@ -4,7 +4,7 @@ import * as validator from "validator";
 
 export type Dictionary<T> = _.Dictionary<T>;
 
-class ValidatorEntry {
+export class ValidatorEntry {
 
     // custom arguments
     public args: any[];
@@ -44,7 +44,7 @@ class ValidatorEntry {
 
 }
 
-class ValidatorEntrySet {
+export class ValidatorEntrySet {
 
     // current key validation flow
     public current: ValidatorEntrySetCurrent = new ValidatorEntrySetCurrent();
@@ -54,7 +54,7 @@ class ValidatorEntrySet {
 
 }
 
-class ValidatorEntrySetCurrent {
+export class ValidatorEntrySetCurrent {
 
     // custom check
     public custom: any;
@@ -73,7 +73,7 @@ class ValidatorEntrySetCurrent {
 
 }
 
-type ValidatorSubFlow = Dictionary<any>|DeepValidator;
+export type ValidatorSubFlow = Dictionary<any>|DeepValidator;
 
 export class FlowBuilder {
 
@@ -322,7 +322,11 @@ export class DeepValidator {
                                 }
                             } else if (pair[0] === "default") {
                                 es.current.def = v[1];
-                            } else if (pair[0] === "include") {
+                            } else if (pair[0] === "include" || pair[0] === "self") {
+                                if (pair[0] === "self") {
+                                    v[1] = pair[0];
+                                }
+
                                 if (false === (v[1] in this._included) && v[1] !== "self") {
                                     this._includedPending.push(v[1]);
                                 } else {
@@ -374,7 +378,7 @@ export class DeepValidator {
                                             throw new Error("Condition checker is not defined or invalid: " + cond);
                                         }
                                     } else {
-                                        es.current.v.push(new ValidatorEntry("ifCustom", null, v.slice(1)));
+                                        es.current.v.push(new ValidatorEntry("ifCustom", null, v.slice(1), true));
 
                                         return;
                                     }
@@ -805,12 +809,6 @@ export class DeepValidator {
     public static toFinite = _.toFinite;
 
     // from validator
-    public static toFloat = validator.toFloat;
-
-    // from validator
-    public static toInt = validator.toInt;
-
-    // from validator
     public static trim = validator.trim;
 
     // from validator
@@ -1025,6 +1023,13 @@ export class DeepValidator {
     /**
      * Filter.
      */
+    public static isIntOrNumeric(value: any): boolean {
+        return _.isInteger(value) || (_.isString(value) && validator.isInt(value));
+    }
+
+    /**
+     * Filter.
+     */
     public static isInRange(value: number, min: number, max: number): boolean {
         return _.isNumber(value) && value >= min && value <= max;
     }
@@ -1135,7 +1140,7 @@ export class DeepValidator {
      * Filter.
      */
     public static isNumberOrNumeric(value: any): boolean {
-        return _.isNumber(value) || (_.isString(value) && validator.isNumeric(value));
+        return _.isNumber(value) || (_.isString(value) && validator.isFloat(value));
     }
 
     /**
@@ -1254,6 +1259,20 @@ export class DeepValidator {
     /**
      * Sanitizer.
      */
+    public static toInt(value: any): number|void {
+        return this.isNumberOrNumeric(value) ? _.toInteger(value) : NaN;
+    }
+
+    /**
+     * Sanitizer.
+     */
+    public static toFloat(value: any): number|void {
+        return this.toNumber(value);
+    }
+
+    /**
+     * Sanitizer.
+     */
     public static toNumber(value: any): number|void {
         return this.isNumberOrNumeric(value) ? Number(value) : NaN;
     }
@@ -1289,7 +1308,7 @@ export class DeepValidator {
         if (rootFlow) {
             this._schemaCoverAll = true;
 
-            schema = _.fromPairs(_.map(schema, (v, k) => ["$." + k, v]));
+            schema = _.fromPairs<any>(_.map<any, [string, any]>(schema, (v, k) => ["$." + k, v]));
 
             schema["$"] = rootFlow;
         }
@@ -1584,6 +1603,10 @@ export class Validator extends DeepValidator {}
 
 export class ValidatorMerged extends DeepValidatorMerged {}
 
-export let deepValidator = (schema: Dictionary<any>): DeepValidator => new DeepValidator(schema);
+export let deepValidator = (schema: Dictionary<any>, rootFlow?: any[]): DeepValidator => {
+    return new DeepValidator(schema, rootFlow);
+}
 
-export let deepValidatorMerged = (schema: Dictionary<any>): DeepValidatorMerged => new DeepValidatorMerged(schema);
+export let deepValidatorMerged = (schema: Dictionary<any>, rootFlow?: any[]): DeepValidatorMerged => {
+    return new DeepValidatorMerged(schema, rootFlow);
+}

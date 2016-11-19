@@ -23,6 +23,7 @@ var ValidatorEntry = (function () {
     }
     return ValidatorEntry;
 }());
+exports.ValidatorEntry = ValidatorEntry;
 var ValidatorEntrySet = (function () {
     function ValidatorEntrySet() {
         // current key validation flow
@@ -32,6 +33,7 @@ var ValidatorEntrySet = (function () {
     }
     return ValidatorEntrySet;
 }());
+exports.ValidatorEntrySet = ValidatorEntrySet;
 var ValidatorEntrySetCurrent = (function () {
     function ValidatorEntrySetCurrent() {
         // validation flow descriptors list
@@ -39,6 +41,7 @@ var ValidatorEntrySetCurrent = (function () {
     }
     return ValidatorEntrySetCurrent;
 }());
+exports.ValidatorEntrySetCurrent = ValidatorEntrySetCurrent;
 var FlowBuilder = (function () {
     function FlowBuilder() {
         this.flow = [];
@@ -219,7 +222,10 @@ var DeepValidator = (function () {
                     else if (pair[0] === "default") {
                         es.current.def = v[1];
                     }
-                    else if (pair[0] === "include") {
+                    else if (pair[0] === "include" || pair[0] === "self") {
+                        if (pair[0] === "self") {
+                            v[1] = pair[0];
+                        }
                         if (false === (v[1] in _this._included) && v[1] !== "self") {
                             _this._includedPending.push(v[1]);
                         }
@@ -268,7 +274,7 @@ var DeepValidator = (function () {
                                 }
                             }
                             else {
-                                es.current.v.push(new ValidatorEntry("ifCustom", null, v.slice(1)));
+                                es.current.v.push(new ValidatorEntry("ifCustom", null, v.slice(1), true));
                                 return;
                             }
                             notExtendErrors = true;
@@ -307,8 +313,8 @@ var DeepValidator = (function () {
         if (path === void 0) { path = ""; }
         if (root === void 0) { root = ""; }
         if (depth === void 0) { depth = 0; }
-        if (this._maxDepth <= depth) {
-            this._addError(errors, "*", this._messageMaxDepth, path);
+        if (this._maxDepth < depth) {
+            this._addError(errors, "*", this._messageMaxDepth, root);
             return false;
         }
         var isObject = _.isObject(data);
@@ -325,12 +331,13 @@ var DeepValidator = (function () {
                 if (this._maxDepthPassToNested) {
                     validator_1.maxDepth(this._maxDepth);
                 }
-                result = validator_1.validate(data, true, void 0, void 0, this._maxDepthPassToNested ? depth : 0);
+                var nestedErrors = {};
+                result = validator_1.validate(data, true, nestedErrors, void 0, this._maxDepthPassToNested ? depth : 0);
                 if (this._maxDepthPassToNested) {
                     validator_1.maxDepth(oldMaxDepth);
                 }
                 if (result !== true) {
-                    result = entry.validator.getErrors();
+                    result = nestedErrors;
                 }
             }
             else {
@@ -576,6 +583,12 @@ var DeepValidator = (function () {
     /**
      * Filter.
      */
+    DeepValidator.isIntOrNumeric = function (value) {
+        return _.isInteger(value) || (_.isString(value) && validator.isInt(value));
+    };
+    /**
+     * Filter.
+     */
     DeepValidator.isInRange = function (value, min, max) {
         return _.isNumber(value) && value >= min && value <= max;
     };
@@ -671,7 +684,7 @@ var DeepValidator = (function () {
      * Filter.
      */
     DeepValidator.isNumberOrNumeric = function (value) {
-        return _.isNumber(value) || (_.isString(value) && validator.isNumeric(value));
+        return _.isNumber(value) || (_.isString(value) && validator.isFloat(value));
     };
     /**
      * Filter.
@@ -762,6 +775,18 @@ var DeepValidator = (function () {
         var ObjectID = require("mongodb").ObjectID;
         var method = this.toMongoId = function (value) { return ObjectID(value); };
         return method(value);
+    };
+    /**
+     * Sanitizer.
+     */
+    DeepValidator.toInt = function (value) {
+        return this.isNumberOrNumeric(value) ? _.toInteger(value) : NaN;
+    };
+    /**
+     * Sanitizer.
+     */
+    DeepValidator.toFloat = function (value) {
+        return this.toNumber(value);
     };
     /**
      * Sanitizer.
@@ -985,23 +1010,25 @@ var DeepValidator = (function () {
         if (this._includedPending.length) {
             throw new Error("Included validator is still pending for definition: " + this._includedPending[0]);
         }
-        this._nextError = null;
-        this.errors = {};
+        if (!errors) {
+            this._nextError = null;
+            this.errors = {};
+        }
         if (_.isArray(data)) {
             if (this._arrayAllow === false && arrayAllow === false) {
-                this._addError(this.errors, "??", this._messageInvalid);
+                this._addError(errors || this.errors, "??", this._messageInvalid);
                 return this.passed = false;
             }
             this._validate(this._schemaCoverAll ? { $: data } : data, this._schemaAsArray, this._tryAll, errors || this.errors, this._strict, prefix || "", prefix || "", depth);
         }
         else {
             if (_.isObject(data) === false) {
-                this._addError(this.errors, "??", this._messageInvalid);
+                this._addError(errors || this.errors, "??", this._messageInvalid);
                 return this.passed = false;
             }
             this._validate(this._schemaCoverAll ? { $: data } : data, this._schema, this._tryAll, errors || this.errors, this._strict, prefix || "", prefix || "", depth);
         }
-        return this.passed = _.isEmpty(this.errors);
+        return this.passed = _.isEmpty(errors || this.errors);
     };
     DeepValidator._ = _;
     DeepValidator.isValidators = {
@@ -1141,10 +1168,6 @@ var DeepValidator = (function () {
     // from lodash [toFinite]
     DeepValidator.toFinite = _.toFinite;
     // from validator
-    DeepValidator.toFloat = validator.toFloat;
-    // from validator
-    DeepValidator.toInt = validator.toInt;
-    // from validator
     DeepValidator.trim = validator.trim;
     // from validator
     DeepValidator.unescape = validator.unescape;
@@ -1185,5 +1208,9 @@ var ValidatorMerged = (function (_super) {
     return ValidatorMerged;
 }(DeepValidatorMerged));
 exports.ValidatorMerged = ValidatorMerged;
-exports.deepValidator = function (schema) { return new DeepValidator(schema); };
-exports.deepValidatorMerged = function (schema) { return new DeepValidatorMerged(schema); };
+exports.deepValidator = function (schema, rootFlow) {
+    return new DeepValidator(schema, rootFlow);
+};
+exports.deepValidatorMerged = function (schema, rootFlow) {
+    return new DeepValidatorMerged(schema, rootFlow);
+};

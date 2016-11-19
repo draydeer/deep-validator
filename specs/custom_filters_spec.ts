@@ -152,11 +152,15 @@ describe("Custom filters", () => {
     });
 
     it("isNumberOrNumeric", () => {
-        runValidator(DeepValidator.isNumberOrNumeric, [0, 1, "1", NaN, Infinity], [null, true, false, "a", [[]], {}, void 0]);
+        runValidator(DeepValidator.isNumberOrNumeric, [0, 1, "1", 1.5, "1.5", NaN, Infinity], [null, true, false, "a", [[]], {}, void 0]);
     });
 
     it("isObject", () => {
         runValidator(DeepValidator.isObject, [{}], [null, 0, true, false, "a", [[]], void 0]);
+    });
+
+    it("isIntOrNumeric", () => {
+        runValidator(DeepValidator.isIntOrNumeric, [1, '1'], [null, true, false, NaN, Infinity, "a", [[]], {}, 0.1, '0.1']);
     });
 
     it("isInRange", () => {
@@ -185,12 +189,20 @@ describe("Custom filters", () => {
         expect(DeepValidator.toMongoId("123456654321") instanceof ObjectID).toBe(true);
     });
 
-    it("toNumber", () => {
-        runValidator(DeepValidator.toNumber, [], [null, true, false, "a", [[]], {}, void 0], null, (v) => isNaN(v));
+    it("toInt", () => {
+        runValidator(DeepValidator.toInt, [1, "1", 123.5, "123.5"], [null, true, false, "", [[]], {}, {a: 1}, ["a"], "a"], (v) => _.isNumber(v), (v) => isNaN(v));
 
-        expect(DeepValidator.toNumber(123)).toBe(123);
+        expect(DeepValidator.toInt(123)).toBe(123);
 
-        expect(DeepValidator.toNumber('123')).toBe(123);
+        expect(DeepValidator.toInt("123.5")).toBe(123);
+    });
+
+    it("toFloat", () => {
+        runValidator(DeepValidator.toFloat, [1, "1", 123.5, "123.5"], [null, true, false, "", [[]], {}, {a: 1}, ["a"], "a"], (v) => _.isNumber(v), (v) => isNaN(v));
+
+        expect(DeepValidator.toFloat(123)).toBe(123);
+
+        expect(DeepValidator.toFloat("123.5")).toBe(123.5);
     });
 
     it("toNullIfEmpty", () => {

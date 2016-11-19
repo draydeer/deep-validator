@@ -22,7 +22,7 @@
             it("should fail with max depth of 3 on self referenced include", function () {
                 v = new deep_validator_1.DeepValidator({
                     a: [
-                        ["include", "self"],
+                        ["self"],
                     ],
                     b: [
                         "required:required", "isNumber:not number",

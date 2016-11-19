@@ -254,6 +254,27 @@ validator.validate({a: "1", b: "1"}); // false
 validator.getErrors(); // {"b": "not number"}
 ```
 
+#### Self reuse
+
+The validator can be reused internally by special flow operation *self*. This is can be useful for a validation of repeating structures.
+
+```javascript```
+var validator = new DeepValidator({
+    "a": [
+        "isString:not string",
+    ],
+    "b": [
+        "self",
+    ],
+});
+
+validator.validate({a: "1", b: {a: "2"}}); // true
+
+validator.validate({a: "1", b: {a: 2}}); // false
+
+validator.getErrors(); // {"b.a": "not string"}
+```
+
 ### Available validators
 
 - **contains(str, seed)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string contains the seed.
@@ -298,7 +319,8 @@ validator.getErrors(); // {"b": "not number"}
 - **isIn(str, values)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is in a array of allowed values.
 - **isInRange(value[, min[, max]])** - checks if the number is between min and max values.
 - **isInsignificant(value)** - checks if the value **isEmpty** or equals to *false*, *0*, *""*, *null* or *undefined*.
-- **isInt(str [, options])** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is an integer.
+- **isInt(value)** - checks if the value is an integer.
+- **isIntOrNumeric(value)** - checks if the value if a valid string representation of integer or integer primitive.
 - **isJSON(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is valid JSON (note: uses JSON.parse).
 - **isLength(value)** - checks if the value's length falls in a range (takes property of array/string length as number or number of properties in case of object).
 - **isLowercase(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is lowercase.
@@ -318,7 +340,7 @@ validator.getErrors(); // {"b": "not number"}
 - **isNumber(value)** - [LoDash](https://lodash.com/docs/#isNumber) - checks if value is classified as a Number primitive or object.
 - **isNumberNegative(value)** - checks if the value is a negative number (less than 0).
 - **isNumberPositive(value)** - checks if the value is a positive number (greater than 0).
-- **isNumberOrNumeric(value)** - checks if the value if a valid string representation of number, number object or primitive.
+- **isNumberOrNumeric(value)** - checks if the value if a valid string representation of number, number object or number primitive.
 - **isNumeric(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string contains only numbers.
 - **isObject(value)** - checks if the value is a object like value and is not defined as an array.
 - **isPositive(value)** - alias of **isNumberPositive** - checks if value is a positive number (greater than 0).
