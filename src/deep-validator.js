@@ -771,10 +771,14 @@ var DeepValidator = (function () {
     /**
      *
      */
-    DeepValidator.toMongoId = function (value) {
-        var ObjectID = require("mongodb").ObjectID;
-        var method = this.toMongoId = function (value) { return ObjectID(value); };
-        return method(value);
+    DeepValidator.toDate = function (value) {
+        return _.isBoolean(value) ? value : validator.toBoolean(value, true);
+    };
+    /**
+     *
+     */
+    DeepValidator.toDate = function (value) {
+        return value instanceof Date ? value : validator.toDate(value);
     };
     /**
      * Sanitizer.
@@ -787,6 +791,14 @@ var DeepValidator = (function () {
      */
     DeepValidator.toFloat = function (value) {
         return this.toNumber(value);
+    };
+    /**
+     * Sanitizer.
+     */
+    DeepValidator.toMongoId = function (value) {
+        var ObjectID = require("mongodb").ObjectID;
+        var method = this.toMongoId = function (value) { return value instanceof ObjectID ? value : ObjectID(value); };
+        return method(value);
     };
     /**
      * Sanitizer.
@@ -1163,8 +1175,6 @@ var DeepValidator = (function () {
     DeepValidator.toArray = _.toArray;
     // from validator
     DeepValidator.toBoolean = validator.toBoolean;
-    // from validator
-    DeepValidator.toDate = validator.toDate;
     // from lodash [toFinite]
     DeepValidator.toFinite = _.toFinite;
     // from validator

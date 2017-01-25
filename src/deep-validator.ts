@@ -220,50 +220,39 @@ export class DeepValidator {
     };
 
     public errors: Dictionary<any> = {};
-
     public passed = false;
-
     public schema = null;
 
     protected _arrayAllow: boolean = false;
-
     protected _included: _.Dictionary<DeepValidator> = {};
-
     protected _includedPending: string[] = [];
-
     protected _maxDepth: number = 99999999;
-
     protected _maxDepthPassToNested: boolean = true;
-
     protected _messageMaxDepth: any = false;
-
     protected _messageInvalid: any = false;
-
     protected _messageMissingKey: any = false;
-
     protected _messageNotObject: any = false;
-
     protected _name: string = "included";
-
     protected _nextError = null;
-
     protected _schema: ValidatorEntrySet = new ValidatorEntrySet();
-
     protected _schemaAsArray: ValidatorEntrySet = new ValidatorEntrySet();
-
     protected _schemaCoverAll: boolean = false;
-
     protected _strict: boolean = false;
-
     protected _translator: (message: string) => any = null;
-
     protected _tryAll: boolean = false;
 
     /**
      *
      */
     protected _addError(errors: _.Dictionary<any>, key: string, value: any, path?: string) {
-        errors[path ? path + "." + key : key] = this._translator(value);
+        path = path ? path + "." + key : key;
+
+        // root flow extension
+        if (path.substr(0, 2) === "$.") {
+            path = path.substr(2);
+        }
+
+        errors[path] = this._translator(value);
 
         return this;
     }
@@ -278,7 +267,7 @@ export class DeepValidator {
 
         _.each(
             schema,
-            (v, k: string) => {
+            (op, k: string) => {
                 let elem: ValidatorEntrySet = this._schema;
 
                 let last: ValidatorEntrySet = this._schema;
@@ -299,17 +288,19 @@ export class DeepValidator {
                     }
                 );
 
-                if (v instanceof FlowBuilder) {
-                    v = v.flow;
+                if (op instanceof FlowBuilder) {
+                    op = op.flow;
                 }
 
                 let es: ValidatorEntrySet = last.properties[k];
 
-                (_.isArray(v) ? v : [v]).forEach(
+                (_.isArray(op) ? op : [op]).forEach(
                     (v) => {
                         _.isArray(v) || (v = [v]);
 
-                        if (v[0] instanceof DeepValidator || _.isFunction(v[0])) {
+                        if (v[0] instanceof DeepValidator) {
+                            es.current.v.push(new ValidatorEntry(new Validator(v[0].schema)));
+                        } else if (_.isFunction(v[0])) {
                             es.current.v.push(new ValidatorEntry(v[0]));
                         } else if (_.isString(v[0])) {
                             let pair = v[0].split(":");
@@ -475,7 +466,6 @@ export class DeepValidator {
             } else {
 
                 // custom validator/sanitizer
-                //
                 // sanitizer can modify data by reference (v, k <= key, d <= reference) and then must return [true]
                 if (entry.isHandler) {
                     let validator = <(...a: any[]) => any> entry.validator;
@@ -626,9 +616,6 @@ export class DeepValidator {
     public static escape = validator.escape;
 
     // from validator
-    public static isAfter = validator.isAfter;
-
-    // from validator
     public static isAlpha = validator.isAlpha;
 
     // from validator
@@ -638,13 +625,10 @@ export class DeepValidator {
     public static isArray = _.isArray;
 
     // from validator
+    public static isAscii = validator.isAscii;
+
+    // from validator
     public static isBase64 = validator.isBase64;
-
-    // from validator
-    public static isBefore = validator.isBefore;
-
-    // from validator
-    public static isBoolean = validator.isBoolean;
 
     // from validator
     public static isByteLength = validator.isByteLength;
@@ -657,21 +641,6 @@ export class DeepValidator {
 
     // from validator
     public static isDataURI = validator.isDataURI;
-
-    // from validator
-    public static isDate = validator.isDate;
-
-    // from validator
-    public static isDateAfter = validator.isAfter;
-
-    // from validator
-    public static isDateBefore = validator.isBefore;
-
-    // from validator
-    public static isDecimal = validator.isDecimal;
-
-    // from validator
-    public static isDivisibleBy = validator.isDivisibleBy;
 
     // from validator
     public static isEmail = validator.isEmail;
@@ -687,9 +656,6 @@ export class DeepValidator {
 
     // from lodash [isFinite]
     public static isFinite = _.isFinite;
-
-    // from validator
-    public static isFloat = validator.isFloat;
 
     // from validator
     public static isFullWidth = validator.isFullWidth;
@@ -717,9 +683,6 @@ export class DeepValidator {
 
     // from validator
     public static isIn = validator.isIn;
-
-    // from validator
-    public static isInt = validator.isInt;
 
     // from validator
     public static isLowercase = validator.isLowercase;
@@ -799,12 +762,6 @@ export class DeepValidator {
     // from lodash [toArray]
     public static toArray = _.toArray;
 
-    // from validator
-    public static toBoolean = validator.toBoolean;
-
-    // from validator
-    public static toDate = validator.toDate;
-
     // from lodash [toFinite]
     public static toFinite = _.toFinite;
 
@@ -821,14 +778,11 @@ export class DeepValidator {
      * Clean value. Similar to [filter] but filters a given value using an active (internal) schema.
      */
     public static clean(value: any, a, b, c, d, key: string, ref: any, schema: any): any {
-        _.each(
-            value,
-            (v: any, k: string) => {
-                if (! (k in schema.properties)) {
-                    delete value[k];
-                }
+        _.each(value, (v: any, k: string) => {
+            if (! (k in schema.properties)) {
+                delete value[k];
             }
-        );
+        });
 
         return value;
     }
@@ -997,6 +951,20 @@ export class DeepValidator {
         }
 
         return false;
+    }
+
+    /**
+     * Filter.
+     */
+    public static isBoolean(value: any): boolean {
+        return _.isBoolean(value) || (_.isString(value) && validator.isBoolean(value));
+    }
+
+    /**
+     * Filter.
+     */
+    public static isDate(value: any): boolean {
+        return (value instanceof Date) || (_.isString(value) && validator.isDate(value));
     }
 
     /**
@@ -1189,23 +1157,17 @@ export class DeepValidator {
      */
     public static filter(value: any, filter: RegExp|((v: string) => boolean), objectAllow?: boolean): any {
         if (filter instanceof RegExp) {
-            _.each(
-                value,
-                (v: any, k: string) => {
-                    if (! (_.isString(v) ? validator.matches(v, filter) : objectAllow !== false && _.isObjectLike(v))) {
-                        delete value[k];
-                    }
+            _.each(value, (v: any, k: string) => {
+                if (! (_.isString(v) ? validator.matches(v, filter) : objectAllow !== false && _.isObjectLike(v))) {
+                    delete value[k];
                 }
-            );
+            });
         } else {
-            _.each(
-                value,
-                (v: any, k: string) => {
-                    if (! (<((v: string) => boolean)>filter)(v)) {
-                        delete value[k];
-                    }
+            _.each(value, (v: any, k: string) => {
+                if (! (<((v: string) => boolean)>filter)(v)) {
+                    delete value[k];
                 }
-            );
+            });
         }
 
         return value;
@@ -1216,23 +1178,17 @@ export class DeepValidator {
      */
     public static filterKeys(value: any, filter: string[]|RegExp|((v: string) => boolean)): any {
         if (filter instanceof RegExp) {
-            _.each(
-                value,
-                (v: any, k: string) => {
-                    if (! validator.matches(k, filter)) {
-                        delete value[k];
-                    }
+            _.each(value, (v: any, k: string) => {
+                if (! validator.matches(k, filter)) {
+                    delete value[k];
                 }
-            );
+            });
         } else {
-            _.each(
-                value,
-                (v: any, k: string) => {
-                    if (! (<((v: string) => boolean)>filter)(k)) {
-                        delete value[k];
-                    }
+            _.each(value, (v: any, k: string) => {
+                if (! (<((v: string) => boolean)>filter)(k)) {
+                    delete value[k];
                 }
-            );
+            });
         }
 
         return value;
@@ -1246,14 +1202,33 @@ export class DeepValidator {
     }
 
     /**
-     *
+     * Sanitizer.
      */
-    public static toMongoId(value: any): any {
-        let ObjectID = require("mongodb").ObjectID;
+    public static toBoolean(value): Date {
+        if (_.isBoolean(value)) {
+            return value;
+        }
 
-        let method = this.toMongoId = (value: any) => ObjectID(value);
+        if (_.isString(value)) {
+            return value === "true" || value === "1";
+        }
 
-        return method(value);
+        return value === 1;
+    }
+
+    /**
+     * Sanitizer.
+     */
+    public static toDate(value): Date {
+        if (value instanceof Date) {
+            return value;
+        }
+
+        if (_.isString(value)) {
+            return validator.toDate(value);
+        }
+
+        return null;
     }
 
     /**
@@ -1268,6 +1243,17 @@ export class DeepValidator {
      */
     public static toFloat(value: any): number|void {
         return this.toNumber(value);
+    }
+
+    /**
+     * Sanitizer.
+     */
+    public static toMongoId(value: any): any {
+        let ObjectID = require("mongodb").ObjectID;
+
+        let method = this.toMongoId = (value: any) => value instanceof ObjectID ? value : ObjectID(value);
+
+        return method(value);
     }
 
     /**
@@ -1590,7 +1576,7 @@ export class DeepValidator {
 
 // [OrNull] patch
 _.each(DeepValidator, (v: any, k: string) => {
-    if (DeepValidator.hasOwnProperty(k) && _.isFunction(v) && k.substr(0, 2) === "is") {
+    if (DeepValidator.hasOwnProperty(k) && _.isFunction(v) && (k.substr(0, 2) === "is" || k.substr(0, 2) === "to")) {
         DeepValidator[k + "OrNull"] = function (value) {
             return value === null || DeepValidator[k].apply(DeepValidator, arguments);
         };
@@ -1605,8 +1591,8 @@ export class ValidatorMerged extends DeepValidatorMerged {}
 
 export let deepValidator = (schema: Dictionary<any>, rootFlow?: any[]): DeepValidator => {
     return new DeepValidator(schema, rootFlow);
-}
+};
 
 export let deepValidatorMerged = (schema: Dictionary<any>, rootFlow?: any[]): DeepValidatorMerged => {
     return new DeepValidatorMerged(schema, rootFlow);
-}
+};

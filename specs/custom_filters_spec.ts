@@ -86,28 +86,70 @@ describe("Custom filters", () => {
         );
     });
 
+    // [- 1, 0, 1, - 0.5, 0.5, NaN, Infinity, - Infinity, "-1", "0", "1", "-0.5", "0.5", true, false, null, void 0, "true", "false", "null", [[]], {}]
+
+    it("isBoolean", () => {
+        runValidator(
+            DeepValidator.isBoolean,
+            ["0", "1", true, false, "true", "false"],
+            [- 1, 0, 1, - 0.5, 0.5, NaN, Infinity, - Infinity, "-1", "-0.5", "0.5", null, void 0, "null", [[]], {}]
+        );
+    });
+
+    it("isDate", () => {
+        runValidator(
+            DeepValidator.isDate,
+            [new Date(), "2016-01-01"],
+            [- 1, 0, 1, - 0.5, 0.5, NaN, Infinity, - Infinity, true, false, null, void 0, "true", "false", "null", [[]], {}]
+        );
+    });
+
     it("isGreater", () => {
-        runValidator(DeepValidator.isGreater, [[1, 0]], [[0, 0], [0, 1], [false, false]]);
+        runValidator(
+            DeepValidator.isGreater,
+            [[1, 0]],
+            [[0, 0], [0, 1], [false, false]]
+        );
     });
 
     it("isGreaterOrEquals", () => {
-        runValidator(DeepValidator.isGreaterOrEquals, [[0, 0], [1, 0]], [[0, 1], [false, false]]);
+        runValidator(
+            DeepValidator.isGreaterOrEquals,
+            [[0, 0], [1, 0]],
+            [[0, 1], [false, false]]
+        );
     });
 
     it("isGreaterOrEqualsToZero", () => {
-        runValidator(DeepValidator.isGreaterOrEqualsToZero, [1, 0], [null, - 1, true, false, "", [[]], {}, void 0]);
+        runValidator(
+            DeepValidator.isGreaterOrEqualsToZero,
+            [0, 1, 0.5, Infinity],
+            [- 1, - 0.5, NaN, - Infinity, true, false, null, void 0, "true", "false", "null", [[]], {}]
+        );
     });
 
     it("isLess", () => {
-        runValidator(DeepValidator.isLess, [[0, 1]], [[0, 0], [1, 0], [false, false]]);
+        runValidator(
+            DeepValidator.isLess,
+            [[0, 1]],
+            [[0, 0], [1, 0], [false, false]]
+        );
     });
 
     it("isLessOrEquals", () => {
-        runValidator(DeepValidator.isLessOrEquals, [[0, 0], [0, 1]], [[1, 0], [false, false]]);
+        runValidator(
+            DeepValidator.isLessOrEquals,
+            [[0, 0], [0, 1]],
+            [[1, 0], [false, false]]
+        );
     });
 
     it("isLessOrEqualsToZero", () => {
-        runValidator(DeepValidator.isLessOrEqualsToZero, [- 1, 0], [null, 1, true, false, "", [[]], {}, void 0]);
+        runValidator(
+            DeepValidator.isLessOrEqualsToZero,
+            [- 1, 0],
+            [null, 1, true, false, "", [[]], {}, void 0]
+        );
     });
 
     it("isLength", () => {
@@ -183,10 +225,20 @@ describe("Custom filters", () => {
         runValidator(DeepValidator.isNotVoid, [null, 0, true, false, "a", [[]], {}], [void 0]);
     });
 
-    it("toMongoId", () => {
-        let ObjectID = require("mongodb").ObjectID;
+    it("toBoolean", () => {
+        runValidator(DeepValidator.toBoolean, [true, 1, "1", "true"], [null, false, "", [[]], {}, 0, {a: 1}, ["a"], "a", "false"], (v) => v === true, (v) => v === false);
+    });
 
-        expect(DeepValidator.toMongoId("123456654321") instanceof ObjectID).toBe(true);
+    it("toDate", () => {
+        runValidator(DeepValidator.toDate, [new Date(), "2016", "2016/01/01 01:01:01"], [null, true, false, "", [[]], {}, {a: 1}, ["a"], "a"], (v) => v instanceof Date, (v) => v === null);
+    });
+
+    it("toFloat", () => {
+        runValidator(DeepValidator.toFloat, [1, "1", 123.5, "123.5"], [null, true, false, "", [[]], {}, {a: 1}, ["a"], "a"], (v) => _.isNumber(v), (v) => isNaN(v));
+
+        expect(DeepValidator.toFloat(123)).toBe(123);
+
+        expect(DeepValidator.toFloat("123.5")).toBe(123.5);
     });
 
     it("toInt", () => {
@@ -197,12 +249,10 @@ describe("Custom filters", () => {
         expect(DeepValidator.toInt("123.5")).toBe(123);
     });
 
-    it("toFloat", () => {
-        runValidator(DeepValidator.toFloat, [1, "1", 123.5, "123.5"], [null, true, false, "", [[]], {}, {a: 1}, ["a"], "a"], (v) => _.isNumber(v), (v) => isNaN(v));
+    it("toMongoId", () => {
+        let ObjectID = require("mongodb").ObjectID;
 
-        expect(DeepValidator.toFloat(123)).toBe(123);
-
-        expect(DeepValidator.toFloat("123.5")).toBe(123.5);
+        expect(DeepValidator.toMongoId("123456654321") instanceof ObjectID).toBe(true);
     });
 
     it("toNullIfEmpty", () => {

@@ -73,6 +73,13 @@
                 [true, [true]]
             ]);
         });
+        // [- 1, 0, 1, - 0.5, 0.5, NaN, Infinity, - Infinity, "-1", "0", "1", "-0.5", "0.5", true, false, null, void 0, "true", "false", "null", [[]], {}]
+        it("isBoolean", function () {
+            runValidator(deep_validator_1.DeepValidator.isBoolean, ["0", "1", true, false, "true", "false"], [-1, 0, 1, -0.5, 0.5, NaN, Infinity, -Infinity, "-1", "-0.5", "0.5", null, void 0, "null", [[]], {}]);
+        });
+        it("isDate", function () {
+            runValidator(deep_validator_1.DeepValidator.isDate, [new Date(), "2016-01-01"], [-1, 0, 1, -0.5, 0.5, NaN, Infinity, -Infinity, true, false, null, void 0, "true", "false", "null", [[]], {}]);
+        });
         it("isGreater", function () {
             runValidator(deep_validator_1.DeepValidator.isGreater, [[1, 0]], [[0, 0], [0, 1], [false, false]]);
         });
@@ -80,7 +87,7 @@
             runValidator(deep_validator_1.DeepValidator.isGreaterOrEquals, [[0, 0], [1, 0]], [[0, 1], [false, false]]);
         });
         it("isGreaterOrEqualsToZero", function () {
-            runValidator(deep_validator_1.DeepValidator.isGreaterOrEqualsToZero, [1, 0], [null, -1, true, false, "", [[]], {}, void 0]);
+            runValidator(deep_validator_1.DeepValidator.isGreaterOrEqualsToZero, [0, 1, 0.5, Infinity], [-1, -0.5, NaN, -Infinity, true, false, null, void 0, "true", "false", "null", [[]], {}]);
         });
         it("isLess", function () {
             runValidator(deep_validator_1.DeepValidator.isLess, [[0, 1]], [[0, 0], [1, 0], [false, false]]);
@@ -146,19 +153,25 @@
         it("isNotVoid", function () {
             runValidator(deep_validator_1.DeepValidator.isNotVoid, [null, 0, true, false, "a", [[]], {}], [void 0]);
         });
-        it("toMongoId", function () {
-            var ObjectID = require("mongodb").ObjectID;
-            expect(deep_validator_1.DeepValidator.toMongoId("123456654321") instanceof ObjectID).toBe(true);
+        it("toBoolean", function () {
+            runValidator(deep_validator_1.DeepValidator.toBoolean, [true, 1, "1", "true"], [null, false, "", [[]], {}, 0, { a: 1 }, ["a"], "a", "false"], function (v) { return v === true; }, function (v) { return v === false; });
+        });
+        it("toDate", function () {
+            runValidator(deep_validator_1.DeepValidator.toDate, [new Date(), "2016", "2016/01/01 01:01:01"], [null, true, false, "", [[]], {}, { a: 1 }, ["a"], "a"], function (v) { return v instanceof Date; }, function (v) { return v === null; });
+        });
+        it("toFloat", function () {
+            runValidator(deep_validator_1.DeepValidator.toFloat, [1, "1", 123.5, "123.5"], [null, true, false, "", [[]], {}, { a: 1 }, ["a"], "a"], function (v) { return _.isNumber(v); }, function (v) { return isNaN(v); });
+            expect(deep_validator_1.DeepValidator.toFloat(123)).toBe(123);
+            expect(deep_validator_1.DeepValidator.toFloat("123.5")).toBe(123.5);
         });
         it("toInt", function () {
             runValidator(deep_validator_1.DeepValidator.toInt, [1, "1", 123.5, "123.5"], [null, true, false, "", [[]], {}, { a: 1 }, ["a"], "a"], function (v) { return _.isNumber(v); }, function (v) { return isNaN(v); });
             expect(deep_validator_1.DeepValidator.toInt(123)).toBe(123);
             expect(deep_validator_1.DeepValidator.toInt("123.5")).toBe(123);
         });
-        it("toFloat", function () {
-            runValidator(deep_validator_1.DeepValidator.toFloat, [1, "1", 123.5, "123.5"], [null, true, false, "", [[]], {}, { a: 1 }, ["a"], "a"], function (v) { return _.isNumber(v); }, function (v) { return isNaN(v); });
-            expect(deep_validator_1.DeepValidator.toFloat(123)).toBe(123);
-            expect(deep_validator_1.DeepValidator.toFloat("123.5")).toBe(123.5);
+        it("toMongoId", function () {
+            var ObjectID = require("mongodb").ObjectID;
+            expect(deep_validator_1.DeepValidator.toMongoId("123456654321") instanceof ObjectID).toBe(true);
         });
         it("toNullIfEmpty", function () {
             runValidator(deep_validator_1.DeepValidator.toNullIfEmpty, ["", [[]], {}], [{ a: 1 }, ["a"], "a"], null, true);

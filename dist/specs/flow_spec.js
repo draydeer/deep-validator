@@ -41,6 +41,24 @@
                 expect(v._schema.properties.a.current.v[0].validator).toBe(t);
             });
         });
+        describe("root", function () {
+            it("should be applied", function () {
+                v = new deep_validator_1.DeepValidator({
+                    b: "isString",
+                }, [["filterKeys", /^(a)$/]]);
+                t = { b: "1" };
+                expect(v.validate(t)).toBeTruthy();
+                expect(t).toEqual({});
+            });
+            it("should return error message without internal root prefix", function () {
+                v = new deep_validator_1.DeepValidator({
+                    b: "isString:not string",
+                }, [["filterKeys", /^(b)$/]]);
+                t = { b: 1 };
+                expect(v.validate(t)).toBeFalsy();
+                expect(v.getErrors()).toEqual({ "b": "not string" });
+            });
+        });
         it("isExists, default, showAs, custom", function () {
             v = new deep_validator_1.DeepValidator({
                 a: [
@@ -71,6 +89,13 @@
             expect(v.validate(t = { a: 5 })).toBe(true);
             expect(t).toEqual({ a: 5 });
             v = new deep_validator_1.DeepValidator({
+                a: [
+                    "isNumber", ["default", function (key) { return 2; }],
+                ],
+            });
+            expect(v.validate(t = {})).toBe(true);
+            expect(t).toEqual({ a: 2 });
+            v = new deep_validator_1.DeepValidator({
                 b: [
                     [
                         "custom",
@@ -95,6 +120,7 @@
                 ]
             });
             expect(v.tryAll().validate({ b: 1 })).toBe(false);
+            expect(v.getErrors()).toEqual({ "a": "not exists", "b": "not string" });
             expect(v.getNextError()).toEqual({ field: "a", message: "not exists" });
             expect(v.getNextError()).toEqual({ field: "b", message: "not string" });
             expect(v.getNextError()).toBe(void 0);
@@ -104,6 +130,8 @@
             expect(f).toThrow(new Error("Validator is not defined: dummy"));
             f = function () { return new deep_validator_1.DeepValidator({ a: [["if"]] }); };
             expect(f).toThrow(new Error("Validator of [if] must contain a condition checker and sub-flows."));
+            f = function () { return new deep_validator_1.DeepValidator({ a: [["if", true, new deep_validator_1.DeepValidator({}), new deep_validator_1.DeepValidator({})]] }); };
+            expect(f).toThrow(new Error("Validator of [if] must define a valid condition checker."));
             f = function () { return new deep_validator_1.DeepValidator({ a: [["if", "dummy", new deep_validator_1.DeepValidator({}), new deep_validator_1.DeepValidator({})]] }); };
             expect(f).toThrow(new Error("Condition checker is not defined or invalid: dummy"));
             f = function () { return new deep_validator_1.DeepValidator({ a: [["if", "dummy", 1, 2]] }); };

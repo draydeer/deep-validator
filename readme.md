@@ -73,14 +73,6 @@ var validator = new DeepValidator({
 });
 ```
 
-The validation flow list can also be built with the flow builder which provides a classic fluent interface definition syntax.
-
-```javascript```
-var validator = new DeepValidator({
-    "a": Flow.isExists("not exists").isNumber("not number").isInRange("invalid", 1, 2)
-});
-```
-
 #### Root data validation
 
 The validation flow can be applied to a root data in same way as to all nested values. This flow is provided as a second argument of constructor.
@@ -279,23 +271,19 @@ validator.getErrors(); // {"b.a": "not string"}
 
 - **contains(str, seed)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string contains the seed.
 - **equals(str, comparison)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string matches the comparison.
-- **isAfter(str [, date])** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is a date that's after the specified date (defaults to now).
 - **isAlpha(str [, locale])** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string contains only letters (a-zA-Z).
 - **isAlphanumeric(str [, locale])** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string contains only letters and numbers.
 - **isArray(value)** - [LoDash](https://lodash.com/docs/#isArray) - checks if value is classified as an Array object.
 - **isAscii(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string contains ASCII chars only.
 - **isBase64(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if a string is base64 encoded.
-- **isBefore(str [, date])** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is a date that's before the specified date.
-- **isBoolean(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if a string is a boolean.
+- **isBoolean(str)** - checks if the value is a boolean or a valid string representation of boolean ("0", "1", "false" or "true").
 - **isByteLength(str, options)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string's length (in bytes) falls in a range.
 - **isContains(value, compare)** - checks if the complex value contains all of values in a comparison list or set.
 - **isContainsOnly(value, compare)** - checks if the complex value contains only values of a comparison list or set.
 - **isCreditCard(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is a credit card.
 - **isCurrency(str, options)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is a valid currency amount.
 - **isDataURI(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is a [data uri format](https://developer.mozilla.org/en-US/docs/Web/HTTP/data_URIs).
-- **isDate(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is a date.
-- **isDecimal(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string represents a decimal number, such as 0.1, .3, 1.1, 1.00003, 4.0, etc.
-- **isDivisibleBy(str, number)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is a number that's divisible by another.
+- **isDate(str)** - checks if the value is a instance of date or a valid string representation of date.
 - **isEmail(str [, options])** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is an email.
 - **isEmpty(value)** - [LoDash](https://lodash.com/docs/#isEmpty) - checks if value is an empty object, collection, map, or set.
 - **isEquals(value, other)** - [LoDash](https://lodash.com/docs/#isEqual) - performs a deep comparison between two values to determine if they are equivalent.
@@ -319,7 +307,6 @@ validator.getErrors(); // {"b.a": "not string"}
 - **isIn(str, values)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is in a array of allowed values.
 - **isInRange(value[, min[, max]])** - checks if the number is between min and max values.
 - **isInsignificant(value)** - checks if the value **isEmpty** or equals to *false*, *0*, *""*, *null* or *undefined*.
-- **isInt(value)** - checks if the value is an integer.
 - **isIntOrNumeric(value)** - checks if the value if a valid string representation of integer or integer primitive.
 - **isJSON(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is valid JSON (note: uses JSON.parse).
 - **isLength(value)** - checks if the value's length falls in a range (takes property of array/string length as number or number of properties in case of object).
@@ -364,11 +351,12 @@ validator.getErrors(); // {"b.a": "not string"}
 - **ltrim(input [, chars])** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - trim characters from the left-side of the input.
 - **normalizeEmail(email [, options])** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - canonicalizes an email address.
 - **toArray(value)** - [LoDash](https://lodash.com/docs/#toArray) - converts value to an array.
-- **toBoolean(value)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - convert the input string to a boolean.
-- **toDate(value)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - convert the input string to a date, or null if the input is not a date.
+- **toBoolean(value)** - convert the string value to a boolean or takes the boolean value as-is.
+- **toDate(value)** - convert the string value to a date or takes the date value as-is.
 - **toFinite(value)** - [LoDash](https://lodash.com/docs/#toFinite) - converts value to a finite number.
-- **toInt(value)** - [validator.js](https://github.com/chriso/validator.js#sanitizers) - convert the input string to a date, or null if the input is not a date.
-- **toNumber(value)** - converts string representation of a number or takes the number as-is.
+- **toInt(value)** - convert the string value to a integer, takes the integer value as-is or returns NaN.
+- **toMongoId(value)** - converts the string value to mongodb.ObjectID instance (mongodb package required) or takes the mongodb.ObjectID value as-is
+- **toNumber(value)** - converts string value to a number or takes the number value as-is.
 - **toNullIfEmpty(value)** - converts the value to *null* value if the value **isEmpty**.
 - **toNullIfInsignificant(value)** - converts the value to *null* value if the value **isEmpty** or equals to *false*, *0*, *""*, *null* or *undefined*.
 - **toString(value)** - converts the value to a string taking *null* and *undefined* values as an empty string - "".

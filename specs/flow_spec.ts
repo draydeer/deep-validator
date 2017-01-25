@@ -47,6 +47,32 @@ describe("Flow", () => {
         });
     });
 
+    describe("root", () => {
+        it("should be applied", () => {
+            v = new DeepValidator({
+                b: "isString",
+            }, [["filterKeys", /^(a)$/]]);
+
+            t = {b: "1"};
+
+            expect(v.validate(t)).toBeTruthy();
+
+            expect(t).toEqual({});
+        });
+
+        it("should return error message without internal root prefix", () => {
+            v = new DeepValidator({
+                b: "isString:not string",
+            }, [["filterKeys", /^(b)$/]]);
+
+            t = {b: 1};
+
+            expect(v.validate(t)).toBeFalsy();
+
+            expect(v.getErrors()).toEqual({"b": "not string"});
+        });
+    });
+
     it("isExists, default, showAs, custom", () => {
         v = new DeepValidator({
             a: [
@@ -89,6 +115,16 @@ describe("Flow", () => {
         expect(t).toEqual({a: 5});
 
         v = new DeepValidator({
+            a: [
+                "isNumber", ["default", (key: string): any => 2],
+            ],
+        });
+
+        expect(v.validate(t = {})).toBe(true);
+
+        expect(t).toEqual({a: 2});
+
+        v = new DeepValidator({
             b: [
                 [
                     "custom",
@@ -120,6 +156,8 @@ describe("Flow", () => {
 
         expect(v.tryAll().validate({b: 1})).toBe(false);
 
+        expect(v.getErrors()).toEqual({"a": "not exists", "b": "not string"});
+
         expect(v.getNextError()).toEqual({field: "a", message: "not exists"});
 
         expect(v.getNextError()).toEqual({field: "b", message: "not string"});
@@ -135,6 +173,10 @@ describe("Flow", () => {
         f = () => new DeepValidator({a: [["if"]]});
 
         expect(f).toThrow(new Error("Validator of [if] must contain a condition checker and sub-flows."));
+
+        f = () => new DeepValidator({a: [["if", true, new DeepValidator({}), new DeepValidator({})]]});
+
+        expect(f).toThrow(new Error("Validator of [if] must define a valid condition checker."));
 
         f = () => new DeepValidator({a: [["if", "dummy", new DeepValidator({}), new DeepValidator({})]]});
 
