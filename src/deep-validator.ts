@@ -1204,7 +1204,7 @@ export class DeepValidator {
     /**
      * Sanitizer.
      */
-    public static toBoolean(value): Date {
+    public static toBoolean(value): boolean {
         if (_.isBoolean(value)) {
             return value;
         }

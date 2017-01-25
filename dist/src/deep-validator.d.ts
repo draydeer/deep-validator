@@ -99,13 +99,11 @@ export declare class DeepValidator {
     static alpha: any;
     static blacklist: (input: string, chars: string) => string;
     static escape: (input: string) => string;
-    static isAfter: (str: string, date?: string) => boolean;
     static isAlpha: (str: string) => boolean;
     static isAlphanumeric: (str: string) => boolean;
     static isArray: <T>(value?: any) => value is T[];
+    static isAscii: (str: string) => boolean;
     static isBase64: (str: string) => boolean;
-    static isBefore: (str: string, date?: string) => boolean;
-    static isBoolean: (str: string) => boolean;
     static isByteLength: {
         (str: string, options: validator.IsByteLengthOptions): boolean;
         (str: string, min: number, max?: number): boolean;
@@ -113,17 +111,11 @@ export declare class DeepValidator {
     static isCreditCard: (str: string) => boolean;
     static isCurrency: (str: string, options?: validator.IsCurrencyOptions) => boolean;
     static isDataURI: (str: string) => boolean;
-    static isDate: (str: string) => boolean;
-    static isDateAfter: (str: string, date?: string) => boolean;
-    static isDateBefore: (str: string, date?: string) => boolean;
-    static isDecimal: (str: string) => boolean;
-    static isDivisibleBy: (str: string, number: number) => boolean;
     static isEmail: (str: string, options?: validator.IsEmailOptions) => boolean;
     static isEmpty: (value?: any) => boolean;
     static isEquals: (value: any, other: any) => boolean;
     static isFQDN: (str: string, options?: validator.IsFQDNOptions) => boolean;
     static isFinite: (value?: any) => boolean;
-    static isFloat: (str: string, options?: validator.IsFloatOptions) => boolean;
     static isFullWidth: (str: string) => boolean;
     static isHalfWidth: (str: string) => boolean;
     static isHexColor: (str: string) => boolean;
@@ -133,7 +125,6 @@ export declare class DeepValidator {
     static isISIN: (str: string) => boolean;
     static isISO8601: (str: string) => boolean;
     static isIn: (str: string, values: any[]) => boolean;
-    static isInt: (str: string, options?: validator.IsIntOptions) => boolean;
     static isLowercase: (str: string) => boolean;
     static isMACAddress: (str: string) => boolean;
     static isMatches: (str: string, pattern: RegExp | string, modifiers?: string) => boolean;
@@ -164,8 +155,6 @@ export declare class DeepValidator {
         <TValue, TResult>(value: TValue): TResult[];
         <TResult>(value?: any): TResult[];
     };
-    static toBoolean: (input: any, strict?: boolean) => boolean;
-    static toDate: (input: any) => Date;
     static toFinite: any;
     static trim: (input: any, chars?: string) => string;
     static unescape: (input: string) => string;
@@ -198,6 +187,14 @@ export declare class DeepValidator {
      * Filter. Does not consider for duplicates.
      */
     static isContainsOnly(value: any, compare: [string]): boolean;
+    /**
+     * Filter.
+     */
+    static isBoolean(value: any): boolean;
+    /**
+     * Filter.
+     */
+    static isDate(value: any): boolean;
     /**
      * Filter.
      */
@@ -309,9 +306,13 @@ export declare class DeepValidator {
      */
     static filterMongoDocKeys(value: any): any;
     /**
-     *
+     * Sanitizer.
      */
-    static toMongoId(value: any): any;
+    static toBoolean(value: any): boolean;
+    /**
+     * Sanitizer.
+     */
+    static toDate(value: any): Date;
     /**
      * Sanitizer.
      */
@@ -320,6 +321,10 @@ export declare class DeepValidator {
      * Sanitizer.
      */
     static toFloat(value: any): number | void;
+    /**
+     * Sanitizer.
+     */
+    static toMongoId(value: any): any;
     /**
      * Sanitizer.
      */
