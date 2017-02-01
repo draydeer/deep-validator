@@ -6,6 +6,7 @@
         define(["require", "exports", "lodash", "../src/deep-validator"], factory);
     }
 })(function (require, exports) {
+    "use strict";
     var _ = require("lodash");
     var deep_validator_1 = require("../src/deep-validator");
     var k, v, t;

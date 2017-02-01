@@ -6,6 +6,7 @@
         define(["require", "exports", "../src/deep-validator"], factory);
     }
 })(function (require, exports) {
+    "use strict";
     var deep_validator_1 = require("../src/deep-validator");
     var validator = new deep_validator_1.DeepValidator({
         "firstName": [

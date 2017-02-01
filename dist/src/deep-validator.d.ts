@@ -1,4 +1,4 @@
-/// <reference path="../../typings/index.d.ts" />
+
 import * as _ from "lodash";
 import * as validator from "validator";
 export declare type Dictionary<T> = _.Dictionary<T>;
@@ -127,7 +127,7 @@ export declare class DeepValidator {
     static isIn: (str: string, values: any[]) => boolean;
     static isLowercase: (str: string) => boolean;
     static isMACAddress: (str: string) => boolean;
-    static isMatches: (str: string, pattern: RegExp | string, modifiers?: string) => boolean;
+    static isMatches: (str: string, pattern: string | RegExp, modifiers?: string) => boolean;
     static isMD5: (str: string) => boolean;
     static isMobilePhone: (str: string, locale: string) => boolean;
     static isMongoId: (str: string) => boolean;

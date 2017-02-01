@@ -1,6 +1,7 @@
 .idea
 *.js
 *.map
+*npm*
 coverage
 !dist/*/*.js
 *ignore*

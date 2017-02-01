@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         define(["require", "exports", "lodash", "validator"], factory);
     }
 })(function (require, exports) {
-    /// <reference path="./../typings/index.d.ts" />
+    "use strict";
     var _ = require("lodash");
     var validator = require("validator");
     var ValidatorEntry = (function () {
@@ -29,7 +29,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             this.validator = validator;
         }
         return ValidatorEntry;
-    })();
+    }());
     exports.ValidatorEntry = ValidatorEntry;
     var ValidatorEntrySet = (function () {
         function ValidatorEntrySet() {
@@ -39,7 +39,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             this.properties = {};
         }
         return ValidatorEntrySet;
-    })();
+    }());
     exports.ValidatorEntrySet = ValidatorEntrySet;
     var ValidatorEntrySetCurrent = (function () {
         function ValidatorEntrySetCurrent() {
@@ -47,7 +47,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             this.v = [];
         }
         return ValidatorEntrySetCurrent;
-    })();
+    }());
     exports.ValidatorEntrySetCurrent = ValidatorEntrySetCurrent;
     var FlowBuilder = (function () {
         function FlowBuilder() {
@@ -98,7 +98,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             return this;
         };
         return FlowBuilder;
-    })();
+    }());
     exports.FlowBuilder = FlowBuilder;
     var Flow = (function () {
         function Flow() {
@@ -137,7 +137,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             return new FlowBuilder().showAs(name);
         };
         return Flow;
-    })();
+    }());
     exports.Flow = Flow;
     var validatorIfInvalidConditionCheckerError = new Error("Validator of [if] must define a valid condition checker.");
     var validatorIfInvalidError = new Error("Validator of [if] must contain a condition checker and sub-flows.");
@@ -895,12 +895,12 @@ var __extends = (this && this.__extends) || function (d, b) {
         DeepValidator.prototype.getNextError = function () {
             var _this = this;
             if (this._nextError === null) {
-                var k = Object.keys(this.errors), i = 0;
+                var k_1 = Object.keys(this.errors), i_1 = 0;
                 this._nextError = function () {
-                    if (i++ < k.length) {
+                    if (i_1++ < k_1.length) {
                         return {
-                            field: k[i - 1],
-                            message: _this.errors[k[i - 1]]
+                            field: k_1[i_1 - 1],
+                            message: _this.errors[k_1[i_1 - 1]]
                         };
                     }
                     return void 0;
@@ -1202,7 +1202,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         // from validator
         DeepValidator.whitelist = validator.whitelist;
         return DeepValidator;
-    })();
+    }());
     exports.DeepValidator = DeepValidator;
     // [OrNull] patch
     _.each(DeepValidator, function (v, k) {
@@ -1218,7 +1218,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             _super.apply(this, arguments);
         }
         return DeepValidatorMerged;
-    })(DeepValidator);
+    }(DeepValidator));
     exports.DeepValidatorMerged = DeepValidatorMerged;
     var Validator = (function (_super) {
         __extends(Validator, _super);
@@ -1226,7 +1226,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             _super.apply(this, arguments);
         }
         return Validator;
-    })(DeepValidator);
+    }(DeepValidator));
     exports.Validator = Validator;
     var ValidatorMerged = (function (_super) {
         __extends(ValidatorMerged, _super);
@@ -1234,7 +1234,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             _super.apply(this, arguments);
         }
         return ValidatorMerged;
-    })(DeepValidatorMerged);
+    }(DeepValidatorMerged));
     exports.ValidatorMerged = ValidatorMerged;
     exports.deepValidator = function (schema, rootFlow) {
         return new DeepValidator(schema, rootFlow);
