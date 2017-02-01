@@ -26,5 +26,7 @@
     "compile": "tsc -d src/deep-validator.ts --outDir dist/src ; uglifyjs dist/src/deep-validator.js -o dist/src/deep-validator.min.js",
     "coveralls": "istanbul cover --root dist/src jasmine-node dist/specs",
     "test": "jasmine-node dist/specs"
-  }
+  },
+  "types": "./dist/src/deep-validator.d.ts",
+  "typings": "./dist/src/deep-validator.d.ts"
 }

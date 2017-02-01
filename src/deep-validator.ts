@@ -265,131 +265,127 @@ export class DeepValidator {
 
         this.schema = schema;
 
-        _.each(
-            schema,
-            (op, k: string) => {
-                let elem: ValidatorEntrySet = this._schema;
+        _.each(schema, (op, k: string) => {
+            let elem: ValidatorEntrySet = this._schema;
+            let last: ValidatorEntrySet = this._schema;
 
-                let last: ValidatorEntrySet = this._schema;
+            k.split(".").forEach(
+                (v) => {
+                    last = elem;
 
-                k.split(".").forEach(
-                    (v) => {
-                        last = elem;
-
-                        if (elem.properties[k = v] === void 0) {
-                            elem = elem.properties[v] = new ValidatorEntrySet();
-                        } else {
-                            elem = elem.properties[v];
-                        }
-
-                        if (k === "[]") {
-                            last.current.v.push(new ValidatorEntry("isArray"));
-                        }
+                    if (elem.properties[k = v] === void 0) {
+                        elem = elem.properties[v] = new ValidatorEntrySet();
+                    } else {
+                        elem = elem.properties[v];
                     }
-                );
 
-                if (op instanceof FlowBuilder) {
-                    op = op.flow;
+                    if (k === "[]") {
+                        last.current.v.push(new ValidatorEntry("isArray"));
+                    }
                 }
+            );
 
-                let es: ValidatorEntrySet = last.properties[k];
-
-                (_.isArray(op) ? op : [op]).forEach(
-                    (v) => {
-                        _.isArray(v) || (v = [v]);
-
-                        if (v[0] instanceof DeepValidator) {
-                            es.current.v.push(new ValidatorEntry(new Validator(v[0].schema)));
-                        } else if (_.isFunction(v[0])) {
-                            es.current.v.push(new ValidatorEntry(v[0]));
-                        } else if (_.isString(v[0])) {
-                            let pair = v[0].split(":");
-
-                            if (pair[0] === "custom") {
-                                if (_.isFunction(v[1])) {
-                                    es.current.custom = v[1];
-                                } else {
-                                    throw new Error("Validator of [custom] must be a function.");
-                                }
-                            } else if (pair[0] === "default") {
-                                es.current.def = v[1];
-                            } else if (pair[0] === "include" || pair[0] === "self") {
-                                if (pair[0] === "self") {
-                                    v[1] = pair[0];
-                                }
-
-                                if (false === (v[1] in this._included) && v[1] !== "self") {
-                                    this._includedPending.push(v[1]);
-                                } else {
-                                    es.current.v.push(new ValidatorEntry(
-                                        v[1] === "self" ? this : this._included[v[1]],
-                                        null,
-                                        v.slice(2)
-                                    ));
-                                }
-                            } else if (pair[0] === "isExists" || pair[0] === "required") {
-                                es.current.strict = pair[1] || false;
-                            } else if (pair[0] === "showAs") {
-                                es.current.showAs = pair[1] || false;
-                            } else if (DeepValidator[pair[0]]) {
-                                let notExtendErrors: boolean = false;
-
-                                // special for [if]
-                                if (pair[0] === "if") {
-                                    if (v.length !== 4) {
-                                        throw validatorIfInvalidError;
-                                    }
-
-                                    let cond = _.isArray(v[1]) ? v[1][0] : v[1];
-
-                                    if (_.isString(cond) === false && _.isFunction(cond) === false) {
-                                        throw validatorIfInvalidConditionCheckerError;
-                                    }
-
-                                    if (! (v[2] instanceof DeepValidator)) {
-                                        if (DeepValidator.isObject(v[2])) {
-                                            v[2] = new DeepValidator(v[2]);
-                                        } else {
-                                            throw validatorIfInvalidSubFlowError;
-                                        }
-                                    }
-
-                                    if (! (v[3] instanceof DeepValidator)) {
-                                        if (DeepValidator.isObject(v[3])) {
-                                            v[3] = new DeepValidator(v[3]);
-                                        } else {
-                                            throw validatorIfInvalidSubFlowError;
-                                        }
-                                    }
-
-                                    if (_.isFunction(cond) === false) {
-                                        if (cond in DeepValidator && cond.substr(0, 2) === "is") {
-
-                                        } else {
-                                            throw new Error("Condition checker is not defined or invalid: " + cond);
-                                        }
-                                    } else {
-                                        es.current.v.push(new ValidatorEntry("ifCustom", null, v.slice(1), true));
-
-                                        return;
-                                    }
-
-                                    notExtendErrors = true;
-                                }
-
-                                es.current.v.push(new ValidatorEntry(pair[0], pair[1], v.slice(1), notExtendErrors));
-                            } else {
-                                throw new Error("Validator is not defined: " + pair[0]);
-                            }
-                        } else if (DeepValidator.isObject(v[0])) {
-                            es.current.v.push(new ValidatorEntry(new DeepValidator(v[0])));
-                        } else {
-                            throw new Error("Invalid value: " + String(v[0]));
-                        }
-                    }
-                );
+            if (op instanceof FlowBuilder) {
+                op = op.flow;
             }
-        );
+
+            let es: ValidatorEntrySet = last.properties[k];
+
+            (_.isArray(op) ? op : [op]).forEach(
+                (v) => {
+                    _.isArray(v) || (v = [v]);
+
+                    if (v[0] instanceof DeepValidator) {
+                        es.current.v.push(new ValidatorEntry(new Validator(v[0].schema)));
+                    } else if (_.isFunction(v[0])) {
+                        es.current.v.push(new ValidatorEntry(v[0]));
+                    } else if (_.isString(v[0])) {
+                        let pair = v[0].split(":");
+
+                        if (pair[0] === "custom") {
+                            if (_.isFunction(v[1])) {
+                                es.current.custom = v[1];
+                            } else {
+                                throw new Error("Validator of [custom] must be a function.");
+                            }
+                        } else if (pair[0] === "default") {
+                            es.current.def = v[1];
+                        } else if (pair[0] === "include" || pair[0] === "self") {
+                            if (pair[0] === "self") {
+                                v[1] = pair[0];
+                            }
+
+                            if (false === (v[1] in this._included) && v[1] !== "self") {
+                                this._includedPending.push(v[1]);
+                            } else {
+                                es.current.v.push(new ValidatorEntry(
+                                    v[1] === "self" ? this : this._included[v[1]],
+                                    null,
+                                    v.slice(2)
+                                ));
+                            }
+                        } else if (pair[0] === "isExists" || pair[0] === "required") {
+                            es.current.strict = pair[1] || false;
+                        } else if (pair[0] === "showAs") {
+                            es.current.showAs = pair[1] || false;
+                        } else if (DeepValidator[pair[0]]) {
+                            let notExtendErrors: boolean = false;
+
+                            // special for [if]
+                            if (pair[0] === "if") {
+                                if (v.length !== 4) {
+                                    throw validatorIfInvalidError;
+                                }
+
+                                let cond = _.isArray(v[1]) ? v[1][0] : v[1];
+
+                                if (_.isString(cond) === false && _.isFunction(cond) === false) {
+                                    throw validatorIfInvalidConditionCheckerError;
+                                }
+
+                                if (! (v[2] instanceof DeepValidator)) {
+                                    if (DeepValidator.isObject(v[2])) {
+                                        v[2] = new DeepValidator(v[2]);
+                                    } else {
+                                        throw validatorIfInvalidSubFlowError;
+                                    }
+                                }
+
+                                if (! (v[3] instanceof DeepValidator)) {
+                                    if (DeepValidator.isObject(v[3])) {
+                                        v[3] = new DeepValidator(v[3]);
+                                    } else {
+                                        throw validatorIfInvalidSubFlowError;
+                                    }
+                                }
+
+                                if (_.isFunction(cond) === false) {
+                                    if (cond in DeepValidator && cond.substr(0, 2) === "is") {
+
+                                    } else {
+                                        throw new Error("Condition checker is not defined or invalid: " + cond);
+                                    }
+                                } else {
+                                    es.current.v.push(new ValidatorEntry("ifCustom", null, v.slice(1), true));
+
+                                    return;
+                                }
+
+                                notExtendErrors = true;
+                            }
+
+                            es.current.v.push(new ValidatorEntry(pair[0], pair[1], v.slice(1), notExtendErrors));
+                        } else {
+                            throw new Error("Validator is not defined: " + pair[0]);
+                        }
+                    } else if (DeepValidator.isObject(v[0])) {
+                        es.current.v.push(new ValidatorEntry(new DeepValidator(v[0])));
+                    } else {
+                        throw new Error("Invalid value: " + String(v[0]));
+                    }
+                }
+            );
+        });
 
         this._schemaAsArray.properties["[]"] = this._schema;
 
@@ -429,11 +425,8 @@ export class DeepValidator {
         // apply validators/sanitizers
         for (let i = 0, l = schema.current.v.length; i < l; i ++) {
             let entry: ValidatorEntry = schema.current.v[i];
-
             let entryValidator = entry.validator;
-
             let isValidator: boolean = true;
-
             let result: any = true;
 
             // if nested validator
@@ -552,9 +545,7 @@ export class DeepValidator {
             for (let k in schema.properties) {
                 if (k !== "[]") {
                     let entry: ValidatorEntrySetCurrent = schema.properties[k].current;
-
                     let field: string = (entry && entry.showAs) || k;
-
                     let pathField: string = path ? path + "." + field : field;
 
                     if (isObject) {
@@ -1287,9 +1278,7 @@ export class DeepValidator {
     public constructor(schema: Dictionary<any>, rootFlow?: any[]) {
         if (rootFlow) {
             this._schemaCoverAll = true;
-
             schema = _.fromPairs<any>(_.map<any, [string, any]>(schema, (v, k) => ["$." + k, v]));
-
             schema["$"] = rootFlow;
         }
 
