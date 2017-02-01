@@ -12,7 +12,7 @@ var validator = new DeepValidator({
         "isString:invalid", ["isLength:invalid length", 1, 20]
     ],
     "birthday": [
-        "isExists:not provided", "isDate:invalid", "toDate", (val) => {
+        "isExists:not provided", "isDate:invalid", "toDate", (val): any => {
             if (val.getTime() < Date.now()) {
                 return true;
             }

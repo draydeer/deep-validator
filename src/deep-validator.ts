@@ -607,9 +607,6 @@ export class DeepValidator {
     // external filters import
 
     // from validator
-    public static alpha = validator.alpha;
-
-    // from validator
     public static blacklist = validator.blacklist;
 
     // from validator
@@ -654,7 +651,7 @@ export class DeepValidator {
     // from validator
     public static isFQDN = validator.isFQDN;
 
-    // from lodash [isFinite]
+    // ffrom lodash [isFinite]
     public static isFinite = _.isFinite;
 
     // from validator
@@ -761,9 +758,6 @@ export class DeepValidator {
 
     // from lodash [toArray]
     public static toArray = _.toArray;
-
-    // from lodash [toFinite]
-    public static toFinite = _.toFinite;
 
     // from validator
     public static trim = validator.trim;

@@ -4,6 +4,6 @@
 *npm*
 coverage
 !dist/*/*.js
-*ignore*
+!.gitignore
 node_modules
 typings

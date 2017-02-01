@@ -1,6 +1,4 @@
-
 import * as _ from "lodash";
-import * as validator from "validator";
 export declare type Dictionary<T> = _.Dictionary<T>;
 export declare class ValidatorEntry {
     args: any[];
@@ -52,7 +50,7 @@ export declare class Flow {
     static showAs(name: string): FlowBuilder;
 }
 export declare class DeepValidator {
-    static _: _.LoDashStatic;
+    static _: any;
     static isValidators: {
         contains: boolean;
         equals: boolean;
@@ -96,69 +94,60 @@ export declare class DeepValidator {
      *
      */
     protected _validate(data: any, schema: ValidatorEntrySet, tryAll?: boolean, errors?: Dictionary<any>, strict?: boolean, path?: string, root?: string, depth?: number, key?: string, ref?: any): boolean;
-    static alpha: any;
-    static blacklist: (input: string, chars: string) => string;
-    static escape: (input: string) => string;
-    static isAlpha: (str: string) => boolean;
-    static isAlphanumeric: (str: string) => boolean;
-    static isArray: <T>(value?: any) => value is T[];
-    static isAscii: (str: string) => boolean;
-    static isBase64: (str: string) => boolean;
-    static isByteLength: {
-        (str: string, options: validator.IsByteLengthOptions): boolean;
-        (str: string, min: number, max?: number): boolean;
-    };
-    static isCreditCard: (str: string) => boolean;
-    static isCurrency: (str: string, options?: validator.IsCurrencyOptions) => boolean;
-    static isDataURI: (str: string) => boolean;
-    static isEmail: (str: string, options?: validator.IsEmailOptions) => boolean;
-    static isEmpty: (value?: any) => boolean;
-    static isEquals: (value: any, other: any) => boolean;
-    static isFQDN: (str: string, options?: validator.IsFQDNOptions) => boolean;
-    static isFinite: (value?: any) => boolean;
-    static isFullWidth: (str: string) => boolean;
-    static isHalfWidth: (str: string) => boolean;
-    static isHexColor: (str: string) => boolean;
-    static isHexadecimal: (str: string) => boolean;
-    static isIP: (str: string, version?: number) => boolean;
-    static isISBN: (str: string, version?: number) => boolean;
-    static isISIN: (str: string) => boolean;
-    static isISO8601: (str: string) => boolean;
-    static isIn: (str: string, values: any[]) => boolean;
-    static isLowercase: (str: string) => boolean;
-    static isMACAddress: (str: string) => boolean;
-    static isMatches: (str: string, pattern: string | RegExp, modifiers?: string) => boolean;
-    static isMD5: (str: string) => boolean;
-    static isMobilePhone: (str: string, locale: string) => boolean;
-    static isMongoId: (str: string) => boolean;
-    static isMultibyte: (str: string) => boolean;
-    static isNaN: (value?: any) => boolean;
-    static isNil: (value?: any) => boolean;
-    static isNull: (str: string) => boolean;
-    static isNumber: (value?: any) => value is number;
-    static isNumeric: (str: string) => boolean;
-    static isPartialEqual: (object: Object, source: Object) => boolean;
-    static isString: (value?: any) => value is string;
-    static isSubstring: (str: string, elem: any) => boolean;
-    static isSurrogatePair: (str: string) => boolean;
-    static isURL: (str: string, options?: validator.IsURLOptions) => boolean;
-    static isUUID: (str: string, version?: string | number) => boolean;
-    static isUppercase: (str: string) => boolean;
-    static isVariableWidth: (str: string) => boolean;
-    static isWhitelisted: (str: string, chars: string | string[]) => boolean;
-    static ltrim: (input: any, chars?: string) => string;
-    static normalizeEmail: (email: string, options?: validator.NormalizeEmailOptions) => string;
-    static rtrim: (input: any, chars?: string) => string;
-    static stripLow: (input: string, keep_new_lines?: boolean) => string;
-    static toArray: {
-        <T>(value: _.List<T> | _.Dictionary<T> | _.NumericDictionary<T>): T[];
-        <TValue, TResult>(value: TValue): TResult[];
-        <TResult>(value?: any): TResult[];
-    };
-    static toFinite: any;
-    static trim: (input: any, chars?: string) => string;
-    static unescape: (input: string) => string;
-    static whitelist: (input: string, chars: string) => string;
+    static blacklist: any;
+    static escape: any;
+    static isAlpha: any;
+    static isAlphanumeric: any;
+    static isArray: any;
+    static isAscii: any;
+    static isBase64: any;
+    static isByteLength: any;
+    static isCreditCard: any;
+    static isCurrency: any;
+    static isDataURI: any;
+    static isEmail: any;
+    static isEmpty: any;
+    static isEquals: any;
+    static isFQDN: any;
+    static isFinite: any;
+    static isFullWidth: any;
+    static isHalfWidth: any;
+    static isHexColor: any;
+    static isHexadecimal: any;
+    static isIP: any;
+    static isISBN: any;
+    static isISIN: any;
+    static isISO8601: any;
+    static isIn: any;
+    static isLowercase: any;
+    static isMACAddress: any;
+    static isMatches: any;
+    static isMD5: any;
+    static isMobilePhone: any;
+    static isMongoId: any;
+    static isMultibyte: any;
+    static isNaN: any;
+    static isNil: any;
+    static isNull: any;
+    static isNumber: any;
+    static isNumeric: any;
+    static isPartialEqual: any;
+    static isString: any;
+    static isSubstring: any;
+    static isSurrogatePair: any;
+    static isURL: any;
+    static isUUID: any;
+    static isUppercase: any;
+    static isVariableWidth: any;
+    static isWhitelisted: any;
+    static ltrim: any;
+    static normalizeEmail: any;
+    static rtrim: any;
+    static stripLow: any;
+    static toArray: any;
+    static trim: any;
+    static unescape: any;
+    static whitelist: any;
     /**
      * Clean value. Similar to [filter] but filters a given value using an active (internal) schema.
      */
@@ -487,5 +476,5 @@ export declare class Validator extends DeepValidator {
 }
 export declare class ValidatorMerged extends DeepValidatorMerged {
 }
-export declare let deepValidator: (schema: _.Dictionary<any>, rootFlow?: any[]) => DeepValidator;
-export declare let deepValidatorMerged: (schema: _.Dictionary<any>, rootFlow?: any[]) => DeepValidatorMerged;
+export declare let deepValidator: (schema: any, rootFlow?: any[]) => DeepValidator;
+export declare let deepValidatorMerged: (schema: any, rootFlow?: any[]) => DeepValidatorMerged;

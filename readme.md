@@ -284,6 +284,7 @@ validator.getErrors(); // {"b.a": "not string"}
 - **isCurrency(str, options)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is a valid currency amount.
 - **isDataURI(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is a [data uri format](https://developer.mozilla.org/en-US/docs/Web/HTTP/data_URIs).
 - **isDate(str)** - checks if the value is a instance of date or a valid string representation of date.
+- **isDefined(value)** - checks if the value is a defined value (not *undefined*).
 - **isEmail(str [, options])** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is an email.
 - **isEmpty(value)** - [LoDash](https://lodash.com/docs/#isEmpty) - checks if value is an empty object, collection, map, or set.
 - **isEquals(value, other)** - [LoDash](https://lodash.com/docs/#isEqual) - performs a deep comparison between two values to determine if they are equivalent.
@@ -322,7 +323,6 @@ validator.getErrors(); // {"b.a": "not string"}
 - **isNotEmpty(value)** - negative validator of the **isEmpty**.
 - **isNotEmptyObject(value)** - checks if the value is a not empty object.
 - **isNotEmptyArray(value)** - checks if the value is a not empty array.
-- **isNotVoid(value)** - checks if the value is a defined value (not *undefined*).
 - **isNull(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is null (has a length of zero).
 - **isNumber(value)** - [LoDash](https://lodash.com/docs/#isNumber) - checks if value is classified as a Number primitive or object.
 - **isNumberNegative(value)** - checks if the value is a negative number (less than 0).
@@ -338,7 +338,7 @@ validator.getErrors(); // {"b.a": "not string"}
 - **isUUID(str [, version])** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is a UUID (version 3, 4 or 5).
 - **isUppercase(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string is uppercase.
 - **isVariableWidth(str)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if the string contains a mixture of full and half-width chars.
-- **isVoid** - checks if the value is an *undefined* value.
+- **isUndefined** - checks if the value is an *undefined* value.
 - **isWhitelisted(str, chars)** - [validator.js](https://github.com/chriso/validator.js#validators) - checks characters if they appear in the whitelist.
 - **matches(str, pattern [, modifiers])** - [validator.js](https://github.com/chriso/validator.js#validators) - checks if string matches the pattern.
 
@@ -353,7 +353,6 @@ validator.getErrors(); // {"b.a": "not string"}
 - **toArray(value)** - [LoDash](https://lodash.com/docs/#toArray) - converts value to an array.
 - **toBoolean(value)** - convert the string value to a boolean or takes the boolean value as-is.
 - **toDate(value)** - convert the string value to a date or takes the date value as-is.
-- **toFinite(value)** - [LoDash](https://lodash.com/docs/#toFinite) - converts value to a finite number.
 - **toInt(value)** - convert the string value to a integer, takes the integer value as-is or returns NaN.
 - **toMongoId(value)** - converts the string value to mongodb.ObjectID instance (mongodb package required) or takes the mongodb.ObjectID value as-is
 - **toNumber(value)** - converts string value to a number or takes the number value as-is.
